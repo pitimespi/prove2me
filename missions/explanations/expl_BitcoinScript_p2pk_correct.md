@@ -1,0 +1,5 @@
+We compute both evaluations.
+
+`verifyScriptPlain` first evaluates the `scriptSig` $[\langle sig\rangle]$ on the empty stack; by `BitcoinScript.eval_pushes` (one element, $|sig| \le 520$, $1 \le 1000$) the stack is $[sig]$. It then runs $\langle pk\rangle\ \mathtt{CHECKSIG}$ on that stack. The push step passes the element-size and stack-size tests (two elements), giving $[pk, sig]$. The `CHECKSIG` step is reduced with `step_op_small` (count $0 + 1 \le 201$, not disabled, `vfExec = []`) to `execOp`, and `execOp_checksig` (proved by `rfl`) pops `pubkey :: sig :: rest` and consults `o.checkSig sig pubkey`.
+
+If the oracle returns `none`, the run fails and the left side is false, as is the right. If it returns `some ok`, the stack becomes $[\mathrm{boolBytes}\ ok]$, the empty script returns it (no unbalanced conditional), and the final test `castToBool` of the top is `ok` (`castToBool_boolBytes`). So the verification succeeds iff $ok = \mathtt{true}$, i.e. iff `o.checkSig sig pubkey = some true`.

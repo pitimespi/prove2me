@@ -13,6 +13,7 @@ Lean 4 (v4.33.1, platform env `0df444a3…`), Bitcoin Core pinned at `a773e1e33b
 | 5 | UTXO accounting & ledger supply bound | `3560d0b7-ca90-488f-9eaa-ff085f0e2df6` | In review; **all 10 Proved** | `BitcoinUtxo.ledger_bound` | 10 | 10 |
 | 6 | Headers: median time past & contextual rules | `e5a5d9c9-b4d4-4650-a737-49b5c02b02e2` | In review; **all 9 Proved** | `BitcoinHeader.mtp_mono_chain` | 9 | 9 |
 | 7 | Soft-fork activation: script flags by height | `fd6291a7-3b83-4220-b1db-68759db667a9` | In review; **all 10 Proved** | `BitcoinActivation.flags_mono` | 10 | 10 |
+| 8 | Script: CScriptNum, legacy `EvalScript`/`VerifyScript`, P2PKH | `fe54cb6b-06b5-45d0-9378-94ad594447f9` | Draft (awaiting Submit); **all 10 proved locally** | `BitcoinScript.p2pkh_correct` | 10 | 10 |
 | — | Umbrella: *Bitcoin Mainnet: Correctness of the Consensus Rules* | `c416e514-a450-41cc-8dd7-bef33d605a8e` | Draft; references all 61 theorems + 8 definitions of the seven missions | not yet statable | — | — |
 
 Each Draft proposal has: a definition item (verbatim transcription with source lines), the theorem items with formal statements, prose statements, sources and tags, a blind independent read-back on every item, a goal (`main_item_id`) and milestones.
@@ -29,25 +30,28 @@ Each Draft proposal has: a definition item (verbatim transcription with source l
 
 **Headers.** MTP ∈ window, bounded, depends on 11 times only; **MTP non-decreasing under time-too-old** (one step and along a chain); ContextualCheckBlockHeader characterized; BIP34/66/65 version floors.
 
+**Script.** `CScriptNum` serialize/set_vch round-trip; serializer output always minimal; strict 4-byte constructor accepts serialized values; `CastToBool` ⇔ nonzero script number (both zero encodings false); push-only scripts leave exactly their pushes; any disabled opcode (CVE-2010-5137) fails from every state, executed or not; `execOp` never lowers `nOpCount` (CHECKMULTISIG's increase stays ≤ 201); >201 operations always fail; **P2PK and P2PKH templates correct in both directions for every oracle**.
+
 **Activation.** Activation monotone; flags before BIP66 / after SegWit; activation order DERSIG→CLTV→CSV→NULLDUMMY; BIP16 exception = no flags; Taproot exception = all but TAPROOT; exceptions only remove; CSV lock-time flag; **GetBlockScriptFlags monotone in height**.
 
 ## Done
 
-All 61 theorems across the seven missions are **Proved** on the platform (56 submitted in this round, all ACCEPTED on first submission). The umbrella proposal now carries reference items for every published definition and theorem. The seven proposals await moderator review (`In review`); that step is the platform's, not yours.
+All 61 theorems across the first seven missions are **Proved** on the platform (56 submitted in this round, all ACCEPTED on first submission). The Script mission (8) is built as a Draft proposal with definition, 10 theorem items, goal, milestones and blind read-backs; its 10 proofs compile locally with clean axioms and are ready to submit once the mission is published. The umbrella proposal now carries reference items for every published definition and theorem. The seven proposals await moderator review (`In review`); that step is the platform's, not yours.
 
 ## Not done (honest boundary)
 
-- **Serialization / SHA-256d / CompactSize** (area 1), **Script/P2SH/SegWit/Taproot interpreters, sighash, ECDSA/Schnorr** (areas 7–8), **full ConnectBlock composition, undo/disconnect, chain selection** (area 10), and the remaining pieces of area 9 (BIP30 history, duplicate coinbases, genesis). These are each multi-week developments; the finished missions are parametric where they touch them (abstract hash type, abstract txids, abstract subsidy, caller-supplied nBits) so they compose by instantiation.
-- Umbrella goal theorem cannot be stated until areas 1, 7, 8, 10 exist.
+- **Serialization / SHA-256d / CompactSize** (area 1), **script byte-level parsing, P2SH and witness-program dispatch in `VerifyScript`, SegWit v0 and Tapscript execution, sighash, ECDSA/Schnorr** (the rest of areas 7–8; the legacy `SigVersion::BASE` interpreter itself is now mission 8), **full ConnectBlock composition, undo/disconnect, chain selection** (area 10), and the remaining pieces of area 9 (BIP30 history, duplicate coinbases, genesis). These are each multi-week developments; the finished missions are parametric where they touch them (abstract hash type, abstract txids, abstract subsidy, caller-supplied nBits) so they compose by instantiation.
+- Umbrella goal theorem cannot be stated until areas 1, 8 (signature layer), 10 exist.
 
 ## Technical notes for future solvers
 
 - The platform rejects `bv_decide` (`Lean.ofReduceBool`); use `BitVec.toNat` + `Nat` bitwise lemmas (`Nat.and_div_two_pow`, `Nat.and_mod_two_pow`, `Nat.and_two_pow_sub_one_eq_mod`, `Nat.and_one_is_mod`).
+- Huge `if`-chains (`execOp`, 37 branches): `split at h` on the whole term times out; walk the chain with `by_cases`/`rw [if_pos/if_neg] at h`, `dsimp only at h` to zeta-reduce `let`s and unreduced `match`es, then `split`/`cases h` per branch. `cases h` on `some x = some s'` may eliminate either side, so take facts about `x` before it.
 - `BitcoinBIP68.core_correct` and `fold_acceptance` hold without the admissibility/overflow hypotheses (unbounded `Int`); only `calculated_bounds` needs them.
 - Local toolchain: Lean release tarball v4.33.1 (no elan/Mathlib needed for these bundles). Workspace layout per `prove2me_workspace`.
 
 ## Files (scratchpad)
-- `lean_backup/{Definitions,Theorems,Solutions}` — all Lean sources (8 definition files, 61 statement stubs, 68 solution files).
+- `lean_backup/{Definitions,Theorems,Solutions}` — all Lean sources (9 definition files, 71 statement stubs, 82 solution files).
 - `expl/` — proof explanations per theorem.
 - `*_description.md`, `*_items.py` — mission descriptions and prose statements.
 - `core-src/` — the pinned Bitcoin Core sources consulted.

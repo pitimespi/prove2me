@@ -1,0 +1,7 @@
+We prove that for every opcode, $\mathrm{execOp}(c, s) = \mathrm{some}\ s'$ implies $s.\mathrm{opCount} \le s'.\mathrm{opCount}$, and either the count is unchanged or $s'.\mathrm{opCount} \le 201$.
+
+`execOp` is one `if`-chain of thirty-seven opcode conditions. The proof unfolds it and walks the chain with `by_cases` on each condition, rewriting with `if_pos`/`if_neg` (splitting the whole term at once is too expensive for the simplifier). In each branch the remaining `let`s are zeta-reduced, inner `match`es and `if`s are split, `cases h` eliminates the `none = some _` outcomes and substitutes `s'` in the `some` outcomes.
+
+Every branch except `CHECKMULTISIG` builds `s'` with `{ s with stack := … }`, `{ s with altstack := … }`, `{ s with vfExec := … }` or `pushNum`, none of which touches `opCount`, so `⟨le_refl, Or.inl rfl⟩` closes it. The unary and binary numeric families are handled explicitly: the stack is matched to expose the operands, `toNum` is case-split, and the shared tail `binary_tail` (NUMEQUALVERIFY pops or fails; every other opcode pushes) is discharged once.
+
+For `CHECKMULTISIG`/`CHECKMULTISIGVERIFY`, the code sets `opCount := s.opCount + nKeys` and then fails if `MAX_OPS_PER_SCRIPT < opCount`; in the surviving branch the new count is at least the old one and at most 201, so the right disjunct holds (`omega`). Afterwards the loop result, the `NULLDUMMY` test and the final push leave `opCount` alone.

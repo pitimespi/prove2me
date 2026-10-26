@@ -35,5 +35,6 @@ proved theorem; locally they let the reduction proofs type-check.
 | UTXO accounting and the ledger supply bound | `BitcoinUtxo.ledger_bound` | 10 |
 | Headers: median time past and contextual rules | `BitcoinHeader.mtp_mono_chain` | 9 |
 | Soft-fork activation: script flags by height | `BitcoinActivation.flags_mono` | 10 |
+| Script: CScriptNum, the legacy interpreter, and P2PKH | `BitcoinScript.p2pkh_correct` | 10 |
 
-All 61 theorems are proved on the platform. See `STATUS.md` for the open areas.
+The first 61 theorems are proved on the platform; the 10 Script theorems are proved locally and await the mission's publication. See `STATUS.md` for the open areas.
