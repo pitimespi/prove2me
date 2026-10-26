@@ -1,0 +1,1 @@
+Both sides are in the basic format (`serTx_basic`, since the mode is `false`), which writes `version`, `vin` through `serTxIn` — which never reads the witness field — `vout` and `nLockTime`. `List.flatMap_map` shows `flatMap serTxIn (vin.map strip) = flatMap serTxIn vin`, and the lengths agree.

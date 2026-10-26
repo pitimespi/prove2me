@@ -1,0 +1,1 @@
+Unfold `serHeader`: the signed version is 4 bytes (`leBytes_length`), the two hashes are 32 bytes each by well-formedness, and the three `ser32` fields are 4 bytes each; `simp` sums $4+32+32+4+4+4 = 80$.

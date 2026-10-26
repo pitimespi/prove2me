@@ -1,0 +1,12 @@
+# Read-back: `BitcoinSer.txid_strip`
+
+**Binders and hypothesis.** A single transaction record $tx$, unrestricted (any inputs, outputs, witnesses, field values; well-formedness not assumed). No hypotheses.
+
+**Conclusion.** The transaction identifier of $tx$ equals the transaction identifier of its witness-stripped copy:
+$$\texttt{txid}(tx) = \texttt{txid}(\texttt{stripWitness}\;tx).$$
+
+**Unfolding.** $\texttt{txid}(t) = \texttt{hash256}(\texttt{serTx}\;\mathrm{false}\;t) = \texttt{sha256}(\texttt{sha256}(\texttt{serTx}\;\mathrm{false}\;t))$, where $\texttt{sha256}$ is the file's own implementation (pad to a multiple of 64 bytes with a big-endian bit length, compress 64-byte chunks with the 64-round schedule and the 64-entry constant table from the 8-word initial value, emit 8 big-endian words). $\texttt{stripWitness}\;t$ clears every input's witness list, leaving all else unchanged. The witness-free serializer $\texttt{serTx}\;\mathrm{false}$ always uses flag $\phi = 0$: it emits the 4-byte version, the CompactSize-prefixed inputs (outpoint, script, sequence; never the witness), the CompactSize-prefixed outputs and the 4-byte lock time — no marker, no witness section — so it is insensitive to the witness field. Hence both sides of the equation are $\texttt{hash256}$ of the same byte string. The statement is, after unfolding, an instance of "equal inputs give equal hashes" applied to the equality $\texttt{serTx}\;\mathrm{false}\;tx = \texttt{serTx}\;\mathrm{false}\;(\texttt{stripWitness}\;tx)$ (which is the separate `serTx_strip`), though this theorem is stated directly and does not reference that one.
+
+Both sides are 32-byte strings by construction of $\texttt{sha256}$ (not asserted here). The edge cases are the same as for `serTx_strip`: no inputs, no witnesses (reflexive), truncated field values.
+
+**What is not said.** Nothing about $\texttt{wtxid}$: it is not claimed that $\texttt{wtxid}(tx) = \texttt{wtxid}(\texttt{stripWitness}\;tx)$ (which would fail when $tx$ has a witness, since $\texttt{wtxid}$ then hashes $\texttt{serTx}\;\mathrm{true}\;tx$), nor that $\texttt{wtxid}(\texttt{stripWitness}\;tx) = \texttt{txid}(tx)$ (true by the definition of $\texttt{wtxid}$ when there is no witness, but not stated). Nothing about the hash function's properties (length, collision resistance, agreement with any standard), nor about well-formedness, nor about any relation between $\texttt{txid}$ and $\texttt{serTx}\;\mathrm{true}$. It is one equality of hash values for every $tx$.

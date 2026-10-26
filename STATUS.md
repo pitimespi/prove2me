@@ -14,6 +14,7 @@ Lean 4 (v4.33.1, platform env `0df444a3…`), Bitcoin Core pinned at `a773e1e33b
 | 6 | Headers: median time past & contextual rules | `e5a5d9c9-b4d4-4650-a737-49b5c02b02e2` | In review; **all 9 Proved** | `BitcoinHeader.mtp_mono_chain` | 9 | 9 |
 | 7 | Soft-fork activation: script flags by height | `fd6291a7-3b83-4220-b1db-68759db667a9` | In review; **all 10 Proved** | `BitcoinActivation.flags_mono` | 10 | 10 |
 | 8 | Script: CScriptNum, legacy `EvalScript`/`VerifyScript`, P2PKH | `fe54cb6b-06b5-45d0-9378-94ad594447f9` | In review; **all 10 Proved** | `BitcoinScript.p2pkh_correct` | 10 | 10 |
+| 9 | Serialization, CompactSize, SHA-256d/Hash160, weights, genesis block | `de803721-663b-4dc5-9b2c-57573424cb33` | Draft (awaiting Submit); **all 17 proved locally** | `BitcoinSer.block_roundtrip` | 17 | 17 |
 | — | Umbrella: *Bitcoin Mainnet: Correctness of the Consensus Rules* | `c416e514-a450-41cc-8dd7-bef33d605a8e` | Draft; references all 71 theorems + 9 definitions of the eight missions | not yet statable | — | — |
 
 Each Draft proposal has: a definition item (verbatim transcription with source lines), the theorem items with formal statements, prose statements, sources and tags, a blind independent read-back on every item, a goal (`main_item_id`) and milestones.
@@ -31,6 +32,8 @@ Each Draft proposal has: a definition item (verbatim transcription with source l
 **Headers.** MTP ∈ window, bounded, depends on 11 times only; **MTP non-decreasing under time-too-old** (one step and along a chain); ContextualCheckBlockHeader characterized; BIP34/66/65 version floors.
 
 **Script.** (Blind audit of the first draft caught two transcription gaps, both fixed: `nOpCount` counts only opcodes above `OP_16`, and the stack-size check also runs after a skipped opcode, as in `interpreter.cpp` lines 462 and 1232.) `CScriptNum` serialize/set_vch round-trip; serializer output always minimal; strict 4-byte constructor accepts serialized values; `CastToBool` ⇔ nonzero script number (both zero encodings false); push-only scripts leave exactly their pushes; any disabled opcode (CVE-2010-5137) fails from every state, executed or not; `execOp` never lowers `nOpCount` (CHECKMULTISIG's increase stays ≤ 201); >201 operations always fail; **P2PK and P2PKH templates correct in both directions for every oracle**.
+
+**Serialization.** Fixed-width and CompactSize round-trips; CompactSize canonical (only the shortest encoding is accepted) and bounded; 80-byte headers round-trip; transactions round-trip in basic and BIP144 formats (witness-aware reader needs an input, a genuine source quirk); txid ignores witnesses; legacy weight = 4 × size; SHA-256/Hash160 sizes; **genesis coinbase hashes to the recorded merkle root and genesis header to hashGenesisBlock, by kernel evaluation of the transcribed SHA-256**; block serialization is a left inverse and injective.
 
 **Activation.** Activation monotone; flags before BIP66 / after SegWit; activation order DERSIG→CLTV→CSV→NULLDUMMY; BIP16 exception = no flags; Taproot exception = all but TAPROOT; exceptions only remove; CSV lock-time flag; **GetBlockScriptFlags monotone in height**.
 

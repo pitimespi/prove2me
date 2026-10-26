@@ -1,0 +1,1 @@
+Apply `block_roundtrip` with `aw = true` and empty remainder to both blocks: `readBlock true (serBlock true bᵢ) = some (bᵢ, [])` (the map is the identity when `aw = true`, `List.map_id'`). Equal serializations give equal reads, hence $b_1 = b_2$ by injectivity of `some` and of the pair.

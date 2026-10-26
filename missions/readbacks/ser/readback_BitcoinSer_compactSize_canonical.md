@@ -1,0 +1,14 @@
+# Read-back: `BitcoinSer.compactSize_canonical`
+
+**Binders and hypothesis.** A Boolean $rc$ (the range-check flag, either value), a byte string $b$, a natural number $n$, a byte string $\texttt{rest}$, and the single hypothesis
+$$h : \texttt{readCompactSize}\;rc\;b = \mathrm{some}\,(n, \texttt{rest}),$$
+i.e. the CompactSize reader with flag $rc$, applied to $b$, succeeds and returns the value $n$ with unconsumed remainder $\texttt{rest}$.
+
+**Conclusion.** The input is exactly the canonical encoding of $n$ followed by the remainder:
+$$b = \texttt{writeCompactSize}\;n \mathbin{+\!\!+} \texttt{rest}.$$
+
+**Unfolding.** The reader, on a non-empty $b$ with first byte $c$, returns $c$ itself when $c < 253$; when $c = 253$ it decodes the next 2 bytes little-endian as $v$ and succeeds only if $v \ge 253$; when $c = 254$ it decodes 4 bytes and succeeds only if $v \ge \mathrm{0x10000}$; when $c = 255$ it decodes 8 bytes and succeeds only if $v \ge \mathrm{0x100000000}$. If $rc$ is true it additionally fails when $\texttt{MAX\_SIZE} < v$. Any short read fails. So the hypothesis tells us that $b$ has one of four shapes with the value in the right band for its prefix. The encoder $\texttt{writeCompactSize}\;n$ chooses: one byte when $n < 253$; prefix $253$ plus 2 bytes when $n \le \mathrm{0xffff}$; prefix $254$ plus 4 bytes when $n \le \mathrm{0xffffffff}$; prefix $255$ plus 8 bytes otherwise. The conclusion asserts that the band the reader accepted is exactly the band the encoder would choose for $n$ (this is where the reader's strict lower-threshold rejections matter: a value $v < 253$ under prefix $253$, for example, is never accepted, so the equation never has to hold for such a $b$), and that re-encoding the decoded value as $k$ little-endian bytes reproduces the very bytes that were read (which holds because the decoded value is below $2^{8k}$ for a $k$-byte payload). Together with $\texttt{rest}$ being the tail after those bytes, $b$ is reconstructed exactly.
+
+Both values of $rc$ are covered: when $rc$ is true the hypothesis is stronger (it also gives $n \le \texttt{MAX\_SIZE}$) and the conclusion is the same; when $rc$ is false, $n$ can be any value below $2^{64}$ that the reader accepts. The statement is uniform in $rc$.
+
+**What is not said.** The theorem does not say that the reader succeeds on any input; it is conditional on success. It does not say what $n$ is bounded by (that is `compactSize_range`), and it does not say that the encoding of $n$ is readable (that is `compactSize_roundtrip`). It does not say the reader fails on non-canonical encodings — that is a consequence of the definition that this statement uses but does not assert. It says nothing about the length of $\texttt{writeCompactSize}\;n$. Finally, it concerns only $\texttt{readCompactSize}$ itself, not $\texttt{readList}$ or $\texttt{readBytes}$, which call it with the flag fixed to true.

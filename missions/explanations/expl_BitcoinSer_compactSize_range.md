@@ -1,0 +1,1 @@
+Projection of `compactSize_inv`: in the single-byte case the value is a byte; in the multi-byte cases `readLE_inv` bounds the value by $2^{8k} \le 2^{64}$; and the final `if rangeCheck && MAX_SIZE < v then none` means a range-checked success has $v \le \mathrm{MAX\_SIZE}$.

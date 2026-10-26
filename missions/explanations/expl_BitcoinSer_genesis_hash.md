@@ -1,0 +1,1 @@
+`decide +kernel`: `genesisHeader` contains `txid genesisCoinbase` as merkle root, so the kernel evaluates the coinbase hash as in `genesis_merkle`, serializes the 80-byte header, pads it to two chunks, applies SHA-256 twice, and compares with the literal `genesisHash` (the serialized byte order of `000000000019d668…0a8ce26f`).
