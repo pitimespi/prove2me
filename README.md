@@ -12,7 +12,8 @@ definition imports only `Std`.
 - `Theorems/Thm_*.lean` — theorem statements as published on the platform (`:= by sorry` stubs mirroring the server's modules).
 - `Solutions/Sol_<theorem>.lean` — accepted proofs, one per theorem, each a top-level `theorem solution`.
   `Sol_*_all.lean` are the development files from which the per-theorem files are split.
-- `missions/` — mission descriptions, prose statements (`items/*.py`) and proof explanations as submitted.
+- `missions/` — mission descriptions, prose statements (`items/*.py`), proof explanations as submitted, and the blind
+  read-backs attached to the Script proposal (`readbacks/script/`), written by an independent agent from the Lean code alone.
 - `tests/ScriptVectors.lean` — `#eval` sanity vectors for the Script interpreter (run with `lake env lean tests/ScriptVectors.lean`).
 - `STATUS.md` — mission inventory, proposal IDs, and what remains open.
 
