@@ -1,0 +1,16 @@
+{
+ "BitcoinSig.sigHash_single_bug": "ACCEPTED",
+ "BitcoinSig.sigHashLegacy_skeleton": "ACCEPTED",
+ "BitcoinSig.sigHashLegacy_anyoneCanPay": "ACCEPTED",
+ "BitcoinSig.sigHashWitnessV0_skeleton": "ACCEPTED",
+ "BitcoinSig.pubkeyValid_iff": "ACCEPTED",
+ "BitcoinSig.normalizeS_low": "ACCEPTED",
+ "BitcoinSig.overflow_rejected": "ACCEPTED",
+ "BitcoinSig.checkSig_empty": "ACCEPTED",
+ "BitcoinSig.checkSig_dersig": "ACCEPTED",
+ "BitcoinSig.checkSig_base_iff": "ACCEPTED",
+ "BitcoinSig.parseScript_p2pkh": "ACCEPTED",
+ "BitcoinSig.derEncode_valid": "ACCEPTED",
+ "BitcoinSig.derEncode_complete": "ACCEPTED",
+ "BitcoinSig.p2pkh_concrete": "ACCEPTED"
+}

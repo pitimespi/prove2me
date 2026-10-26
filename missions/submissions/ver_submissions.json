@@ -1,0 +1,13 @@
+{
+ "BitcoinVerify.isPayToScriptHash_iff": "ACCEPTED",
+ "BitcoinVerify.isWitnessProgram_iff": "ACCEPTED",
+ "BitcoinVerify.parseScript_pushes": "ACCEPTED",
+ "BitcoinVerify.isPushOnly_pushes": "ACCEPTED",
+ "BitcoinVerify.native_witness_malleated": "ACCEPTED",
+ "BitcoinVerify.witness_unexpected": "ACCEPTED",
+ "BitcoinVerify.unknown_witness_version": "ACCEPTED",
+ "BitcoinVerify.p2wsh_correct": "ACCEPTED",
+ "BitcoinVerify.p2sh_correct": "ACCEPTED",
+ "BitcoinVerify.p2sh_p2wpkh_correct": "ACCEPTED",
+ "BitcoinVerify.p2wpkh_correct": "ACCEPTED"
+}

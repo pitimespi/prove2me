@@ -21,6 +21,7 @@ definition imports only `Std`.
 - `tests/SerVectors.lean` — hash test vectors and genesis checks.
 - `tests/ScriptVectors.lean` — `#eval` sanity vectors for the Script interpreter (run with `lake env lean tests/ScriptVectors.lean`).
 - `STATUS.md` — mission inventory, proposal IDs, and what remains open.
+- `missions/submissions/*.json` — the accepted proof submissions of missions 9–13; `missions/umbrella_current.json` — the umbrella proposal with its 161 references and main theorem.
 
 ## Build
 

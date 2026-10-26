@@ -1,0 +1,17 @@
+{
+ "BitcoinTaproot.tapbranch_comm": "ACCEPTED",
+ "BitcoinTaproot.merkleRoot_base": "ACCEPTED",
+ "BitcoinTaproot.merkleRoot_snoc": "ACCEPTED",
+ "BitcoinTaproot.opsuccess_accepts": "ACCEPTED",
+ "BitcoinTaproot.checkmultisig_rejected": "ACCEPTED",
+ "BitcoinTaproot.minimalif_rejects": "ACCEPTED",
+ "BitcoinTaproot.sigops_budget": "ACCEPTED",
+ "BitcoinTaproot.checksig_empty": "ACCEPTED",
+ "BitcoinTaproot.sighash_type_invalid": "ACCEPTED",
+ "BitcoinTaproot.sighash_single_missing": "ACCEPTED",
+ "BitcoinTaproot.keypath_handler": "ACCEPTED",
+ "BitcoinTaproot.keypath_annex": "ACCEPTED",
+ "BitcoinTaproot.checkSchnorr_iff": "ACCEPTED",
+ "BitcoinTaproot.scriptpath_commitment": "ACCEPTED",
+ "BitcoinTaproot.keypath_correct": "ACCEPTED"
+}

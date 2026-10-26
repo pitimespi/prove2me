@@ -1,0 +1,19 @@
+{
+ "BitcoinSer.leBytes_length": "ACCEPTED",
+ "BitcoinSer.readLE_leBytes": "ACCEPTED",
+ "BitcoinSer.compactSize_roundtrip": "ACCEPTED",
+ "BitcoinSer.compactSize_canonical": "ACCEPTED",
+ "BitcoinSer.compactSize_range": "ACCEPTED",
+ "BitcoinSer.serHeader_length": "ACCEPTED",
+ "BitcoinSer.header_roundtrip": "ACCEPTED",
+ "BitcoinSer.tx_roundtrip": "ACCEPTED",
+ "BitcoinSer.serTx_strip": "ACCEPTED",
+ "BitcoinSer.txid_strip": "ACCEPTED",
+ "BitcoinSer.weight_no_witness": "ACCEPTED",
+ "BitcoinSer.sha256_length": "ACCEPTED",
+ "BitcoinSer.hash160_length": "ACCEPTED",
+ "BitcoinSer.genesis_merkle": "ACCEPTED",
+ "BitcoinSer.genesis_hash": "ACCEPTED",
+ "BitcoinSer.serBlock_injective": "ACCEPTED",
+ "BitcoinSer.block_roundtrip": "ACCEPTED"
+}

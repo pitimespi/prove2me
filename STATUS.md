@@ -14,12 +14,12 @@ Lean 4 (v4.33.1, platform env `0df444a3…`), Bitcoin Core pinned at `a773e1e33b
 | 6 | Headers: median time past & contextual rules | `e5a5d9c9-b4d4-4650-a737-49b5c02b02e2` | In review; **all 9 Proved** | `BitcoinHeader.mtp_mono_chain` | 9 | 9 |
 | 7 | Soft-fork activation: script flags by height | `fd6291a7-3b83-4220-b1db-68759db667a9` | In review; **all 10 Proved** | `BitcoinActivation.flags_mono` | 10 | 10 |
 | 8 | Script: CScriptNum, legacy `EvalScript`/`VerifyScript`, P2PKH | `fe54cb6b-06b5-45d0-9378-94ad594447f9` | In review; **all 10 Proved** | `BitcoinScript.p2pkh_correct` | 10 | 10 |
-| 9 | Serialization, CompactSize, SHA-256d/Hash160, weights, genesis block | `de803721-663b-4dc5-9b2c-57573424cb33` | Draft (awaiting Submit); **all 17 proved locally** | `BitcoinSer.block_roundtrip` | 17 | 17 |
-| 10 | Signatures: strict DER, sighash (legacy/BIP143), secp256k1 ECDSA/Schnorr, concrete P2PKH | `64726a79-22e3-4530-9da0-f77dd4f58fc9` | Draft (awaiting Submit); **all 14 proved locally** | `BitcoinSig.derEncode_complete` | 14 | 14 |
-| 11 | VerifyScript dispatch: P2SH, native/wrapped SegWit v0, unknown versions | `b7297a23-212b-4d31-95ce-c235e82f9037` | Draft (awaiting Submit); **all 11 proved locally** | `BitcoinVerify.p2wpkh_correct` | 11 | 11 |
-| 12 | Taproot: key path, script-path commitment, BIP341 sighash, Tapscript rules | `a2e08bc2-73c6-4c97-9d55-9ee2df86fec5` | Draft (awaiting Submit); **all 15 proved locally** | `BitcoinTaproot.keypath_correct` | 15 | 15 |
-| 13 | Block validation composed: header path, CheckBlock, ContextualCheckBlock, ConnectBlock, DisconnectBlock, the umbrella goal | `e0d2bee0-9471-4c84-91de-f76e81852e33` | Draft (awaiting Submit); **all 19 proved locally** | `BitcoinBlock.acceptance` | 19 | 19 |
-| — | Umbrella: *Bitcoin Mainnet: Correctness of the Consensus Rules* | `c416e514-a450-41cc-8dd7-bef33d605a8e` | Draft; references all 71 theorems + 9 definitions of the eight missions | not yet statable | — | — |
+| 9 | Serialization, CompactSize, SHA-256d/Hash160, weights, genesis block | `de803721-663b-4dc5-9b2c-57573424cb33` | Published; **all 17 Proved** (submitted and accepted) | `BitcoinSer.block_roundtrip` | 17 | 17 |
+| 10 | Signatures: strict DER, sighash (legacy/BIP143), secp256k1 ECDSA/Schnorr, concrete P2PKH | `64726a79-22e3-4530-9da0-f77dd4f58fc9` | Published; **all 14 Proved** (submitted and accepted) | `BitcoinSig.derEncode_complete` | 14 | 14 |
+| 11 | VerifyScript dispatch: P2SH, native/wrapped SegWit v0, unknown versions | `b7297a23-212b-4d31-95ce-c235e82f9037` | Published; **all 11 Proved** (submitted and accepted) | `BitcoinVerify.p2wpkh_correct` | 11 | 11 |
+| 12 | Taproot: key path, script-path commitment, BIP341 sighash, Tapscript rules | `a2e08bc2-73c6-4c97-9d55-9ee2df86fec5` | Published; **all 15 Proved** (submitted and accepted) | `BitcoinTaproot.keypath_correct` | 15 | 15 |
+| 13 | Block validation composed: header path, CheckBlock, ContextualCheckBlock, ConnectBlock, DisconnectBlock, the umbrella goal | `e0d2bee0-9471-4c84-91de-f76e81852e33` | Published; **all 19 Proved** (submitted and accepted) | `BitcoinBlock.acceptance` | 19 | 19 |
+| — | Umbrella: *Bitcoin Mainnet: Correctness of the Consensus Rules* | `c416e514-a450-41cc-8dd7-bef33d605a8e` | Draft; references all 147 theorems + 14 definitions of the thirteen missions; **main theorem set to `BitcoinBlock.acceptance`** | `BitcoinBlock.acceptance` (Proved) | — | — |
 
 Each Draft proposal has: a definition item (verbatim transcription with source lines), the theorem items with formal statements, prose statements, sources and tags, a blind independent read-back on every item, a goal (`main_item_id`) and milestones.
 
@@ -55,7 +55,7 @@ All 61 theorems across the first seven missions are **Proved** on the platform (
 
 ## Not done (honest boundary)
 
-- **Serialization / SHA-256d / CompactSize** (area 1), **script byte-level parsing, P2SH and witness-program dispatch in `VerifyScript`, multi-block reorganization as a single statement (the disconnect theorem applied in sequence), assumed-valid shortcuts (not modeled: scripts are always checked), and the cryptographic assumptions (proof-of-work hardness, unforgeability), which are outside functional correctness. Every other area now has a concrete, source-linked transcription with its theorems proved; missions 9–13 await the user's Submit on the platform, after which their proofs are submitted and the umbrella's main theorem is set to `BitcoinBlock.acceptance`.
+- **Serialization / SHA-256d / CompactSize** (area 1), **script byte-level parsing, P2SH and witness-program dispatch in `VerifyScript`, multi-block reorganization as a single statement (the disconnect theorem applied in sequence), assumed-valid shortcuts (not modeled: scripts are always checked), and the cryptographic assumptions (proof-of-work hardness, unforgeability), which are outside functional correctness. Every other area now has a concrete, source-linked transcription with its theorems proved; missions 9–13 are published with every proof accepted; the umbrella references all of them and has `BitcoinBlock.acceptance` as its main theorem, awaiting the user's Submit.
 - Umbrella goal theorem cannot be stated until areas 1, 8 (signature layer), 10 exist.
 
 ## Technical notes for future solvers
