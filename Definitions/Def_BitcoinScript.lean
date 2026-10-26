@@ -106,7 +106,8 @@ def boolBytes (b : Bool) : Bytes := if b then vchTrue else vchFalse
 /-! ### Scripts -/
 
 /-- One parsed instruction: a data push (any of `OP_0`, direct pushes, `OP_PUSHDATAn`), or a
-non-push opcode given by its byte. -/
+non-push opcode given by its byte. `GetOp` only ever yields `op c` with `OP_PUSHDATA4 < c`; a
+byte in the push range used as `op` behaves like an unknown opcode. -/
 inductive Instr where
   | push (data : Bytes)
   | op (code : Byte)
@@ -522,15 +523,18 @@ def step (f : Flags) (o : Oracle) (s : State) : Instr → Option State
       if MAX_STACK_SIZE < s'.stack.length + s'.altstack.length then none else some s'
   | .op c =>
     let fExec := allTrue s.vfExec
-    if MAX_OPS_PER_SCRIPT < s.opCount + 1 then none
+    -- `if (opcode > OP_16 && ++nOpCount > MAX_OPS_PER_SCRIPT)`: `OP_1NEGATE`, `OP_RESERVED` and
+    -- `OP_1` … `OP_16` do not count towards the limit.
+    let counted := decide (OP_16 < c)
+    if counted && decide (MAX_OPS_PER_SCRIPT < s.opCount + 1) then none
     else
-      let s := { s with opCount := s.opCount + 1 }
+      let s := if counted then { s with opCount := s.opCount + 1 } else s
       if isDisabled c then none
       else if fExec || (OP_IF ≤ c && c ≤ OP_ENDIF) then
         match execOp f o fExec c s with
         | none => none
         | some s' => if MAX_STACK_SIZE < s'.stack.length + s'.altstack.length then none else some s'
-      else some s
+      else if MAX_STACK_SIZE < s.stack.length + s.altstack.length then none else some s
 
 /-- The loop over the instructions, followed by the unbalanced-conditional check. -/
 def run (f : Flags) (o : Oracle) : State → Script → Option State
@@ -562,10 +566,10 @@ def p2pkhScript (h : Bytes) : Script :=
 /-- The pay-to-public-key output script `<pubkey> CHECKSIG`. -/
 def p2pkScript (pubkey : Bytes) : Script := [.push pubkey, .op OP_CHECKSIG]
 
-/-- Number of non-push instructions of a script: those counted by `nOpCount`. -/
+/-- Number of instructions `nOpCount` counts: non-push opcodes above `OP_16`. -/
 def opsIn : Script → Nat
   | [] => 0
   | .push _ :: rest => opsIn rest
-  | .op _ :: rest => opsIn rest + 1
+  | .op c :: rest => opsIn rest + (if OP_16 < c then 1 else 0)
 
 end BitcoinScript

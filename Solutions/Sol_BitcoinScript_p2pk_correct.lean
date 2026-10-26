@@ -52,14 +52,15 @@ private theorem castToBool_boolBytes (b : Bool) : castToBool (boolBytes b) = b :
   cases b <;> rfl
 
 private theorem step_op_small (f : Flags) (o : Oracle) (s : State) (c : Byte)
-    (hcount : s.opCount + 1 ≤ MAX_OPS_PER_SCRIPT) (hdis : isDisabled c = false)
+    (hc16 : OP_16 < c) (hcount : s.opCount + 1 ≤ MAX_OPS_PER_SCRIPT) (hdis : isDisabled c = false)
     (hexec : allTrue s.vfExec = true) :
     step f o s (.op c) =
       match execOp f o true c { s with opCount := s.opCount + 1 } with
       | none => none
       | some s' => if MAX_STACK_SIZE < s'.stack.length + s'.altstack.length then none else some s' := by
   unfold step
-  simp only [hexec, hdis, Bool.true_or, ite_true, Bool.false_eq_true, ite_false]
+  simp only [hexec, hdis, hc16, decide_true, Bool.true_and, decide_eq_true_eq, Bool.true_or,
+    ite_true, Bool.false_eq_true, ite_false]
   rw [if_neg (by omega)]
   rfl
 
@@ -80,7 +81,7 @@ theorem solution (f : Flags) (o : Oracle) (sig pubkey : Bytes)
   simp only [List.length_cons, List.length_nil]
   rw [if_neg (by unfold MAX_STACK_SIZE; omega)]
   dsimp only
-  rw [run, step_op_small f o _ OP_CHECKSIG (by simp [MAX_OPS_PER_SCRIPT]) (by decide) rfl]
+  rw [run, step_op_small f o _ OP_CHECKSIG (by decide) (by simp [MAX_OPS_PER_SCRIPT]) (by decide) rfl]
   simp only [execOp_checksig]
   cases hcs : o.checkSig sig pubkey with
   | none => simp

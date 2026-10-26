@@ -13,6 +13,7 @@ definition imports only `Std`.
 - `Solutions/Sol_<theorem>.lean` — accepted proofs, one per theorem, each a top-level `theorem solution`.
   `Sol_*_all.lean` are the development files from which the per-theorem files are split.
 - `missions/` — mission descriptions, prose statements (`items/*.py`) and proof explanations as submitted.
+- `tests/ScriptVectors.lean` — `#eval` sanity vectors for the Script interpreter (run with `lake env lean tests/ScriptVectors.lean`).
 - `STATUS.md` — mission inventory, proposal IDs, and what remains open.
 
 ## Build
