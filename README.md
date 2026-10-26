@@ -43,5 +43,6 @@ proved theorem; locally they let the reduction proofs type-check.
 | Script: CScriptNum, the legacy interpreter, and P2PKH | `BitcoinScript.p2pkh_correct` | 10 |
 | Serialization, SHA-256d, weights, genesis block | `BitcoinSer.block_roundtrip` | 17 |
 | Signatures: DER, sighash, ECDSA/Schnorr, concrete P2PKH | `BitcoinSig.derEncode_complete` | 14 |
+| VerifyScript: P2SH, SegWit v0, witness dispatch | `BitcoinVerify.p2wpkh_correct` | 11 |
 
 All 71 theorems are proved on the platform. See `STATUS.md` for the open areas.

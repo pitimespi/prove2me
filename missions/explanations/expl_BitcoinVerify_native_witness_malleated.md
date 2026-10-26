@@ -1,0 +1,1 @@
+Unfold `verifyScript`; if either base evaluation fails the result is `false`; otherwise, with the witness flag and the output a witness program (`isWitnessProgram spk ≠ none`), the native branch evaluates `if scriptSig ≠ [] then some false …`, which is `some false`, and the match returns `false`.

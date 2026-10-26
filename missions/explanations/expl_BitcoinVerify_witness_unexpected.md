@@ -1,0 +1,1 @@
+Unfold `verifyScript`; after the two evaluations and the top test, the native branch is `none` (not a witness program), the P2SH branch is skipped (not P2SH), and the final test `witness && !w.isEmpty` is true, giving `false`.
