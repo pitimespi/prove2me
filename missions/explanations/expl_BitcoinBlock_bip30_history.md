@@ -1,0 +1,1 @@
+Unfold `bip30Checked`; `Bool.or_eq_false_iff`/`Bool.and_eq_false_iff` turn the test into `height < LIMIT ∧ (repeat ∨ bip34Ancestor)`, and the ancestor Boolean (a `match` on `S.headers[227931]?`) is unfolded by cases into the existential.

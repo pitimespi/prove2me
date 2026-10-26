@@ -1,0 +1,1 @@
+From the accept outcome the header was accepted, so `checkHeaderPow` holds and `deriveTarget` is `some t`, making `blockProof ≥ 1` (`blockProof_pos`); `apply_spec` gives the new header list `S.headers ++ [b.header]`, and `chainWork` of an appended list is the sum plus the new proof.

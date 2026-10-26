@@ -1,0 +1,1 @@
+Destructure the block into `cb :: rest` and `cb` into `i :: is` (from the hypotheses), so `headD` and `take 1` reduce; the only non-literal conjunct is `!active || prefix`, which is `active → prefix` by cases on the activation Boolean.

@@ -1,0 +1,1 @@
+`decide +kernel`: the kernel evaluates `checkBlock genesisBlock` — the SHA-256d of the 80-byte header against the derived target, the single-leaf merkle root (the coinbase txid), the serialized size, `CheckTransaction` on the coinbase and the legacy sigop count (one `OP_CHECKSIG`).

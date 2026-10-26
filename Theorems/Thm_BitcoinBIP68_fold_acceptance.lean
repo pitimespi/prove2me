@@ -1,4 +1,3 @@
-import Definitions.Def_BIP68_Model
 import Definitions.Def_BIP68_Core
 
 theorem BitcoinBIP68.fold_acceptance (ctx : BitcoinBIP68.Context)

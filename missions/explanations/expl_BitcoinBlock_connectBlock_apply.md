@@ -1,0 +1,1 @@
+Unfold `connectBlock`; the genesis branch returns `S.utxo`, matching `applySpec`'s genesis branch; otherwise the loop's result is `applyTxs` by `connectLoop_result` (induction over the loop: each step is `updateCoins`).

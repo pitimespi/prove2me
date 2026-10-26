@@ -1,4 +1,3 @@
-import Definitions.Def_BIP68_Model
 import Definitions.Def_BIP68_Core
 
 theorem BitcoinBIP68.decode_sequence (sequence : BitVec 32) :
