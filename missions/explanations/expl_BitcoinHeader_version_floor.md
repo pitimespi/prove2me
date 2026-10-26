@@ -1,0 +1,1 @@
+We prove the three version floors for an accepted header. By `BitcoinHeader.contextualCheck_iff`, acceptance includes the negation of the outdated-version disjunction. If BIP34 is active ($227{,}931 \le p + 1$) and the version were below 2, the first disjunct would hold; so the version is at least 2. The BIP66 and BIP65 cases are the same with the second and third disjuncts.

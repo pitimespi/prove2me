@@ -1,0 +1,1 @@
+We prove $\mathrm{computeMerkleRoot}_{c,z}([a]) = (a, \mathtt{false})$. A list of one hash does not satisfy the loop condition $|\ell| > 1$, so no level is processed: the loop returns the head $a$ and the initial flag $\mathtt{false}$. A block containing only a coinbase therefore has that transaction's id as its Merkle root.

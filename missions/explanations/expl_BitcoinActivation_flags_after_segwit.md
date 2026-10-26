@@ -1,0 +1,1 @@
+We prove that from height $481{,}824$ an ordinary block enforces all seven flags. The base supplies `P2SH`, `WITNESS`, `TAPROOT`; the four activation comparisons all succeed at or above the largest height, so each OR yields `true`.

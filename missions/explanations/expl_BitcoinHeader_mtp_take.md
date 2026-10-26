@@ -1,0 +1,1 @@
+We prove that the median time past of a chain equals that of its first eleven times. Both sides sort the window of their argument; the window of the first eleven times is the first eleven of the first eleven, which is the first eleven ($\mathrm{take}\,11 \circ \mathrm{take}\,11 = \mathrm{take}\,\min(11,11)$).

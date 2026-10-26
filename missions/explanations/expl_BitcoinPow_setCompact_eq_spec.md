@@ -1,0 +1,3 @@
+We prove that when the overflow flag is clear, the 256-bit register computation of `SetCompact` equals the exact value: $\mathrm{setCompact}(c) = \mathrm{specTarget}(c)$.
+
+By `BitcoinPow.overflow_iff`, a clear flag means $\mathrm{specTarget}(c) < 2^{256}$. For $S \le 3$ both sides are the same right shift, since a right shift by $8(3-S)$ bits of a natural number is division by $256^{3-S}$. For $S > 3$ the register holds $(W \cdot 2^{8(S-3)}) \bmod 2^{256}$; a left shift is multiplication by the power of two, and the reduction modulo $2^{256}$ is the identity on a value below $2^{256}$. Hence the decoded target is $W \cdot 256^{S-3}$.

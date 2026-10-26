@@ -1,0 +1,1 @@
+We prove that for a non-empty chain the median time past is one of the chain's times. By `BitcoinHeader.mtp_mem_window` it is an element of the window, and the window is a prefix (`take`) of the chain, so every element of it is an element of the chain.

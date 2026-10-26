@@ -1,0 +1,1 @@
+We prove that the BIP16 exception block has no flags at any height below $363{,}725$, which includes its actual height $170{,}060$. Its exception base is `SCRIPT_VERIFY_NONE`, and below $363{,}725$ none of the four activation comparisons succeeds, so every OR leaves `false`.

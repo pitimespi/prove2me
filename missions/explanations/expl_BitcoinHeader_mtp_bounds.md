@@ -1,0 +1,1 @@
+We prove that the median lies within any bounds that hold on the whole window: if $lo \le t \le hi$ for every window time $t$, then $lo \le \mathrm{MTP} \le hi$. This is immediate from `BitcoinHeader.mtp_mem_window`, applying the hypothesis to the median itself.

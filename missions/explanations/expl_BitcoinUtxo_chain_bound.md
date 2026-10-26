@@ -1,0 +1,3 @@
+We prove that connecting blocks $B_1, \dots, B_n$ at heights $h, h+1, \dots$ from a view $U$ gives a view $U'$ with $\mathrm{totalValue}(U') \le \mathrm{totalValue}(U) + \sum_{i<n} s(h+i)$.
+
+By induction on the block list. The empty list leaves the view unchanged and the sum is zero. For $B :: \text{rest}$, `BitcoinUtxo.block_bound` gives the intermediate view $U_1$ with $\mathrm{totalValue}(U_1) \le \mathrm{totalValue}(U) + s(h)$ and distinct outpoints; the induction hypothesis at height $h+1$ bounds the remainder by $\sum_{i<n-1} s(h+1+i)$; and the identity $\sum_{i<n} s(h+i) = s(h) + \sum_{i<n-1} s(h+1+i)$ combines them.

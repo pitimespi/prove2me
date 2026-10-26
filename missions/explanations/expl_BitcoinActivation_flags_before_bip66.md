@@ -1,0 +1,1 @@
+We prove that below height $363{,}725$ an ordinary block's flags are exactly the base `P2SH | WITNESS | TAPROOT`. The four height-gated additions test activation of `DERSIG`, `CLTV`, `CSV` and `SEGWIT`, whose heights are $363{,}725$, $388{,}381$, $419{,}328$, $481{,}824$; all four comparisons fail below the first, so each OR leaves the base's `false`.

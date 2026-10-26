@@ -1,0 +1,3 @@
+We prove that spending a duplicate-free list $I$ of present outpoints lowers the total by $\mathrm{valueIn}(U, I)$.
+
+By induction on $I$. For the head $p$, present with coin $c$, `BitcoinUtxo.totalValue_spend` gives a drop of $c.\mathrm{value}$. For the tail, the view after spending $p$ still has distinct keys, every tail outpoint is still present because it differs from $p$ (this is where duplicate-freedom is used), and the tail's `valueIn` is unchanged by removing $p$ for the same reason; the induction hypothesis then accounts for the rest, and the two drops add up to `valueIn` of the whole list.

@@ -1,0 +1,1 @@
+We prove that the contextual check accepts exactly when its four conjuncts hold as propositions. The check is a Boolean conjunction of three decidable comparisons and the negation of the outdated-version test; by `BitcoinHeader.versionOutdated_iff` the last is the negation of the three-way threshold disjunction. Re-associating the conjunction gives the statement.

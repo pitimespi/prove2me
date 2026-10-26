@@ -1,0 +1,10 @@
+We prove the general form of CVE-2012-2459: for every level $k$, non-empty prefix $\ell$ with $2^{k+1} \mid |\ell|$, and block $t$ with $|t| = 2^{k}$,
+$$\mathrm{root}(\ell \mathbin{+\!\!+} t) = \mathrm{root}(\ell \mathbin{+\!\!+} t \mathbin{+\!\!+} t) \qquad\text{and}\qquad \mathrm{mutated}(\ell \mathbin{+\!\!+} t \mathbin{+\!\!+} t) = \mathtt{true}.$$
+
+**Idea.** The statement is proved for the loop with an arbitrary incoming flag, by induction on $k$. One level of pairing maps the configuration $(\ell, t)$ at level $k+1$ to the configuration $(\mathrm{pairUp}(\ell), \mathrm{pairUp}(t))$ at level $k$, because the alignment hypotheses make pairing distribute over the three blocks; the base case $k = 0$ is the leaf-level argument.
+
+**Step 1 (base, $k = 0$).** Then $t = [a]$ and $|\ell|$ is even. By `BitcoinMerkle.pairUp_append_even` both lists have the same first level $\mathrm{pairUp}(\ell) \mathbin{+\!\!+} [c(a,a)]$, so by `BitcoinMerkle.rootLoop_fst` the roots agree; by `BitcoinMerkle.hasEqualPair_append_even` the pair $(a, a)$ sets the flag, which `BitcoinMerkle.rootLoop_sticky` carries to the end.
+
+**Step 2 (step, $k + 1$).** Now $|t| = 2^{k+1}$ is even and $2^{k+2} \mid |\ell|$, so $|\ell|$ is even and $|\ell \mathbin{+\!\!+} t|$ is even. Pairing distributes: the first levels are $\mathrm{pairUp}(\ell) \mathbin{+\!\!+} \mathrm{pairUp}(t)$ and $\mathrm{pairUp}(\ell) \mathbin{+\!\!+} \mathrm{pairUp}(t) \mathbin{+\!\!+} \mathrm{pairUp}(t)$. The new prefix is non-empty with $|\mathrm{pairUp}(\ell)| = |\ell| / 2$ divisible by $2^{k+1}$, and $|\mathrm{pairUp}(t)| = 2^{k}$, so the induction hypothesis applies to the continuation of the loop, with the flags produced by the first level. Equality of roots follows after aligning the two flags with `BitcoinMerkle.rootLoop_fst`; the flag conclusion is the induction hypothesis directly.
+
+The alignment hypotheses are used exactly where pairing is distributed; without them the copies of $t$ would not collapse to equal nodes at the same level.

@@ -1,0 +1,1 @@
+We prove the three implications among the height-gated flags of an ordinary block. Each flag is the activation comparison against its height: `DERSIG` at $363{,}725$, `CHECKLOCKTIMEVERIFY` at $388{,}381$, `CHECKSEQUENCEVERIFY` at $419{,}328$, `NULLDUMMY` at $481{,}824$. Since these heights increase, a height reaching a later one reaches every earlier one.

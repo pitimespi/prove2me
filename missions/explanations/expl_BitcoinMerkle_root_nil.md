@@ -1,0 +1,1 @@
+We prove $\mathrm{computeMerkleRoot}_{c,z}([\,]) = (z, \mathtt{false})$. The loop condition $|\ell| > 1$ fails for the empty list, so the loop exits immediately, returning the head of the list with default $z$ — which is $z$ — and the initial flag $\mathtt{false}$. This is the source's `if (hashes.size() == 0) return uint256();` with an untouched `mutation`.

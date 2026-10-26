@@ -1,0 +1,3 @@
+We prove that one level of pairing distributes over a concatenation with an even-length prefix: for $|\ell|$ even, $\mathrm{pairUp}_c(\ell \mathbin{+\!\!+} r) = \mathrm{pairUp}_c(\ell) \mathbin{+\!\!+} \mathrm{pairUp}_c(r)$.
+
+By induction on $\ell$ two elements at a time. The empty prefix is trivial, and a prefix of odd length is excluded by hypothesis. For $\ell = a :: b :: \ell'$, with $|\ell'|$ even, the first pair of $\ell \mathbin{+\!\!+} r$ is $(a, b)$, contributing $c(a, b)$ on both sides, and the remainder is the statement for $\ell'$. The hypothesis is what keeps pair boundaries aligned; with an odd prefix the last element of $\ell$ would pair with the first of $r$.

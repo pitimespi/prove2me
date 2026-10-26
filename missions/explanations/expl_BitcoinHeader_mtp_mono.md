@@ -1,0 +1,11 @@
+We prove that if $\mathrm{MTP}(c) < t$ then $\mathrm{MTP}(c) \le \mathrm{MTP}(t :: c)$.
+
+**Idea.** Write $m$ for the old median, $W$ for the old window ($n = |W| \le 11$) and $W'$ for the new window, which is $t$ followed by the ten most recent times of $c$. Two counting facts about a sorted list $s$ of length $n$ drive the argument: the element at index $k$ has at least $n - k$ elements of $s$ at or above it; and conversely, if at least $n - k$ elements of a list are at or above some value $x$, then the sorted element at index $k$ is at least $x$. With $k = \lfloor n/2 \rfloor$ the first fact gives at least $n - \lfloor n/2 \rfloor$ elements of $W$ at or above $m$. The new window keeps all of them except possibly the eleventh time, and adds $t > m$, so it has at least $n - \lfloor n/2 \rfloor$ elements at or above $m$ when $n = 11$, and $n + 1 - \lfloor n/2 \rfloor$ when $n \le 10$ (then nothing is dropped). In both cases this is at least $|W'| - \lfloor |W'|/2 \rfloor$, and the second fact yields $m \le \mathrm{MTP}(t :: c)$.
+
+**Step 1 (the first counting fact).** Split the sorted list at index $k$: everything from index $k$ on is at least $s[k]$ by sortedness, and there are $n - k$ such positions.
+
+**Step 2 (the second counting fact).** If the sorted element at index $k$ were below $x$, then by sortedness so would be all elements at indices $0, \dots, k$, leaving at most $n - k - 1$ elements at or above $x$, contradicting the hypothesis. Both facts transfer between the list and its sorted permutation because counts are permutation-invariant.
+
+**Step 3 (the windows).** $W = \mathrm{take}\,11\,c$ and $W' = t :: \mathrm{take}\,10\,c$. Since $\mathrm{take}\,11\,c = \mathrm{take}\,10\,c \mathbin{+\!\!+} (\text{at most one element})$, the count for $\mathrm{take}\,10\,c$ is at least that for $W$ minus one; when $|c| \le 10$ the two lists coincide and the counts are equal. Adding $t \ge m$ raises the count by one.
+
+**Step 4 (arithmetic).** For $|c| \ge 11$: $|W'| = 11$, required count $6$, available $\ge (11 - 5) - 1 + 1 = 6$. For $|c| = n \le 10$: $|W'| = n + 1$, required $n + 1 - \lfloor (n+1)/2 \rfloor$, available $\ge n - \lfloor n/2 \rfloor + 1$, and $\lfloor (n+1)/2 \rfloor \ge \lfloor n/2 \rfloor$. For the empty chain the old median is $0 < t$ and the new window is $[t]$.

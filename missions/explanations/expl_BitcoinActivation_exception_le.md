@@ -1,0 +1,1 @@
+We prove that at any height the flags of an exception block are included in those of an ordinary block. The height-gated flags are identical in the two, since they are OR-ed from the same activation tests; and each exception base is included in the default base `P2SH | WITNESS | TAPROOT`. A case split on the three exception statuses and pointwise inspection finishes the proof.
