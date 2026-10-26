@@ -13,8 +13,8 @@ Lean 4 (v4.33.1, platform env `0df444a3…`), Bitcoin Core pinned at `a773e1e33b
 | 5 | UTXO accounting & ledger supply bound | `3560d0b7-ca90-488f-9eaa-ff085f0e2df6` | In review; **all 10 Proved** | `BitcoinUtxo.ledger_bound` | 10 | 10 |
 | 6 | Headers: median time past & contextual rules | `e5a5d9c9-b4d4-4650-a737-49b5c02b02e2` | In review; **all 9 Proved** | `BitcoinHeader.mtp_mono_chain` | 9 | 9 |
 | 7 | Soft-fork activation: script flags by height | `fd6291a7-3b83-4220-b1db-68759db667a9` | In review; **all 10 Proved** | `BitcoinActivation.flags_mono` | 10 | 10 |
-| 8 | Script: CScriptNum, legacy `EvalScript`/`VerifyScript`, P2PKH | `fe54cb6b-06b5-45d0-9378-94ad594447f9` | Draft (awaiting Submit); **all 10 proved locally** | `BitcoinScript.p2pkh_correct` | 10 | 10 |
-| — | Umbrella: *Bitcoin Mainnet: Correctness of the Consensus Rules* | `c416e514-a450-41cc-8dd7-bef33d605a8e` | Draft; references all 61 theorems + 8 definitions of the seven missions | not yet statable | — | — |
+| 8 | Script: CScriptNum, legacy `EvalScript`/`VerifyScript`, P2PKH | `fe54cb6b-06b5-45d0-9378-94ad594447f9` | In review; **all 10 Proved** | `BitcoinScript.p2pkh_correct` | 10 | 10 |
+| — | Umbrella: *Bitcoin Mainnet: Correctness of the Consensus Rules* | `c416e514-a450-41cc-8dd7-bef33d605a8e` | Draft; references all 71 theorems + 9 definitions of the eight missions | not yet statable | — | — |
 
 Each Draft proposal has: a definition item (verbatim transcription with source lines), the theorem items with formal statements, prose statements, sources and tags, a blind independent read-back on every item, a goal (`main_item_id`) and milestones.
 
@@ -36,7 +36,7 @@ Each Draft proposal has: a definition item (verbatim transcription with source l
 
 ## Done
 
-All 61 theorems across the first seven missions are **Proved** on the platform (56 submitted in this round, all ACCEPTED on first submission). The Script mission (8) is built as a Draft proposal with definition, 10 theorem items, goal, milestones and blind read-backs; its 10 proofs compile locally with clean axioms and are ready to submit once the mission is published. The umbrella proposal now carries reference items for every published definition and theorem. The seven proposals await moderator review (`In review`); that step is the platform's, not yours.
+All 61 theorems across the first seven missions are **Proved** on the platform (56 submitted in this round, all ACCEPTED on first submission). The Script mission (8) was published and all 10 of its theorems are **Proved** (10 of 10 ACCEPTED on first submission), bringing the total to 71 proved theorems across eight missions; the umbrella references all of them. The umbrella proposal now carries reference items for every published definition and theorem. The seven proposals await moderator review (`In review`); that step is the platform's, not yours.
 
 ## Not done (honest boundary)
 
