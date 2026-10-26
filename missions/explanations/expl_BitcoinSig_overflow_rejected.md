@@ -1,0 +1,1 @@
+`pubkeyVerify` fails early unless the key is valid and parses; in the remaining case `parseDerLax sig = some (0, 0)` by hypothesis, so `ecdsaVerifyRaw` is called with $r = 0$, whose first test `r = 0 ∨ …` returns `false` (`normalizeS 0 = 0`).

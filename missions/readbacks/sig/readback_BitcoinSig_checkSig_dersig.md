@@ -1,0 +1,14 @@
+# Read-back: `BitcoinSig.checkSig_dersig`
+
+**Binders and hypothesis.** Universally quantified: a flag record $f$ (Booleans `dersig`, `lowS`, `strictenc`, `witnessPubkeyType`); a transaction $tx$; a natural number $nIn$; an integer $amount$; a signature version $v$ (either `base` or `witnessV0`); and byte strings $scriptCode$, $sig$, $pk$. Three hypotheses:
+- $hf$: the `dersig` flag of $f$ is true;
+- $hne$: $sig$ is not the empty byte string;
+- $hder$: `isValidSignatureEncoding` $sig$ = false. Unfolded, this means at least one of the following holds for $\ell = |sig|$ (with out-of-range bytes read as $0$): $\ell < 9$; $\ell > 73$; byte 0 is not `0x30`; byte 1 is not $\ell - 3$; with $lenR$ = byte 3, $\ell \leq 5 + lenR$; with $lenS$ = byte $5 + lenR$, $lenR + lenS + 7 \neq \ell$; byte 2 is not `0x02`; $lenR = 0$; byte 4 is $\geq$ `0x80`; $lenR > 1$ and byte 4 is $0$ and byte 5 is $<$ `0x80`; byte $lenR + 4$ is not `0x02`; $lenS = 0$; byte $lenR + 6$ is $\geq$ `0x80`; or $lenS > 1$ and byte $lenR+6$ is $0$ and byte $lenR+7$ is $<$ `0x80`.
+
+**Conclusion.**
+$$\text{checkSigPreTapscript}\ f\ tx\ nIn\ amount\ v\ scriptCode\ sig\ pk = \text{none}.$$
+That is, the pre-tapscript signature check reports a *script error* (the "none" outcome), as opposed to a verdict "some true" or "some false".
+
+**Unfolding.** `checkSigPreTapscript` first computes a script code $sc$ (for `base`, $scriptCode$ with the push of $sig$ deleted; for `witnessV0`, $scriptCode$ itself) — this is irrelevant to the conclusion. It then returns "none" if `checkSignatureEncoding` $f\,sig$ is false or `checkPubKeyEncoding` $f\,v\,pk$ is false. `checkSignatureEncoding` $f\,sig$ is: true if $sig$ is empty (excluded by $hne$); otherwise false if ($f$.dersig $\lor$ $f$.lowS $\lor$ $f$.strictenc) and not `isValidSignatureEncoding` $sig$. With $hf$ the disjunction is true and with $hder$ the encoding check is false, so this branch fires and the whole result is "none" regardless of $tx$, $nIn$, $amount$, $v$, $scriptCode$, $pk$, and regardless of the other three flags.
+
+**What is not said.** The statement does not say that the `dersig` flag is *necessary* for this outcome: the same "none" would follow from `lowS` or `strictenc` alone, but the theorem only covers the case $f$.dersig = true. It does not say anything when $sig$ is empty (where `checkSignatureEncoding` is unconditionally true and the result would be "some false" or "none" depending on the key encoding). It does not say anything about valid encodings. It does not say the public key is examined at all — it is not: the key-encoding check is short-circuited by the signature-encoding failure in the sense that the disjunction is already satisfied. It does not say anything about `checkECDSASignature`, the signature hash, or the elliptic-curve verification, none of which are reached. It does not characterize *which* structural defect $sig$ has.

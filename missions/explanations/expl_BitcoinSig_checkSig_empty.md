@@ -1,0 +1,1 @@
+`checkSignatureEncoding f [] = true` by its first test; with the key check passing, `checkSigPreTapscript` returns `some (checkECDSASignature …)`, and `checkECDSASignature` with `sig = []` has `getLast? = none`, giving `false` (whether or not the key is valid). The script-code branch on the version is irrelevant and closed by `split <;> rfl`.

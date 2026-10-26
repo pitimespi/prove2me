@@ -1,0 +1,1 @@
+This is `BitcoinScript.p2pkh_correct` applied to the oracle `legacyOracle f tx nIn amount v (p2pkhBytes h)`, whose `hash160` field is `BitcoinSer.hash160` and whose `checkSig` field is `checkSigPreTapscript f tx nIn amount v (p2pkhBytes h)`; the abstract theorem's right-hand side instantiates to exactly the stated one. The 520-byte hypotheses are passed through.

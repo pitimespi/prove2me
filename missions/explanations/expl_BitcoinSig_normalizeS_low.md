@@ -1,0 +1,1 @@
+Unfold `normalizeS` and `isHighS`, and unfold `n` to its literal. If $n/2 < s$ the result is $n - s$, and $n - s \le n/2$ because $n$ is odd and $s \ge n/2 + 1$; otherwise the result is $s \le n/2$. Both are `omega` on the literal.

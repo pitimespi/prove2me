@@ -63,11 +63,28 @@ def public_stmts(ns, solfiles):
             stmts[m.group(1)] = m.group(2)
     return stmts
 
+def header_lines(path):
+    imps, opens = [], []
+    for l in pathlib.Path(path).read_text().split('\n'):
+        if l.startswith('import'): imps.append(l)
+        elif l.startswith('open'): opens.append(l)
+        elif l.strip() and not l.startswith('--'): break
+    return imps, opens
+
 def cmd_stubs(ns, solfiles):
     stmts = public_stmts(ns, solfiles)
-    pre = f'import Definitions.Def_{ns}'
+    _, opens0 = header_lines(solfiles[0])
+    opens0 = [o for o in opens0 if o.replace('open', '').split() != [ns]]
     out = {}
     for name, body in stmts.items():
+        pre = f'import Definitions.Def_{ns}'
+        # statements mentioning other namespaces' definitions need those imports in the preamble
+        extra = []
+        for other in re.findall(r'\b(Bitcoin[A-Za-z]+)\.', body):
+            if other != ns and (WS / 'Definitions' / f'Def_{other}.lean').exists() and f'import Definitions.Def_{other}' not in extra:
+                extra.append(f'import Definitions.Def_{other}')
+        if extra: pre = pre + '\n' + '\n'.join(extra)
+        if opens0: pre = pre + '\n' + '\n'.join(opens0)
         fs = ('theorem ' + name + body).rstrip() + ' := by sorry'
         out[name] = {'formal_statement': fs, 'preamble': pre}
         (WS / 'Theorems' / f"Thm_{name.replace('.', '_')}.lean").write_text(pre + '\n\n' + fs + '\n')
@@ -82,6 +99,7 @@ def cmd_split(ns, solfiles):
     pre = f'import Definitions.Def_{ns}'
     written = []
     for f in solfiles:
+        imps0, opens0 = header_lines(f)
         bl = blocks(f)
         names = [classify(b, ns)[1] for b in bl if classify(b, ns)[0] == 'pub']
         for idx, b in enumerate(bl):
@@ -90,9 +108,12 @@ def cmd_split(ns, solfiles):
             privs = [x for x in bl[:idx] if classify(x, ns)[0] in ('priv', 'def')]
             content = ''.join(privs) + b
             deps = sorted({n for n in names if n != name and (re.search(re.escape(n) + r'\b', content) or re.search(r'(?<![\w.])' + re.escape(n.split('.')[-1]) + r'\b', content))})
-            imports = [pre] + [f"import Theorems.Thm_{d.replace('.', '_')}" for d in deps]
+            imports = [pre] + [i for i in imps0 if i != pre and not i.startswith('import Solutions')] + \
+                      [f"import Theorems.Thm_{d.replace('.', '_')}" for d in deps]
+            imports = list(dict.fromkeys(imports))
+            opens = opens0 or [f'open {ns}']
             sol = re.sub(r'^theorem ' + re.escape(ns) + r'\.\w+', 'theorem solution', b, count=1, flags=re.M)
-            text = '\n'.join(imports) + f'\n\nopen {ns}\n\n' + ''.join(p + '\n' for p in privs) + sol
+            text = '\n'.join(imports) + '\n\n' + '\n'.join(opens) + '\n\n' + ''.join(p + '\n' for p in privs) + sol
             fn = WS / 'Solutions' / f"Sol_{name.replace('.', '_')}.lean"
             fn.write_text(text); written.append((name, deps))
     for name, deps in written:

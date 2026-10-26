@@ -1,0 +1,1 @@
+With `dersig = true` and a non-empty signature, `checkSignatureEncoding` reaches the test `(dersig || lowS || strictenc) && !isValidSignatureEncoding sig`, which is true by hypothesis, so it returns `false`; `checkSigPreTapscript` then returns `none`.

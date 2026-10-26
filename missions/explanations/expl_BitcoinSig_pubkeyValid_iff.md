@@ -1,0 +1,1 @@
+`pubkeyValid` is false on `[]` and otherwise `decide (pubkeyLen h.toNat = pk.length)` with `pubkeyLen` the three-way header table. Case on the two header conditions, `simp` with them, and `omega` for the length arithmetic in each of the four combinations.
