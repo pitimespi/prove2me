@@ -1,0 +1,1 @@
+Unfold `taprootHandler`; `hasAnnex [sig, annex] = true` since the length is 2 and, by cases on `annex` (non-empty by `hne`), its first byte is `0x50` by `ha`. Then `annex? = some annex`, the stack is `dropLast [sig, annex] = [sig]` of length 1, and the key-path branch is the Schnorr check with annex flag `true` and hash `sha256 (serBytes annex)`.

@@ -1,0 +1,1 @@
+Unfold `taprootHandler`; `hasAnnex [sig] = false` (fewer than two elements) by `simp`, so the stack is `[sig]` of length 1, the annex data is `⟨false, [], [], 0xFFFFFFFF⟩`, and the key-path branch is the stated Schnorr check with `stack.getD 0 [] = sig`.

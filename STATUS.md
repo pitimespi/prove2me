@@ -17,6 +17,7 @@ Lean 4 (v4.33.1, platform env `0df444a3…`), Bitcoin Core pinned at `a773e1e33b
 | 9 | Serialization, CompactSize, SHA-256d/Hash160, weights, genesis block | `de803721-663b-4dc5-9b2c-57573424cb33` | Draft (awaiting Submit); **all 17 proved locally** | `BitcoinSer.block_roundtrip` | 17 | 17 |
 | 10 | Signatures: strict DER, sighash (legacy/BIP143), secp256k1 ECDSA/Schnorr, concrete P2PKH | `64726a79-22e3-4530-9da0-f77dd4f58fc9` | Draft (awaiting Submit); **all 14 proved locally** | `BitcoinSig.derEncode_complete` | 14 | 14 |
 | 11 | VerifyScript dispatch: P2SH, native/wrapped SegWit v0, unknown versions | `b7297a23-212b-4d31-95ce-c235e82f9037` | Draft (awaiting Submit); **all 11 proved locally** | `BitcoinVerify.p2wpkh_correct` | 11 | 11 |
+| 12 | Taproot: key path, script-path commitment, BIP341 sighash, Tapscript rules | `a2e08bc2-73c6-4c97-9d55-9ee2df86fec5` | Draft (awaiting Submit); **all 15 proved locally** | `BitcoinTaproot.keypath_correct` | 15 | 15 |
 | — | Umbrella: *Bitcoin Mainnet: Correctness of the Consensus Rules* | `c416e514-a450-41cc-8dd7-bef33d605a8e` | Draft; references all 71 theorems + 9 definitions of the eight missions | not yet statable | — | — |
 
 Each Draft proposal has: a definition item (verbatim transcription with source lines), the theorem items with formal statements, prose statements, sources and tags, a blind independent read-back on every item, a goal (`main_item_id`) and milestones.
@@ -43,13 +44,15 @@ Each Draft proposal has: a definition item (verbatim transcription with source l
 
 **Activation.** Activation monotone; flags before BIP66 / after SegWit; activation order DERSIG→CLTV→CSV→NULLDUMMY; BIP16 exception = no flags; Taproot exception = all but TAPROOT; exceptions only remove; CSV lock-time flag; **GetBlockScriptFlags monotone in height**.
 
+**Taproot.** `ComputeTapbranchHash` symmetric; merkle root of a control block is a left fold along the path; `OP_SUCCESSx` accepts outright, `OP_CHECKMULTISIG` rejected, `MINIMALIF` consensus, 50-weight budget per passed signature, empty signature is a clean false; BIP341 sighash guards (undefined types, `SINGLE` without output); key path with and without annex is the Schnorr check of the output key; `CheckSchnorrSignature` characterized (64/65 bytes); **key-path spending correct** (goal); a verifying script-path spend has a valid commitment. `verifyScriptFull` is the complete `VerifyScript` with no parameter left.
+
 ## Done
 
 All 61 theorems across the first seven missions are **Proved** on the platform (56 submitted in this round, all ACCEPTED on first submission). The Script mission (8) was published and all 10 of its theorems are **Proved** (10 of 10 ACCEPTED on first submission), bringing the total to 71 proved theorems across eight missions; the umbrella references all of them. The umbrella proposal now carries reference items for every published definition and theorem. The seven proposals await moderator review (`In review`); that step is the platform's, not yours.
 
 ## Not done (honest boundary)
 
-- **Serialization / SHA-256d / CompactSize** (area 1), **script byte-level parsing, P2SH and witness-program dispatch in `VerifyScript`, SegWit v0 and Tapscript execution, sighash, ECDSA/Schnorr** (the rest of areas 7–8; the legacy `SigVersion::BASE` interpreter itself is now mission 8), **full ConnectBlock composition, undo/disconnect, chain selection** (area 10), and the remaining pieces of area 9 (BIP30 history, duplicate coinbases, genesis). These are each multi-week developments; the finished missions are parametric where they touch them (abstract hash type, abstract txids, abstract subsidy, caller-supplied nBits) so they compose by instantiation.
+- **Serialization / SHA-256d / CompactSize** (area 1), **script byte-level parsing, P2SH and witness-program dispatch in `VerifyScript`, **full ConnectBlock composition, undo/disconnect, chain selection** (area 10), and the remaining pieces of area 9 (BIP30 history, duplicate coinbases, genesis). These are each multi-week developments; the finished missions are parametric where they touch them (abstract hash type, abstract txids, abstract subsidy, caller-supplied nBits) so they compose by instantiation.
 - Umbrella goal theorem cannot be stated until areas 1, 8 (signature layer), 10 exist.
 
 ## Technical notes for future solvers

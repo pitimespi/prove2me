@@ -15,6 +15,7 @@ definition imports only `Std`.
 - `missions/` — mission descriptions, prose statements (`items/*.py`), proof explanations as submitted, and the blind
   read-backs attached to the Script proposal (`readbacks/script/`), written by an independent agent from the Lean code alone.
 - `tools/pipeline.py` — stubs / split / audit staging / proposal / submission helper used for each mission.
+- `tests/TaprootVectors.lean` — BIP341 wallet test vectors (script trees, tweaks, control blocks, key-path sighashes).
 - `tests/SigVectors.lean`, `tests/VerifyVectors.lean` — signature-layer and VerifyScript vectors (BIP340, BIP143, generated ECDSA).
 - `tests/SerVectors.lean` — hash test vectors and genesis checks.
 - `tests/ScriptVectors.lean` — `#eval` sanity vectors for the Script interpreter (run with `lake env lean tests/ScriptVectors.lean`).
@@ -44,5 +45,6 @@ proved theorem; locally they let the reduction proofs type-check.
 | Serialization, SHA-256d, weights, genesis block | `BitcoinSer.block_roundtrip` | 17 |
 | Signatures: DER, sighash, ECDSA/Schnorr, concrete P2PKH | `BitcoinSig.derEncode_complete` | 14 |
 | VerifyScript: P2SH, SegWit v0, witness dispatch | `BitcoinVerify.p2wpkh_correct` | 11 |
+| Taproot: key path, script path, Tapscript | `BitcoinTaproot.keypath_correct` | 15 |
 
 All 71 theorems are proved on the platform. See `STATUS.md` for the open areas.

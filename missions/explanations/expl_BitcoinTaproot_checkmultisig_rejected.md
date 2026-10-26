@@ -1,0 +1,1 @@
+Both conjuncts hold by `rfl`: the dispatch in `tapExecOp` compares the opcode byte against the `OP_IF`/`OP_NOTIF`, `OP_CHECKSIG(VERIFY)`, `OP_CHECKSIGADD` and `OP_CHECKMULTISIG(VERIFY)` constants by decidable byte equality, and the fourth branch returns `none`.

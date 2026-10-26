@@ -1,0 +1,1 @@
+Unfold `tapExecOp`; the `OP_IF` test and `fExec = true` reduce by `simp` with `BEq.rfl`, the stack is rewritten to `top :: rest`, and the minimal-if condition is exactly the hypothesis, so `if_pos h` yields `none`.

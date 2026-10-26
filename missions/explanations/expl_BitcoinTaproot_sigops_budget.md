@@ -1,0 +1,1 @@
+Unfold `tapExecOp`; the opcode is not `OP_IF`/`OP_NOTIF` (`decide`), the `OP_CHECKSIG` test reduces, and the stack is `pubkey :: sig :: rest`. In `evalChecksigTapscript`, `sig.isEmpty = false` makes `success = true`, the weight becomes `weightLeft - 50`, and the budget test `success ∧ weight < 0` holds by `omega` from `hw`, producing `none` before any key-length test.

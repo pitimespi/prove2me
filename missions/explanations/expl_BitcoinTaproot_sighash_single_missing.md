@@ -1,0 +1,1 @@
+Unfold `sigHashSchnorr` and pass the hash-type guard with `hv`. The hash type is non-zero (otherwise `hashType &&& 3 = 0`), so the output type is `hashType &&& 3 = 3 = SIGHASH_SINGLE`; `single?` then tests `tx.vout.length ≤ inPos`, which holds, giving `none`, and the outer match returns `none`.
