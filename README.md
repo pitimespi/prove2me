@@ -48,6 +48,6 @@ proved theorem; locally they let the reduction proofs type-check.
 | Signatures: DER, sighash, ECDSA/Schnorr, concrete P2PKH | `BitcoinSig.derEncode_complete` | 14 |
 | VerifyScript: P2SH, SegWit v0, witness dispatch | `BitcoinVerify.p2wpkh_correct` | 11 |
 | Taproot: key path, script path, Tapscript | `BitcoinTaproot.keypath_correct` | 15 |
-| Block validation composed, ApplySpec, DisconnectBlock, the umbrella goal | `BitcoinBlock.acceptance` | 19 |
+| Block validation composed, ApplySpec, DisconnectBlock, the umbrella goal (revision 2) | `BitcoinBlockV2.acceptance` | 19 |
 
 All 71 theorems are proved on the platform. See `STATUS.md` for the open areas.

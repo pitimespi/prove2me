@@ -1,0 +1,1 @@
+From `futureTime_iff`, the four earlier header tests pass. For any `now'` with `time ≤ now' + 7200` the clock test does not fire, so by `futureTime_iff` the outcome is not `futureTime`; and `acceptHeader_clock` gives the same `acceptHeader` value at `now'` and at `time − 7200`, hence the same `validate`.

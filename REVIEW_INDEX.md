@@ -554,7 +554,7 @@ Generated from the docstrings of `Definitions/Def_*.lean`. Each row names a Lean
 | `totalValue` | The total value held in the UTXO set. |
 | `subsidySum` | The sum of the subsidies at heights `h, h + 1, …, h + n - 1`. |
 
-## `Def_BitcoinBlock.lean`
+## `Def_BitcoinBlockV2.lean`
 
 | Lean declaration | Docstring (Core symbol) |
 |---|---|

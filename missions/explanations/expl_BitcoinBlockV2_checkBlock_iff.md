@@ -1,0 +1,1 @@
+Destructure the block into `hd` and `cb :: rest` (the empty case is false on both sides); `simp only` with `checkTransaction_iff` rewrites every conjunct, `headD`/`take 1`/`drop 1` reduce on the cons, and `simp_all` matches the two conjunction shapes.

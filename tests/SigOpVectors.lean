@@ -1,5 +1,5 @@
-import Definitions.Def_BitcoinBlock
-open BitcoinBlock BitcoinSer BitcoinSig BitcoinVerify
+import Definitions.Def_BitcoinBlockV2
+open BitcoinBlockV2 BitcoinSer BitcoinSig BitcoinVerify
 /-! Spot 11 vectors (`REVIEW_SPOT11.md`): sigop accounting, expectations derived by hand from
 `GetSigOpCount`, `GetP2SHSigOpCount`, `CountWitnessSigOps`, `GetTransactionSigOpCost`. Every line prints `true`. -/
 def allF : BitcoinActivation.ScriptFlags := ⟨true, true, true, true, true, true, true⟩

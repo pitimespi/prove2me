@@ -1,5 +1,5 @@
-import Definitions.Def_BitcoinBlock
-open BitcoinBlock BitcoinSer
+import Definitions.Def_BitcoinBlockV2
+open BitcoinBlockV2 BitcoinSer
 
 def hexVal (c : Char) : Nat := if c.isDigit then c.toNat - 48 else c.toLower.toNat - 87
 def ofHexL : List Char → Bytes

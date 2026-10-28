@@ -1,4 +1,4 @@
-# Spot 11: sigop accounting versus `BitcoinBlock.getSigOpCount`, `p2shSigOpCount`, `countWitnessSigOps`, `txSigOpCost`
+# Spot 11: sigop accounting versus `BitcoinBlockV2.getSigOpCount`, `p2shSigOpCount`, `countWitnessSigOps`, `txSigOpCost`
 
 Core: [`script.cpp:159`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b349dc819b5a0edc1c7a4839dc73b48/src/script/script.cpp#L159)
 (`CScript::GetSigOpCount(bool)`), [`:183`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b349dc819b5a0edc1c7a4839dc73b48/src/script/script.cpp#L183)

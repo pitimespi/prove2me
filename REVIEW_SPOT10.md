@@ -1,4 +1,4 @@
-# Spot 10: `ConnectBlock` versus `BitcoinBlock.connectBlock` / `connectLoop`
+# Spot 10: `ConnectBlock` versus `BitcoinBlockV2.connectBlock` / `connectLoop`
 
 Core: [`validation.cpp:2294`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b349dc819b5a0edc1c7a4839dc73b48/src/validation.cpp#L2294)
 (`ConnectBlock`), [`:6207`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b349dc819b5a0edc1c7a4839dc73b48/src/validation.cpp#L6207)
@@ -8,7 +8,7 @@ Core: [`validation.cpp:2294`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b
 (`UpdateCoins`), [`tx_verify.cpp:170`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b349dc819b5a0edc1c7a4839dc73b48/src/consensus/tx_verify.cpp#L170)
 (`CheckTxInputs`), [`:45`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b349dc819b5a0edc1c7a4839dc73b48/src/consensus/tx_verify.cpp#L45)
 (`CalculateSequenceLocks`, `EvaluateSequenceLocks`), [`coins.cpp:80`](https://github.com/bitcoin/bitcoin/blob/a773e1e33b349dc819b5a0edc1c7a4839dc73b48/src/coins.cpp#L80)
-(`AddCoin`, `AddCoins`, `SpendCoin`). Lean: `Definitions/Def_BitcoinBlock.lean`. Read-back:
+(`AddCoin`, `AddCoins`, `SpendCoin`). Lean: `Definitions/Def_BitcoinBlockV2.lean`. Read-back:
 `missions/readbacks/block/readback_Def_BitcoinBlock.md`.
 
 ## Verdict
