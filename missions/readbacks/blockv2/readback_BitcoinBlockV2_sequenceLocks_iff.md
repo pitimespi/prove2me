@@ -1,0 +1,13 @@
+# Read-back: `BitcoinBlockV2.sequenceLocks_iff`
+
+**Binders.** $u$ is a ledger (list of (outpoint, coin) pairs); $\mathit{height}$ is a natural number; $\mathit{mtp} : \mathbb{N} \to \mathbb{N}$ is an arbitrary function; $\mathit{ltf}$ is a natural number (lock-time flags); $tx$ is a transaction. No hypotheses.
+
+Common data: $v = \mathit{version}(tx) \bmod 2^{32}$ and $\phi = \mathit{ltf} \bmod 2^{32}$ as 32-bit words; the context is the pair $(\mathit{height}, \mathit{mtp})$; the input list is $I = [(\mathit{nSequence}(i) \bmod 2^{32},\ h_i) \mid i \in \mathit{vin}(tx)]$ where $h_i = \mathrm{accessCoin}(u, i.\mathit{prevout}).\mathit{height}$ is the height of the first ledger entry keyed by $i.\mathit{prevout}$, or $0$ if there is none (the dummy coin). Write $s_i$ for the sequence word, $\mathrm{dis}(s)$ for "bit 31 of $s$ is set", $\mathrm{tb}(s)$ for "bit 22 of $s$ is set", and $d(s) = s \bmod 2^{16}$.
+
+**Conclusion.** $\mathrm{sequenceLocksOk}(u, \mathit{height}, \mathit{mtp}, \mathit{ltf}, tx) = \mathrm{true}$ if and only if $\mathrm{satisfiesBIP68}(v, \phi, (\mathit{height}, \mathit{mtp}), I)$.
+
+*Left side unfolded* (`BitcoinBIP68.sequenceLocks`): let enabled $:= 2 \le v \land (\phi \mathbin{\&} 1) \ne 0$. If enabled, fold over $I$ from $(\mathit{minHeight}, \mathit{minTime}) = (-1, -1)$ (integers): an input with $\mathrm{dis}(s_i)$ changes nothing; one with $\mathrm{tb}(s_i)$ sets $\mathit{minTime} := \max(\mathit{minTime},\ \mathit{mtp}(h_i \mathbin{\dot-} 1) + 512\cdot d(s_i) - 1)$ (the imported code shifts the low 16 bits left by 9); otherwise $\mathit{minHeight} := \max(\mathit{minHeight},\ h_i + d(s_i) - 1)$. If not enabled, the accumulator stays $(-1,-1)$. The result is true exactly when $\mathit{minHeight} < \mathit{height}$ and $\mathit{minTime} < \mathit{mtp}(\mathit{height} \mathbin{\dot-} 1)$.
+
+*Right side unfolded* (`BitcoinBIP68.satisfiesBIP68`, a proposition): $\lnot(2 \le v \land \phi \bmod 2 = 1)$, **or** for every $(s, h) \in I$: $s \ge 2^{31}$ (disabled, stated as $\lfloor s/2^{31}\rfloor = 1$), or, if $\lfloor s / 2^{22}\rfloor$ is odd, $\mathit{mtp}(h \mathbin{\dot-} 1) + 512\cdot(s \bmod 2^{16}) \le \mathit{mtp}(\mathit{height} \mathbin{\dot-} 1)$, else $h + (s \bmod 2^{16}) \le \mathit{height}$.
+
+**Edge cases silently included:** a transaction with no inputs (left: accumulator $(-1,-1)$, true; right: vacuous); missing coins at height $0$ so that $\mathit{mtp}(0 \mathbin{\dot-} 1) = \mathit{mtp}(0)$; $\mathit{height} = 0$ likewise; $\mathit{mtp}$ is any function, not necessarily monotone; version and sequence values above $2^{32}$ are reduced; $\mathit{height}$ is not required to exceed the coin heights.

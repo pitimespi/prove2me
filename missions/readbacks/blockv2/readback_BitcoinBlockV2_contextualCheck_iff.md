@@ -1,0 +1,19 @@
+# Read-back: `BitcoinBlockV2.contextualCheck_iff`
+
+**Binders.** $S$ is a chain state (a list of headers $S.\mathit{headers}$ and a ledger); $b$ is a block (a header and a list of transactions $b.\mathit{vtx}$).
+
+**Hypotheses.**
+- $h_{ne}$: $b.\mathit{vtx} \ne [\,]$.
+- $h_{vin}$: for every transaction $tx \in b.\mathit{vtx}$, $\mathit{vin}(tx) \ne [\,]$.
+
+Both are carried in the statement; the equivalence does not mention them.
+
+**Conclusion.** $\mathrm{contextualCheckBlock}(S, b) = \mathrm{true}$ if and only if $\mathrm{ContextSpec}(S, b)$.
+
+Common data: $\mathit{height} = |S.\mathit{headers}|$; $\mathrm{tipHeight} = |S.\mathit{headers}| \mathbin{\dot-} 1$; $\mathit{cutoff} = S.\mathit{mtp}$ (the median of the first $\le 11$ entries of the reversed time list of the first $\mathrm{tipHeight}+1$ headers, index $\lfloor \ell/2\rfloor$ of the sorted window, $0$ if empty) when $419328 \le \mathrm{tipHeight}+1$ (CSV active after the tip), and $\mathit{cutoff} = b.\mathit{header}.\mathit{time}$ (as an integer) otherwise. $\mathrm{isFinalTx}(tx, \mathit{height}, \mathit{cutoff})$ is: true if $\mathit{nLockTime}(tx) = 0$; else true if $\mathit{nLockTime}(tx) < (\mathit{height}$ if $\mathit{nLockTime}(tx) < 5\cdot10^8$, else $\mathit{cutoff})$; else true exactly when every input has $\mathit{nSequence} = \mathtt{0xffffffff}$. $\mathrm{heightScript}(n)$ is $[\mathtt{0x00}]$ for $n=0$, $[\mathtt{0x50}+n]$ for $1 \le n \le 16$, and otherwise the canonical push of the script-number encoding of $n$. $\mathrm{checkWitnessMalleation}(b, e)$: with $e$ = "SegWit active after the tip" ($481824 \le \mathrm{tipHeight}+1$): if $e$ is false, true exactly when no transaction has an input with non-empty witness; if $e$ is true: if the first transaction has no output of length $\ge 38$ starting with `6a 24 aa 21 a9 ed`, again "no witness anywhere"; otherwise, with $\mathit{pos}$ the last such output index, the first input of the first transaction must have a witness stack of exactly one element $\mathit{nonce}$ with $|\mathit{nonce}| = 32$ and $\mathrm{hash256}(\mathrm{blockWitnessMerkleRoot}(b) \mathbin{+\!\!+} \mathit{nonce})$ equal to bytes $6..37$ of that output's scriptPubKey, where the witness merkle root is the merkle root of $[32 \text{ zero bytes}] \mathbin{+\!\!+} [\mathrm{wtxid}(tx) \mid tx \text{ after the first}]$. $\mathrm{blockWeight}(b) = 3|\mathrm{serBlock}(\mathrm{false}, b)| + |\mathrm{serBlock}(\mathrm{true}, b)|$.
+
+*Left side:* the Boolean conjunction of: every $tx \in b.\mathit{vtx}$ satisfies $\mathrm{isFinalTx}(tx, \mathit{height}, \mathit{cutoff})$; **either** $227931 > \mathrm{tipHeight}+1$ (BIP34 not active after the tip) **or** $\mathrm{heightScript}(\mathit{height})$ is a prefix of the scriptSig of the first input of the first transaction, where the first transaction defaults to the genesis coinbase if $b.\mathit{vtx}$ is empty and the first input defaults to an input with empty scriptSig if that transaction has no inputs; $\mathrm{checkWitnessMalleation}(b, e)$; and $\mathrm{blockWeight}(b) \le 4\,000\,000$.
+
+*Right side:* $\mathrm{ContextSpec}(S, b)$, the proposition: for every $tx \in b.\mathit{vtx}$, $\mathrm{isFinalTx}(tx, \mathit{height}, \mathit{cutoff}) = \mathrm{true}$; **and** ($227931 \le \mathrm{tipHeight}+1 \to$ for every $cb$ among the first transaction of $b$ and every $i$ among the first input of $cb$, $\mathrm{heightScript}(\mathit{height})$ is a prefix of $i.\mathit{scriptSig}$); **and** $\mathrm{checkWitnessMalleation}(b, e) = \mathrm{true}$; **and** $\mathrm{blockWeight}(b) \le 4\,000\,000$.
+
+**Edge cases silently included:** the hypotheses $h_{ne}$, $h_{vin}$ are not part of the equivalence; without them the left side uses defaults (genesis coinbase's scriptSig, an empty scriptSig) where the right side is vacuous; the median-time-past of an empty header list is $0$; $\mathit{cutoff}$ compares an unbounded natural $\mathit{nLockTime}$ with an integer.

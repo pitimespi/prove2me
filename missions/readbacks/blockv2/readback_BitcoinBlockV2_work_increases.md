@@ -1,0 +1,11 @@
+# Read-back: `BitcoinBlockV2.work_increases`
+
+**Binders.** $S$ and $S'$ are chain states (each a list of headers and a ledger); $b$ is a block; $\mathit{now}$ is an integer; $\mathit{undo}$ is a block undo (list of lists of coins).
+
+**Hypothesis.** $h$: $\mathrm{validate}(S, b, \mathit{now}) = \mathrm{accept}(S', \mathit{undo})$. Unfolding: $\mathrm{acceptHeader}(S, b.\mathit{header}, \mathit{now})$ accepts — in particular $\mathrm{checkHeaderPow}(b.\mathit{header})$ holds, i.e. the 32-bit word $c = b.\mathit{header}.\mathit{bits} \bmod 2^{32}$ decodes under `deriveTarget` (not negative, non-zero, not overflowing, decoded value $\le 2^{224}-1$) and the header hash value is at most that target; also $\mathit{prevBlock}$ matches the tip hash, $c = S.\mathrm{requiredBits}$, time $> S.\mathit{mtp}$, time $\le \mathit{now}+7200$, version not outdated — and $\mathrm{checkBlock}(b)$, $\mathrm{contextualCheckBlock}(S, b)$ hold and $\mathrm{connectBlock}(S, b) = \mathrm{some}(u, \mathit{undo})$, with $S' = (S.\mathit{headers} \mathbin{+\!\!+} [b.\mathit{header}],\ u)$. Neither $\mathit{undo}$ nor $\mathit{now}$ nor the ledger appears in the conclusion.
+
+**Conclusion.** $S.\mathrm{chainWork} < S'.\mathrm{chainWork}$ (strict inequality of natural numbers), where
+$$X.\mathrm{chainWork} = \sum_{h \in X.\mathit{headers}} \mathrm{blockProof}(h.\mathit{bits}), \qquad \mathrm{blockProof}(\mathit{bits}) = \begin{cases} 0 & \text{if `deriveTarget'}(\mathit{bits} \bmod 2^{32}) = \mathrm{none},\\ \Big\lfloor \dfrac{2^{256} - 1 - t}{t + 1} \Big\rfloor + 1 & \text{if it is } \mathrm{some}(t). \end{cases}$$
+Since $S'.\mathit{headers} = S.\mathit{headers} \mathbin{+\!\!+} [b.\mathit{header}]$ under the hypothesis, the conclusion amounts to $0 < \mathrm{blockProof}(b.\mathit{header}.\mathit{bits})$, i.e. the derived target of the accepted header exists (the second branch always yields at least $1$).
+
+**Edge cases silently included:** $\mathit{undo}$, $\mathit{now}$ and the ledgers are unused in the conclusion; the subtraction $2^{256}-1-t$ is natural-number subtraction, never truncated since $t \le 2^{224}-1$ when it exists; headers of $S$ with undecodable bits contribute $0$ to both sides.

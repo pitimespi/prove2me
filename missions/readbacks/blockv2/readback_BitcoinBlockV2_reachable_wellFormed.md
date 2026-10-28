@@ -1,0 +1,12 @@
+# Read-back: `BitcoinBlockV2.reachable_wellFormed`
+
+**Binder.** $S$ is a chain state: a list of headers $S.\mathit{headers}$ and a ledger $S.\mathit{utxo}$ (a list of pairs (outpoint, coin), a coin being an output $(\mathit{nValue}, \mathit{scriptPubKey})$, a natural-number $\mathit{height}$ and a Boolean $\mathit{isCoinbase}$).
+
+**Hypothesis.** $h$: $\mathrm{Reachable}(S)$ — $S$ belongs to the least predicate such that (i) the initial state $(\,[\mathrm{genesisHeader}],\ [\,]\,)$ is reachable, and (ii) whenever $S_0$ is reachable and, for some block $b$, integer $\mathit{now}$, state $S_1$ and undo list $\mathit{undo}$, $\mathrm{validate}(S_0, b, \mathit{now}) = \mathrm{accept}(S_1, \mathit{undo})$, then $S_1$ is reachable. Here $\mathrm{validate}$ accepts exactly when the header passes $\mathrm{acceptHeader}$ (proof of work, previous hash $=$ tip hash, bits $=$ required bits, time $>$ median time past, time $\le \mathit{now}+7200$, version not outdated), $\mathrm{checkBlock}(b)$, $\mathrm{contextualCheckBlock}(S_0, b)$ and $\mathrm{connectBlock}(S_0, b) = \mathrm{some}(u, \mathit{undo})$, and then $S_1 = (S_0.\mathit{headers} \mathbin{+\!\!+} [b.\mathit{header}],\ u)$, where $u$ is $S_0.\mathit{utxo}$ if the block's header hashes to the genesis hash and otherwise the ledger produced by the transaction loop (`updateCoins` applied in order, which stores spendable outputs at height $|S_0.\mathit{headers}|$ and removes spent prevouts).
+
+**Conclusion.** $\mathrm{WellFormed}(S)$, the conjunction of:
+1. the first element of $S.\mathit{headers}$ exists and equals the genesis header (version $1$, 32 zero bytes, txid of the genesis coinbase, time $1231006505$, bits $\mathtt{0x1d00ffff}$, nonce $2083236893$);
+2. $\mathrm{keysNodup}(S.\mathit{utxo})$: the list of outpoints (first components) of $S.\mathit{utxo}$ has no duplicates;
+3. for every entry $e = (\mathit{op}, c)$ of $S.\mathit{utxo}$: $1 \le c.\mathit{height}$, $c.\mathit{height} \le S.\mathrm{tipHeight} = |S.\mathit{headers}| \mathbin{\dot-} 1$, and $\mathrm{isUnspendable}(c.\mathit{out}.\mathit{scriptPubKey}) = \mathrm{false}$ (the script does not start with $\mathtt{0x6a}$ — tested only when non-empty — and its length is at most $10\,000$).
+
+**Edge cases silently included:** the initial state satisfies the conclusion with an empty ledger (clause 3 vacuous); the truncated subtraction in $\mathrm{tipHeight}$; reachability steps with a genesis-hash block leave the ledger unchanged while appending a header; the hypothesis does not constrain $\mathit{now}$ at each step.

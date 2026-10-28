@@ -1,0 +1,13 @@
+# Read-back: `BitcoinBlockV2.apply_spec`
+
+**Binders.** $S$ and $S'$ are chain states (each a list of headers and a ledger); $b$ is a block; $\mathit{now}$ is an integer; $\mathit{undo}$ is a block undo (a list of lists of coins).
+
+**Hypothesis.** $h$: $\mathrm{validate}(S, b, \mathit{now}) = \mathrm{accept}(S', \mathit{undo})$. Unfolding $\mathrm{validate}$, this says: $\mathrm{acceptHeader}(S, b.\mathit{header}, \mathit{now})$ is an accept (proof of work holds for the header, $\mathit{prevBlock}$ equals the hash of $S$'s tip header, the bits equal $S.\mathrm{requiredBits}$, the header time exceeds $S.\mathit{mtp}$ and is at most $\mathit{now}+7200$, and the version is not outdated for $S.\mathrm{tipHeight}$); $\mathrm{checkBlock}(b)$ holds; $\mathrm{contextualCheckBlock}(S, b)$ holds; and $\mathrm{connectBlock}(S, b) = \mathrm{some}(u, \mathit{undo})$ with $S' = (S.\mathit{headers} \mathbin{+\!\!+} [b.\mathit{header}],\ u)$. The value $\mathit{undo}$ is bound by the hypothesis but does not appear in the conclusion; $\mathit{now}$ appears only in the hypothesis.
+
+**Conclusion.** $S' = \mathrm{applySpec}(S, b)$, where
+$$\mathrm{applySpec}(S, b) = \begin{cases} (S.\mathit{headers} \mathbin{+\!\!+} [b.\mathit{header}],\ S.\mathit{utxo}) & \text{if } \mathrm{headerHash}(b.\mathit{header}) = \mathrm{genesisHash},\\ (S.\mathit{headers} \mathbin{+\!\!+} [b.\mathit{header}],\ \mathrm{applyTxs}(|S.\mathit{headers}|, S.\mathit{utxo}, b.\mathit{vtx})) & \text{otherwise,} \end{cases}$$
+and $\mathrm{applyTxs}(H, u, [tx_1, \dots, tx_k]) = \mathrm{updateCoins}(\cdots \mathrm{updateCoins}(\mathrm{updateCoins}(u, tx_1, H), tx_2, H) \cdots, tx_k, H)$, with $\mathrm{updateCoins}(u, tx, H)$ being: remove every ledger entry keyed by a prevout of $tx$ (skipped when $tx$ is a coinbase, i.e. has exactly one input with 32 zero bytes and index $\mathtt{0xffffffff}$), then for each output $o_j$ of $tx$ in order, unless $o_j.\mathit{scriptPubKey}$ starts with $\mathtt{0x6a}$ or is longer than $10\,000$ bytes, remove any entry keyed $(\mathrm{txid}(tx), j)$ and prepend $((\mathrm{txid}(tx), j), (o_j, H, \mathrm{isCoinBase}(tx)))$. `genesisHash` is the fixed 32-byte literal of the imported serialization file.
+
+Equality of chain states is componentwise: the header lists are equal (both are $S.\mathit{headers} \mathbin{+\!\!+} [b.\mathit{header}]$) and the ledgers are equal *as lists* (same entries in the same order), not merely as sets of coins.
+
+**Edge cases silently included:** a block whose header hashes to the genesis hash (both sides keep the ledger); $\mathit{undo}$ and $\mathit{now}$ unused in the conclusion; the hypothesis may be unsatisfiable for a given $S$ (then the statement is vacuous).
