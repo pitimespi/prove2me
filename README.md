@@ -20,6 +20,8 @@ definition imports only `Std`.
 - `tests/SigVectors.lean`, `tests/VerifyVectors.lean` — signature-layer and VerifyScript vectors (BIP340, BIP143, generated ECDSA).
 - `tests/SerVectors.lean` — hash test vectors and genesis checks.
 - `tests/ScriptVectors.lean` — `#eval` sanity vectors for the Script interpreter (run with `lake env lean tests/ScriptVectors.lean`).
+- `tests/*Vectors.lean` (22 files, 1,528 `#eval` lines, every line `true`) with `tests/reference/*.py` — independent Python references written from the Bitcoin Core source, generating edge-case vectors for every reviewed function.
+- `REVIEW.md` — the source review guide: method, known limits L1–L10, findings (F1 fixed; R1, R2, D1, D2 verdict-irrelevant), the 23 risk-ranked spots, all reviewed; one report per spot in `REVIEW_SPOT*.md`.
 - `STATUS.md` — mission inventory, proposal IDs, and what remains open.
 - `missions/submissions/*.json` — the accepted proof submissions of missions 9–13; `missions/umbrella_current.json` — the umbrella proposal with its 161 references and main theorem.
 
