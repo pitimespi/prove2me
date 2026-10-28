@@ -1,0 +1,11 @@
+{
+ "proposal_id": "0a0e504f-b793-4090-970f-9063321405ab",
+ "items": {
+  "BitcoinSupply": "6365fb71-1fdd-4bf7-8e48-b7984f7fb4f7",
+  "BitcoinSupply.update_bound": "bb39e029-2060-4bce-af65-d17485e286e4",
+  "BitcoinSupply.values_in_range": "c42b0c02-7763-4f18-abe1-201c54fa9651",
+  "BitcoinSupply.block_supply": "8575bdcf-1596-4f22-bfaf-0c725ac7eaf4",
+  "BitcoinSupply.supply_bound": "faa28708-d43f-446f-b6fc-16789c6befd2",
+  "BitcoinSupply.supply_lt_maxMoney": "2d6e1f7f-9cfe-44f0-b1ea-6dc81b81a082"
+ }
+}
