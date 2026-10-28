@@ -184,7 +184,7 @@ def main(out_path):
             L.append(f'#eval hex (serTx {str(aw).lower()} {k}) == "{hx(b)}"')
             for raw in (True, False):
                 r = try_read(unserialize_transaction, b + bytes([0x99]), raw)
-                exp = "none" if r is None else f"some ({lean_tx(r[0])}, [0x99])"
+                exp = "none" if r is None else f"some ({lean_tx(r[0])}, {lean_bytes(r[1])})"   # the remainder is [0x99] only when the modes agree
                 L.append(f'#eval readTx {str(raw).lower()} (serTx {str(aw).lower()} {k} ++ [0x99]) == {exp}')
     L.append("-- a tx whose witnesses are all empty serializes without the flag; stripWitness is the TX_NO_WITNESS read")
     L.append("#eval serTx true tAllEmptyWit == serTx false tAllEmptyWit")
