@@ -61,7 +61,7 @@ These are deliberate and documented; the review should confirm they are the *onl
 
 | # | Finding | Status |
 |---|---|---|
-| F1 | `txSigOpCost` added the accurate sigop count of every non-P2SH spent output to a transaction's cost (Core's `GetP2SHSigOpCount` only counts P2SH redeem scripts); a P2PKH spend cost 8 instead of 4. The model was stricter than Core, never more lenient. | Fixed in `Definitions/Def_BitcoinBlockV2.lean` (`p2shSigOpCount`); all 19 proofs re-check; the platform's published `BitcoinBlock` definition still has the old text and needs a revision. See `REVIEW_SPOT11.md`. |
+| F1 | `txSigOpCost` added the accurate sigop count of every non-P2SH spent output to a transaction's cost (Core's `GetP2SHSigOpCount` only counts P2SH redeem scripts); a P2PKH spend cost 8 instead of 4. The model was stricter than Core, never more lenient. | Fixed in `Definitions/Def_BitcoinBlockV2.lean` (`p2shSigOpCount`); all 19 proofs re-check; published on the platform as revision 2 (`BitcoinBlockV2`, all 19 proofs accepted), the original `BitcoinBlock` nodes deprecated with a note naming their replacements. See `REVIEW_SPOT11.md`. |
 | L10 | multisig `FindAndDelete` (spot 1) | documented limit, not fixed (changes a published Script definition) |
 | R1 | malformed script-code serialization (spot 2) | remark, cannot affect a verdict |
 

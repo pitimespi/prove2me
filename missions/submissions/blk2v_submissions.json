@@ -1,0 +1,21 @@
+{
+ "BitcoinBlockV2.genesis_checkBlock": "ACCEPTED",
+ "BitcoinBlockV2.acceptHeader_iff": "ACCEPTED",
+ "BitcoinBlockV2.futureTime_iff": "ACCEPTED",
+ "BitcoinBlockV2.validate_clock": "ACCEPTED",
+ "BitcoinBlockV2.futureTime_transient": "ACCEPTED",
+ "BitcoinBlockV2.checkTransaction_iff": "ACCEPTED",
+ "BitcoinBlockV2.checkBlock_iff": "ACCEPTED",
+ "BitcoinBlockV2.contextualCheck_iff": "ACCEPTED",
+ "BitcoinBlockV2.bip30_history": "ACCEPTED",
+ "BitcoinBlockV2.checkTxInputs_iff": "ACCEPTED",
+ "BitcoinBlockV2.sequenceLocks_iff": "ACCEPTED",
+ "BitcoinBlockV2.connectLoop_iff": "ACCEPTED",
+ "BitcoinBlockV2.connectBlock_iff": "ACCEPTED",
+ "BitcoinBlockV2.connectBlock_apply": "ACCEPTED",
+ "BitcoinBlockV2.apply_spec": "ACCEPTED",
+ "BitcoinBlockV2.reachable_wellFormed": "ACCEPTED",
+ "BitcoinBlockV2.work_increases": "ACCEPTED",
+ "BitcoinBlockV2.disconnect_connect": "ACCEPTED",
+ "BitcoinBlockV2.acceptance": "ACCEPTED"
+}
