@@ -153,11 +153,11 @@ def lastPushAux : Nat → Bytes → Bytes → Option Bytes
 
 def lastPush (s : Bytes) : Option Bytes := lastPushAux s.length s []
 
-/-- `CScript::GetSigOpCount(scriptSig)` on the output script: the accurate count of the output
-script unless it is P2SH, in which case the accurate count of the redeem script (the last push of
+/-- The per-input term of `GetP2SHSigOpCount`: `0` unless the spent output is P2SH, in which case
+`CScript::GetSigOpCount(scriptSig)` on it, the accurate count of the redeem script (the last push of
 `scriptSig`), or `0` when `scriptSig` is not push-only. -/
 def p2shSigOpCount (scriptPubKey scriptSig : Bytes) : Nat :=
-  if !BitcoinVerify.isPayToScriptHash scriptPubKey then getSigOpCount true scriptPubKey
+  if !BitcoinVerify.isPayToScriptHash scriptPubKey then 0
   else match lastPush scriptSig with
     | none => 0
     | some d => getSigOpCount true d
