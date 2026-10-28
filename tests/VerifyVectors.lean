@@ -36,3 +36,54 @@ def noTap : TaprootHandler := fun _ _ _ => false
 #eval verifyScript noTap c [] (witnessBytes 0 (sha256 [0x51])) [[1], [0x51]]   -- false (cleanstack: 2 elements left)
 #eval isWitnessProgram (witnessBytes 0 h160)
 #eval isPayToScriptHash (p2shBytes h160r) && isPushOnly (pushesBytes [sigl, redeem])
+
+/-! ### Adversarial dispatch vectors from the spot 7 review (`REVIEW_SPOT7.md`). Every line prints `true`. -/
+def wsTrue : Bytes := [0x51]                                  -- witness script `OP_1`
+def p2wshTrue : Bytes := witnessBytes 0 (sha256 wsTrue)
+def noWit : Ctx := ⟨{ allF with witness := false }, txW, 0, 1000⟩
+def noP2sh : Ctx := ⟨{ allF with p2sh := false }, txW, 0, 1000⟩
+-- native P2WSH: script hash match, execution, clean stack, empty witness, oversized element
+#eval verifyScript noTap c [] p2wshTrue [wsTrue] == true
+#eval verifyScript noTap c [] p2wshTrue [[1], wsTrue] == false            -- two elements left
+#eval verifyScript noTap c [] p2wshTrue [[0x52]] == false                 -- hash mismatch
+#eval verifyScript noTap c [] p2wshTrue [] == false                       -- empty witness
+#eval verifyScript noTap c [] (witnessBytes 0 (sha256 [0x75, 0x51])) [List.replicate 521 1, [0x75, 0x51]] == false   -- element over 520 bytes
+#eval verifyScript noTap c [] (witnessBytes 0 (sha256 [0x75, 0x51])) [List.replicate 520 1, [0x75, 0x51]] == true    -- OP_DROP OP_1 with a 520-byte element
+#eval verifyScript noTap c [] (witnessBytes 0 (sha256 [0x00])) [[0x00]] == false                                     -- script `OP_0` leaves false
+#eval verifyScript noTap c [] (witnessBytes 0 (sha256 [])) [[]] == false                                             -- empty script leaves nothing
+-- version 0 with a program that is neither 20 nor 32 bytes
+#eval verifyScript noTap c [] (witnessBytes 0 (List.replicate 25 7)) [[1]] == false
+-- P2WPKH needs exactly two elements; the implied script is DUP HASH160 <h> EQUALVERIFY CHECKSIG
+#eval verifyScript noTap c [] (witnessBytes 0 h160) [sigw, pk, []] == false
+#eval verifyScript noTap c [] (witnessBytes 0 h160) [[], pk] == false                 -- empty signature: CHECKSIG false
+-- unknown versions and P2SH-wrapped version 1 are anyone-can-spend; pay-to-anchor too
+#eval verifyScript noTap c [] (witnessBytes 16 (List.replicate 40 1)) [[9], [8]] == true
+#eval verifyScript noTap c [] (witnessBytes 1 (List.replicate 20 1)) [] == true       -- v1 with a 20-byte program is unknown, not taproot
+#eval verifyScript noTap c [] (witnessBytes 1 [0x4e, 0x73]) [[1]] == true             -- pay-to-anchor
+#eval verifyScript noTap c (pushBytes (witnessBytes 1 (List.replicate 32 1))) (p2shBytes (hash160 (witnessBytes 1 (List.replicate 32 1)))) [[1]] == true   -- P2SH-wrapped v1: handler not consulted
+#eval verifyScript noTap c [] (witnessBytes 1 (List.replicate 32 1)) [[1]] == false   -- native v1 with TAPROOT flag: the (false) handler decides
+#eval verifyScript noTap ⟨{ allF with taproot := false }, txW, 0, 1000⟩ [] (witnessBytes 1 (List.replicate 32 1)) [[1]] == true   -- TAPROOT flag off: success
+-- malleability rules
+#eval verifyScript noTap c (pushBytes (witnessBytes 0 h160) ++ [0x51]) (p2shBytes (hash160 (witnessBytes 0 h160))) [sigw, pk] == false   -- wrapped: scriptSig must be exactly the push
+#eval verifyScript noTap c (pushBytes [] ++ pushBytes (witnessBytes 0 h160)) (p2shBytes (hash160 (witnessBytes 0 h160))) [sigw, pk] == false
+#eval verifyScript noTap c [0x51] (witnessBytes 0 h160) [sigw, pk] == false          -- native: scriptSig must be empty
+#eval verifyScript noTap c [] (witnessBytes 0 h160) [sigw, pk] == true
+-- P2SH: push-only, empty scriptSig, the stack copy, unexpected witness after a P2SH redeem
+#eval verifyScript noTap c [] (p2shBytes h160r) [] == false                            -- empty scriptSig fails at OP_HASH160
+#eval verifyScript noTap c (pushesBytes [[1], [0x51]]) (p2shBytes (hash160 [0x51])) [] == true        -- redeem `OP_1` on the restored stack
+#eval verifyScript noTap c (pushesBytes [[1], [0x51]]) (p2shBytes (hash160 [0x51])) [[1]] == false   -- unexpected witness
+#eval verifyScript noTap c (pushesBytes [[0x51]]) (p2shBytes (hash160 [0x51])) [[1]] == false
+#eval verifyScript noTap c (pushesBytes [[], [0x51]]) (p2shBytes (hash160 [0x51])) [] == true        -- the restored stack keeps the pushed `[]`
+#eval verifyScript noTap c (pushesBytes [[0x75, 0x51]]) (p2shBytes (hash160 [0x75, 0x51])) [] == false   -- redeem `OP_DROP OP_1` on an empty restored stack
+#eval verifyScript noTap c (pushesBytes [[7], [0x75, 0x51]]) (p2shBytes (hash160 [0x75, 0x51])) [] == true
+#eval verifyScript noTap c ([0x51] ++ pushesBytes [[0x51]]) (p2shBytes (hash160 [0x51])) [] == true   -- OP_1 is at most OP_16: push-only
+#eval verifyScript noTap c ([0x61] ++ pushesBytes [[0x51]]) (p2shBytes (hash160 [0x51])) [] == false  -- OP_NOP is not
+-- flags off: without WITNESS a program output is a plain script and a witness is never unexpected; without P2SH the hash test is all
+#eval verifyScript noTap noWit [0x51] (witnessBytes 0 h160) [sigw, pk] == true
+#eval verifyScript noTap noWit (pushesBytes [[1], [0x51]]) (p2shBytes (hash160 [0x51])) [[1]] == true
+#eval verifyScript noTap noP2sh (pushesBytes [[0x51]]) (p2shBytes (hash160 [0x51])) [] == true
+#eval verifyScript noTap noP2sh (pushesBytes [[0x51]]) (p2shBytes (hash160 [0x51])) [[1]] == false   -- witness unexpected still applies
+-- scripts over 10,000 bytes fail before evaluation
+#eval verifyScript noTap c [] (List.replicate 10001 0x61 ++ [0x51]) [] == false
+#eval verifyScript noTap c [] (List.replicate 10000 0x61) [] == false                 -- 10,000 NOPs: within size, over the op count
+#eval verifyScript noTap c [] (List.replicate 199 0x61 ++ [0x51]) [] == true
