@@ -1,0 +1,10 @@
+{
+ "proposal_id": "8c6f65ad-bad8-4176-b53e-c875c79db84a",
+ "items": {
+  "BitcoinMalleability": "62d634df-9537-47e7-9bca-584956d95dc4",
+  "BitcoinMalleability.native_scriptSig_empty": "448bc5e5-f53a-4de2-972d-6e95b79845c8",
+  "BitcoinMalleability.txid_of_intent": "4b79cedc-2c97-4291-b4ab-1d3f48cb417f",
+  "BitcoinMalleability.txid_determined": "ba742f59-8ffd-4681-8c24-6055f483a319",
+  "BitcoinMalleability.p2sh_wrapped_scriptSig": "a6e0da60-ed6a-4308-be39-9e35452f78c6"
+ }
+}
