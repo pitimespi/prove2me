@@ -9,7 +9,7 @@ usage: pipeline.py <cmd> <Namespace> [args]
   submit  NS PROPJSON OUTFILE    submit all solutions (in dependency order) and poll
 """
 import json, os, re, sys, subprocess, pathlib, time, urllib.request, urllib.error
-WS = pathlib.Path(os.path.expanduser('~/prove2me_workspace'))
+WS = pathlib.Path(os.environ.get('PROVE2ME_WS', os.path.expanduser('~/prove2me_workspace')))
 SCR = pathlib.Path(__file__).resolve().parent
 BASE = "https://prove2.me/api/v1"
 ENV = dict(os.environ, PATH=os.path.expanduser('~/lean-dl/lean-4.33.1-linux/bin') + ':' + os.environ['PATH'])

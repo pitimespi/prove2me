@@ -71,6 +71,10 @@ These are deliberate and documented; the review should confirm they are the *onl
 
 **Status: all 23 spots reviewed** (reports `REVIEW_SPOT1.md` … `REVIEW_SPOT23.md`). One defect (F1, fixed, republished as `BitcoinBlockV2`), one documented limit found by the review (L10), four verdict-irrelevant remarks (R1, R2, D1, D2). Spots 15–17, 19, 20, 22, 23 were reviewed by independent sub-agents given the Lean files, the cached Core source and the blind read-backs; their vectors were re-run by the coordinator.
 
+**Second, independent review of the script layer** (spots 1, 7, 8; `REVIEW2_SPOT1.md`, `REVIEW2_SPOT7.md`, `REVIEW2_SPOT8.md`; 461 further vectors from fresh C++ transcriptions in `tests/reference/second_*.py`): the reviewer, who was not shown the first review, found exactly the two documented limits L1 (`OP_CODESEPARATOR` after execution does not restart the signature script code) and L10 (multisig `FindAndDelete` of only the checked signature) and nothing else; its 6 disagreeing vectors are those two cases.
+
+**Differential testing against Core's own vectors** (`REVIEW_DIFFTEST.md`; `tests/CoreScriptTests1..5.lean`, `tests/CoreTxTests.lean`, generated from `script_tests.json`, `tx_valid.json`, `tx_invalid.json` at the pinned revision): 985 of 994 included cases agree (793/793 script tests, 185/201 transaction tests); the 9 disagreements are all L1 or L10, with per-case root causes re-derived from the C++; tests whose expected failure depends on a policy flag the model does not implement are excluded by a stated rule.
+
 Ordered by how plausible a discrepancy is and how much depends on it. Links go to the pinned
 revision; line numbers are where the function starts.
 
