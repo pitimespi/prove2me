@@ -1,0 +1,15 @@
+{
+ "proposal_id": "b5104d1b-4293-4079-91c8-cc3870057f89",
+ "items": {
+  "BitcoinToLocal": "3a506249-6072-4940-8541-5461eb88966b",
+  "BitcoinToLocal.serialize_length": "1c282d28-02c4-453a-a117-851113b057f4",
+  "BitcoinToLocal.csv_step": "a499f213-6993-4102-ad52-c86219b749a7",
+  "BitcoinToLocal.eval_cons": "03e2471c-6a55-4be0-af90-5c2d98067152",
+  "BitcoinToLocal.spends_iff": "cf38efa7-b940-4c92-a75d-dbd6ba6873f1",
+  "BitcoinToLocal.parseScript_toLocal": "14eed5bf-6a85-4a1b-b90e-7a5a2e1efd86",
+  "BitcoinToLocal.p2wsh_spend": "29b7fa3e-5e03-4c58-b43d-c2525664a1ec",
+  "BitcoinToLocal.csv_concrete": "c196e57a-3104-42dc-ae63-969d7f47b0d1",
+  "BitcoinToLocal.checkSequence_iff": "02159a78-8316-4bb3-a187-d87d111ef550",
+  "BitcoinToLocal.lightning_delay": "accf4bd3-9d99-40b8-ab91-a11169d1f742"
+ }
+}

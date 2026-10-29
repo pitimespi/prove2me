@@ -1,0 +1,14 @@
+{
+ "proposal_id": "003c34fb-9999-46d0-ac55-99496441a709",
+ "items": {
+  "BitcoinUniqueness": "2ca8c1bf-a06a-4dab-ae4b-427ba4c6d0bb",
+  "BitcoinUniqueness.pushBytes_prefix": "79997717-104f-4e3d-b3de-bcf36f03a806",
+  "BitcoinUniqueness.heightScript_prefix": "53b707fa-ac30-4b4b-8ccb-d772673cb72e",
+  "BitcoinUniqueness.scan_runs_late": "7d38625b-803a-480c-b22e-09751712d1ac",
+  "BitcoinUniqueness.scan_runs_early": "616fb164-b62f-4f0b-90b3-dd97e8bb05f0",
+  "BitcoinUniqueness.coinbase_height_prefix": "0cb615cc-bd95-4490-93a9-540d2e675697",
+  "BitcoinUniqueness.coinbases_distinct": "111bd093-4c7b-4a56-be70-3a0b2c8af1c4",
+  "BitcoinUniqueness.scan_freshness": "7a4d18cc-9b53-4616-8728-22e424cd6796",
+  "BitcoinUniqueness.chain_coinbases_distinct": "ec55749a-0e32-48fc-8ed5-9568ae1561dd"
+ }
+}
