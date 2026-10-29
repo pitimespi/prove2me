@@ -1,0 +1,1 @@
+Case analysis on the instruction: pushes and ordinary opcodes delegate to the published `step` with the same oracle; signature checks agree because `StepOk` makes the extra deletions no-ops (no multisig signature appears as a push in the code); a code separator is excluded or skipped.

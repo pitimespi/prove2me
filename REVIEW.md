@@ -73,6 +73,8 @@ These are deliberate and documented; the review should confirm they are the *onl
 
 **Second, independent review of the script layer** (spots 1, 7, 8; `REVIEW2_SPOT1.md`, `REVIEW2_SPOT7.md`, `REVIEW2_SPOT8.md`; 461 further vectors from fresh C++ transcriptions in `tests/reference/second_*.py`): the reviewer, who was not shown the first review, found exactly the two documented limits L1 (`OP_CODESEPARATOR` after execution does not restart the signature script code) and L10 (multisig `FindAndDelete` of only the checked signature) and nothing else; its 6 disagreeing vectors are those two cases.
 
+**L1 and L10 closed (2026-10-29, `REVIEW_V2.md`):** the `BitcoinScriptV2` mission tracks the `OP_CODESEPARATOR` position and deletes every multisig signature as Core does, proves the result equal to the published interpreter outside the two limits (`verify_agree`), and agrees with Core on 994 of 994 vectors. The published interpreter stays as is; its theorems carry over to the exact rule through the equivalence.
+
 **Differential testing against Core's own vectors** (`REVIEW_DIFFTEST.md`; `tests/CoreScriptTests1..5.lean`, `tests/CoreTxTests.lean`, generated from `script_tests.json`, `tx_valid.json`, `tx_invalid.json` at the pinned revision): 985 of 994 included cases agree (793/793 script tests, 185/201 transaction tests); the 9 disagreements are all L1 or L10, with per-case root causes re-derived from the C++; tests whose expected failure depends on a policy flag the model does not implement are excluded by a stated rule.
 
 Ordered by how plausible a discrepancy is and how much depends on it. Links go to the pinned

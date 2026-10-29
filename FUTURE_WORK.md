@@ -92,7 +92,7 @@ a proof would change what people believe. The first two of group A are done (mis
   (`REVIEW2_SPOT1/7/8.md`).*
 - Differential testing of the Lean interpreter against Core's `script_tests.json` and
   `tx_valid.json` / `tx_invalid.json`. *Done (`REVIEW_DIFFTEST.md`, 994 cases, only L1/L10 diverge).*
-- Closing limits L1 and L10 with a revision of the Script definition.
+- Closing limits L1 and L10 with a revision of the Script definition. *Done (mission 29, `BitcoinScriptV2`, 20 theorems): a second interpreter, equivalence theorem, 994/994 Core vectors.*
 
 
 ## Round 4 (2026-10-29): every remaining item attempted

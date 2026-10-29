@@ -1,0 +1,1 @@
+Unfold both verifiers; each evaluation along the dispatch (scriptSig, scriptPubKey, redeem script, witness script) is replaced by `evalBytes_agree` under the corresponding `EvalOk`, the Taproot branch is shared.
