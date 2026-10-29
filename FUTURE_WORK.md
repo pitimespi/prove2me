@@ -40,8 +40,11 @@ a proof would change what people believe. The first two of group A are done (mis
    `BitcoinToLocal`, 9 theorems):* the BOLT #3 `to_local` P2WSH output is spent exactly by the
    revocation key, or by the delayed key with version ≥ 2 and `nSequence ≥ to_self_delay`, under
    the published `VerifyScript`. The HTLC scripts followed (mission 24, `BitcoinHtlc`, 16 theorems): offered and received HTLC
-   outputs spent exactly by their three paths. Not done: the second-stage HTLC transactions, the
-   anchor-output variants, and the protocol-level game (who holds which key when, the race
+   outputs spent exactly by their three paths. Mission 26 (`BitcoinAnchors`, 24 theorems) adds the `option_anchors` script set (`to_remote`
+   with CSV 1, the anchor with its anyone-can-spend-after-16 path, the CSV-1 HTLC variants), and
+   mission 27 (`BitcoinHtlcLocks`, 3 theorems) composes the HTLC timeout path with the block
+   mission's `IsFinalTx`: a received HTLC cannot be timed out before its expiry height. Not done:
+   the protocol-level game (who holds which key when, the race
    against confirmation), which needs an adversary and network model.
 7. **Taproot script-path soundness.** No control block opens a leaf not committed in the tree,
    given collision resistance of the tagged hashes; a reduction over the published commitment

@@ -1,0 +1,1 @@
+A shared private lemma reduces `verifyScript` on a P2WSH output (the verification mission's `p2wsh_correct`) to the element-size check and `evalBytes`; parse with `parseScript_toRemote`; then `to_remote_spends_iff` on `ws.reverse`.

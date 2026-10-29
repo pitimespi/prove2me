@@ -1,0 +1,1 @@
+After `OP_CHECKSIG` the verdict `boolBytes ok` is on the stack; `OP_IFDUP` (`rfl` equation) duplicates it iff true; `OP_NOTIF` pops it: true skips to `OP_ENDIF` (skip lemmas for the pushed 16 and the CSV), false executes `16 OP_CHECKSEQUENCEVERIFY` via `csv_step` with operand 16, leaving `[16]`.

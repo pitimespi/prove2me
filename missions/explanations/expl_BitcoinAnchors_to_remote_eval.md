@@ -1,0 +1,1 @@
+Symbolic execution: push the key, `OP_CHECKSIGVERIFY` (an `execOp` equation by `rfl`: fails unless the check is `some true`, pops both), `OP_1` pushes `[1]`, `OP_CHECKSEQUENCEVERIFY` through the `to_local` mission's `csv_step` with operand 1.

@@ -1,0 +1,1 @@
+Case analysis on the stack shape through the closed form generalised to a trailing `rest`: the signature check needs exactly one element below the key and the result `[1] :: rest` has length 1 iff `rest = []`; empty and oversized stacks fail.
