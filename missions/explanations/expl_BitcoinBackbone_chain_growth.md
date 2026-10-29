@@ -1,0 +1,1 @@
+The private lemma `growth_base` proves by induction on $s$, for all honest $q$ at once, that `(base q (s+1)).length` is at least `(chain p r).length` plus the successful rounds in $(r, s]$: a successful round's miner extends a chain at least as long as everyone's previous chain (`base_length`), and `base_length` again carries the new length to every party in the next round.

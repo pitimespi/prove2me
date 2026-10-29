@@ -1,0 +1,1 @@
+`bandwidth_paid` and the subadditivity of the ceiling: $\lceil a/s \rceil + \lceil b/s \rceil \ge \lceil (a+b)/s \rceil$, proved for the ℕ formula by `Nat.add_div_le_add_div`-style arithmetic over a list sum.

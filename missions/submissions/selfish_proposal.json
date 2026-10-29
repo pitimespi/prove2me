@@ -1,0 +1,23 @@
+{
+ "proposal_id": "7b0cfe03-a17d-403c-8599-ed860f1d3cf3",
+ "items": {
+  "BitcoinSelfishMining": "6385ed28-322e-485a-aa36-3ab6fc02bcb5",
+  "BitcoinSelfishMining.denominator_pos": "ab5dfd3c-e739-44cf-82e4-9d77376802b6",
+  "BitcoinSelfishMining.stationary_nonneg": "abbede2d-8b06-4256-b0c3-c4935d48b1d7",
+  "BitcoinSelfishMining.P_row_sum": "b6e55e88-d2b0-4e3d-a39c-92fd5587d143",
+  "BitcoinSelfishMining.balance_zero": "d4a44cb2-3fed-4bad-9c74-b7032b424931",
+  "BitcoinSelfishMining.balance_tie": "3b44dc1b-766f-4165-bbd5-b7cbe2f98d95",
+  "BitcoinSelfishMining.balance_one": "4948a8a0-b30d-44f7-81ff-8adbdaa2d962",
+  "BitcoinSelfishMining.balance_two": "6be4dea8-a592-407e-9544-6b406e9b012e",
+  "BitcoinSelfishMining.balance_lead": "6c7ed5b6-90e7-4b56-9f26-b6c5e8a8a268",
+  "BitcoinSelfishMining.stationary_balance": "b0c1d901-3f90-403c-824f-77a4c2fd9f65",
+  "BitcoinSelfishMining.tail_sum": "904d19fc-6400-4eed-88a8-3bb1c25bfc28",
+  "BitcoinSelfishMining.total_mass": "171ec8a4-8731-4e09-9d44-5f8878340ebb",
+  "BitcoinSelfishMining.pool_revenue_eq": "65ad3277-be5b-4a96-8389-3c4f81717c24",
+  "BitcoinSelfishMining.others_revenue_eq": "6c289f4c-3435-4f48-9f05-3ceff286b568",
+  "BitcoinSelfishMining.relative_revenue": "74ee13d1-5aa4-498a-9643-290f4534326d",
+  "BitcoinSelfishMining.threshold": "23f3ecb8-97b3-4c16-8b1a-4f666e793658",
+  "BitcoinSelfishMining.threshold_gamma_zero": "9443ebbd-a99a-44e9-af0d-2c482ae27b83",
+  "BitcoinSelfishMining.threshold_gamma_one": "02c3e45f-036d-494c-ae9b-f048b03dd3bd"
+ }
+}

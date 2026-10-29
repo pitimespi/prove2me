@@ -1,0 +1,1 @@
+By `relative_revenue` the claim is `closedForm α γ > α`. The denominator $1 - \alpha(1 + (2-\alpha)\alpha)$ is positive on $(0, 1/2)$; multiplying out, $R - \alpha$ has the sign of $\alpha(1-\alpha)\big((3-2\gamma)\alpha - (1-\gamma)\big)$ up to positive factors, and $3 - 2\gamma > 0$ from $\gamma \le 1$ turns that into $\alpha > (1-\gamma)/(3-2\gamma)$.

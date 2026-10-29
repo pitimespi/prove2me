@@ -1,0 +1,1 @@
+Evaluate `poolExpGain` in each state (zero and `lead 0` contribute 0; tie, `lead 1` and `lead (n+2)` as stated); the `tsum` over leads splits off its first two terms (`tsum_eq_zero_add`), the summability coming from the geometric form of `stationary` for $0 < \alpha < 1/2$.

@@ -1,0 +1,1 @@
+Unfold `execOp` at `OP_CHECKSEQUENCEVERIFY`; `toNum false 5 (serialize delay) = some delay` by `serialize_length` (5 bytes suffice below $2^{32}$) and the script mission's `serialize_roundtrip`; then case analysis on the flag, the sign, the disable bit and the oracle's answer, each matching a disjunct of `CsvPasses`.

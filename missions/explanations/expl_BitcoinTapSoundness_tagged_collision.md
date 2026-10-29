@@ -1,0 +1,1 @@
+`tagged t m` unfolds to `sha256 (sha256 tag ++ sha256 tag ++ m)`. Either the two inner inputs are equal, in which case `List.append_inj` with the 32-byte length of `sha256` splits them into equal tag hashes and equal messages, or they differ and the equal outer digests are a collision.

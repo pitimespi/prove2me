@@ -1,0 +1,1 @@
+With `f.csv = true` the first disjunct of `CsvPasses` is false; a delay below $2^{16}$ has bit 31 clear (`n &&& 2^31 = 0` for $n < 2^{31}$, by `Nat.eq_of_testBit_eq`); what remains is the oracle's `checkSequence`, which for `legacyOracle` is `checkSequence tx nIn` by definition.

@@ -1,0 +1,1 @@
+`card_recent_le`: a valid honest chain has fewer than $2λ$ blocks of rounds above $r_1 - λ$ (at most one honest block per round, and `Typical` bounds the adversarial ones), so `take (length - 2λ)` is a prefix of `upTo (r₁ - λ)`; then `common_prefix_rounds` with $w = λ$ (the case $r_1 < λ$ handled separately).

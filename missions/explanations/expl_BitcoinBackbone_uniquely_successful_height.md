@@ -1,0 +1,1 @@
+In a valid chain the block at index $t$ extends exactly the prefix of length $t$, so an honest block `honest q s` there has `(base q s).length = t = (base m i).length`. `height_strict_mono` (from `chain_growth` in both directions) shows honest blocks of different rounds sit at different heights, giving $s = i$; `Y i = 1` leaves a single miner in round $i$, giving $q = m$.

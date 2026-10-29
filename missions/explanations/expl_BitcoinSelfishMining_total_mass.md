@@ -1,0 +1,1 @@
+Split the `stateSum` as $p_0 + p_{0'} + p_1 + p_2 + \sum_n p_{\text{lead}(n+2)}$ (`tsum_eq_zero_add` twice, summable by the geometric bound), substitute `tail_sum`, clear the denominator and check the polynomial identity.

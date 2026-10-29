@@ -1,0 +1,1 @@
+Rewrite both revenues with `pool_revenue_eq`, `others_revenue_eq` and `tail_sum`, unfold `stationary` and `closedForm`, and verify the identity of rational functions after clearing the nonzero denominators (`denominator_pos`, $1 - \alpha$, $1 - 2\alpha$, $1 - \alpha(1+(2-\alpha)\alpha)$).

@@ -1,0 +1,1 @@
+`run_bound`: a run of adversarial blocks between two honest blocks of rounds $r_1 < r_2$ (or the genesis, or the holder's own round) has at most $\sum_{[r_1, r_2]} Z$ blocks and, by `growth_base`, at least $\sum_{(r_1, r_2)} X$ blocks, so `Typical` forces $r_2 - r_1 < λ$ and the run shorter than $λ$; hence any $λ$ consecutive blocks contain an honest one.

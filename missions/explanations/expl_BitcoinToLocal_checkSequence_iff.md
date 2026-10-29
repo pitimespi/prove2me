@@ -1,0 +1,1 @@
+Unfold `checkSequence`; the operand's masked value is the operand itself for a delay below $2^{16}$ (`and_or_distrib_left`, `and_two_pow_sub_one_of_lt_two_pow`); then the four `if`s are decided by cases on the version, the disable bit, the type flag of the masked `nSequence` and the comparison, each matching a conjunct.

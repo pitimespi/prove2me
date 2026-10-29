@@ -1,0 +1,1 @@
+For each target state $s$, `P t s` is nonzero for at most three sources $t$, so the `stateSum` collapses (the `tsum` tail has finite support, evaluated with `tsum_eq_single` or a two-term split); the resulting equation is one of the five balance identities, summed against the outcome probabilities, which total 1.

@@ -1,0 +1,1 @@
+A nonempty finite multiset has an element minimising `feeRateQ` (`Multiset.exists_min_image` on its underlying list, or `Finset` argmin on the image); its rate is below the replacement's by `evicted_feerate_dominated` and `feeRateQ_lt_iff`.

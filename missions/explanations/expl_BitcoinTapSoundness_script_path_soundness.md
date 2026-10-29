@@ -1,0 +1,1 @@
+`taprootMerkleRoot` is the fold of `tapbranchHash` over `controlNodes control`; for a control block of length `33 + 32k` each node is a 32-byte chunk (`controlNodes_len`, by induction on `k`). `path_lands` from the 32-byte leaf hash gives a subtree with that hash; a branch subtree would be `leaf_ne_branch`, and a leaf subtree's hash is one of `T.leaves` (`leaf_mem_leaves`).

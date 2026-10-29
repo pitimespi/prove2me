@@ -1,0 +1,13 @@
+{
+ "proposal_id": "835bffb4-7551-4efe-a0f9-58a592d94368",
+ "items": {
+  "BitcoinDifficulty": "c190cc1e-969c-45f5-b49f-d6c2b320bc4a",
+  "BitcoinDifficulty.no_wrap": "dff3a138-e116-4f98-a966-b07f52980335",
+  "BitcoinDifficulty.raw_target_bounds": "72f0e24e-f406-470c-86fb-66919da1a008",
+  "BitcoinDifficulty.encoded_target_upper": "ec8e319e-0945-4bac-93f4-b825bf14f2e8",
+  "BitcoinDifficulty.encoded_target_lower": "b865f8b5-876d-41f2-92d6-af116ee0f697",
+  "BitcoinDifficulty.target_after_upper": "3e35b437-9b22-44f9-97bc-05280536a98d",
+  "BitcoinDifficulty.target_after_le_powLimit": "c3b97b7c-5ebc-45b4-98f1-bfaeb0e2bc9a",
+  "BitcoinDifficulty.requiredBits_le": "98602f5d-f8c5-446d-a776-fe97dd3234a0"
+ }
+}

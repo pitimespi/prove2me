@@ -1,0 +1,1 @@
+$t$ is one summand of `totalFee evicted` (`Multiset.le_sum_of_mem`), and `getFee vsize ≥ 1` because the numerator is positive, the size positive and the division rounds up; `paysForRBF_iff` then gives the strict inequality.

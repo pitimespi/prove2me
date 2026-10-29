@@ -1,0 +1,21 @@
+{
+ "proposal_id": "cbbd7cc9-9b6f-4dad-b279-2777b2038b7a",
+ "items": {
+  "BitcoinReplacement": "406d27f4-8f85-4794-8fa9-7b622aadd91e",
+  "BitcoinReplacement.paysForRBF_iff": "78da7eff-236c-48b3-849c-212d2eed5154",
+  "BitcoinReplacement.fee_strictly_increases": "f57bc128-42cf-4520-8ba4-8bbc564f619e",
+  "BitcoinReplacement.bandwidth_paid": "9cd446a1-f710-4e54-a0d9-e0a0e558d2ff",
+  "BitcoinReplacement.bandwidth_paid_total": "89f5369a-f5b0-4cf5-8f07-5441e3bd5118",
+  "BitcoinReplacement.bandwidth_paid_rate": "9fda7e17-c1a3-4741-a9d9-adff95d3ac49",
+  "BitcoinReplacement.bandwidth_paid_real": "f1c47c53-532c-419c-99bb-664be207d38b",
+  "BitcoinReplacement.replacement_count_bound_min_vsize": "3cc9290c-602f-4cca-bc1e-3cea0dab793e",
+  "BitcoinReplacement.replacement_count_bound": "69628fc0-d6d7-4859-a3da-58c015bf0549",
+  "BitcoinReplacement.replacement_count_le_fee": "5c2d6bd7-c18a-4db7-bcaa-e00d9f58a40c",
+  "BitcoinReplacement.replacement_count_bound_rate": "eb40dc8a-19e1-435e-bf62-287bc22f12f8",
+  "BitcoinReplacement.pinning_cost": "117b02e7-3d43-407f-99a9-17d5d7eca4d1",
+  "BitcoinReplacement.pinning_cost_tight": "231f0b11-fde9-487c-9b13-0e3764b6039f",
+  "BitcoinReplacement.feeRateQ_lt_iff": "aba5f67b-f168-46d2-b487-c131e77ff8af",
+  "BitcoinReplacement.evicted_feerate_dominated": "b4c15cfe-f54c-4387-8bd9-1e8205a57540",
+  "BitcoinReplacement.min_direct_feerate_lt": "c604770c-fdab-4a1c-aa06-27b55e566664"
+ }
+}

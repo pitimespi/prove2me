@@ -1,0 +1,1 @@
+`Nat.le_induction` on $r_2$ from $r_1$. The step applies `same_round` (the pairing argument of Lemma 15, via `pairing_core`: if two chains disagree, the round of the last honest block below the disagreement is within $λ$ of the current round) to `chain q s` and `base q (s+1)`, the chain any honest party adopts next; `upTo` is a prefix of a valid chain by `round_mono`.

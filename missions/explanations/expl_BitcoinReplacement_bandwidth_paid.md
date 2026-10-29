@@ -1,0 +1,1 @@
+Induction on the chain: each link adds `getFee (vsize new)` plus the fee of the evicted previous transaction, which is at most `totalFee evicted` (`paysForRBF_iff`), and the induction hypothesis is applied from the new transaction.

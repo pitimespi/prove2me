@@ -1,0 +1,1 @@
+The script has nine instructions and at least nine bytes, so `parseScriptAux` can be unrolled nine times with a `getOp` lemma per instruction: a single opcode byte above `OP_PUSHDATA4`, a canonical push (`getOp_pushBytes`, three size cases), and the small-integer encoding (17-way case split or a push).

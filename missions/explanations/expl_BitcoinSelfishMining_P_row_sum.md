@@ -1,0 +1,1 @@
+Case analysis on the state: for each, `step` sends the three outcomes to at most two distinct states, and the indicator sums reduce to $\alpha + (1-\alpha)\gamma + (1-\alpha)(1-\gamma) = 1$; the `tsum` tail has finite support.

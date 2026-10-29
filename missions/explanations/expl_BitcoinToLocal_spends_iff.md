@@ -1,0 +1,1 @@
+Forward: the empty stack fails at `OP_IF`; a stack beyond the limit fails at the first push; otherwise `eval_cons` gives `boolBytes ok :: rest`, whose length is 1 only for `rest = []`, and whose truth is `ok`. Backward: `eval_cons` on `[b, sig]` with the condition's witnesses.

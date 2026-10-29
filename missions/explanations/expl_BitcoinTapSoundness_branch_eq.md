@@ -1,0 +1,1 @@
+`tagged_collision` reduces the hypothesis to equal messages, which are the lexicographically sorted concatenations. Splitting on the two `lexLt` comparisons gives four cases; in each, the 32-byte length of the first component splits the concatenation with `List.append_inj`, producing the children in the same or the swapped order.
