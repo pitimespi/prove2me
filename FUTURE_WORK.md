@@ -39,8 +39,10 @@ a proof would change what people believe. The first two of group A are done (mis
    Probably the single most valuable unproven claim in the ecosystem. *Core done (mission 20,
    `BitcoinToLocal`, 9 theorems):* the BOLT #3 `to_local` P2WSH output is spent exactly by the
    revocation key, or by the delayed key with version ≥ 2 and `nSequence ≥ to_self_delay`, under
-   the published `VerifyScript`. Not done: the protocol-level game (who holds which key when, the
-   HTLC scripts, the race against confirmation), which needs an adversary and network model.
+   the published `VerifyScript`. The HTLC scripts followed (mission 24, `BitcoinHtlc`, 16 theorems): offered and received HTLC
+   outputs spent exactly by their three paths. Not done: the second-stage HTLC transactions, the
+   anchor-output variants, and the protocol-level game (who holds which key when, the race
+   against confirmation), which needs an adversary and network model.
 7. **Taproot script-path soundness.** No control block opens a leaf not committed in the tree,
    given collision resistance of the tagged hashes; a reduction over the published commitment
    arithmetic. *Done (mission 19, `BitcoinTapSoundness`, 7 theorems, published, all proofs accepted):* any
@@ -70,7 +72,8 @@ a proof would change what people believe. The first two of group A are done (mis
 11. **Selfish-mining thresholds**, a Markov-chain argument redone several times with different
     numbers. *Done (mission 22, `BitcoinSelfishMining`, Mathlib, 17 theorems, published, all proofs accepted):*
     the Eyal–Sirer chain, its stationary distribution verified (invariance and total mass), the
-    revenues as genuine infinite sums, the closed form, and `R > α ↔ α > (1-γ)/(3-2γ)`.
+    revenues as genuine infinite sums, the closed form, and `R > α ↔ α > (1-γ)/(3-2γ)`. Mission 25 (`BitcoinSelfishUnique`, 8
+    theorems) adds that the stationary distribution is unique. Still open: an ergodic theorem.
 12. **Replace-by-fee and pinning**: a precise statement of the property the mempool rules are
     meant to guarantee (no free relay, bounded pinning cost). *Done (mission 23,
     `BitcoinReplacement`, Mathlib, 15 theorems, published, all proofs accepted):* `PaysForRBF` transcribed from

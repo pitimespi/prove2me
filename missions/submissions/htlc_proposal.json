@@ -1,0 +1,22 @@
+{
+ "proposal_id": "102817df-a84f-4bc2-806d-e4d1dc0fb115",
+ "items": {
+  "BitcoinHtlc": "f7c584f4-3f73-4dbf-94d3-95372b7d6096",
+  "BitcoinHtlc.cltv_step": "b81df54b-7422-4704-87f6-85ac3eddd3db",
+  "BitcoinHtlc.multisig_two": "8b3e4e62-ddbb-4e10-9a74-429acf8d7df4",
+  "BitcoinHtlc.offered_revocation": "766f6032-c2b3-4268-95fd-cea4f9fa304a",
+  "BitcoinHtlc.offered_preimage": "885b699d-68ea-4cda-85de-dd7ba81d688c",
+  "BitcoinHtlc.offered_timeout": "2568de46-8434-4f1c-9244-5942fae2949f",
+  "BitcoinHtlc.offered_spends_iff": "b7cbcb0a-a2e8-4930-93d9-1cc64b158503",
+  "BitcoinHtlc.received_revocation": "ca8d50c1-5884-4871-994b-aaba867b375b",
+  "BitcoinHtlc.received_success": "717a444c-58bf-41f7-a05d-cf26e4ca961a",
+  "BitcoinHtlc.received_timeout": "f69f8b20-e50d-4cc7-b24f-921d55e3bd05",
+  "BitcoinHtlc.received_spends_iff": "64d3ee11-48d8-4675-8493-215dca0f87de",
+  "BitcoinHtlc.parseScript_offered": "dc8fc4e8-85fe-4912-bfc6-0d3757d8bac5",
+  "BitcoinHtlc.parseScript_received": "5fc63a5a-eda7-4ec6-b844-dd9e891ceb7a",
+  "BitcoinHtlc.offered_p2wsh_spend": "ab73c5d5-fca9-4345-a864-1c70b22162a6",
+  "BitcoinHtlc.received_p2wsh_spend": "3e66cee5-4822-43f2-843f-8f597b76bbf3",
+  "BitcoinHtlc.cltv_concrete": "5a6f4190-1d8a-429a-8cce-06c255818270",
+  "BitcoinHtlc.checkLockTime_iff": "d1325eaa-a884-40bb-8b81-d3101644b119"
+ }
+}
