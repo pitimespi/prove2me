@@ -1,0 +1,1 @@
+The verification mission's `p2wsh_correct` reduces `verifyScript` to the program's truth and `executeWitnessScriptV0`; unfold to the element-size check and `evalBytes`, parse with `parseScript_funding`, then `funding_spends_iff` on `ws.reverse`.

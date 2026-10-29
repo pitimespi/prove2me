@@ -1,0 +1,1 @@
+The closed form generalised to any stack of admissible size (fewer than three elements fails at the multisig; the result `boolBytes ok :: rest` has length 1 iff `rest = []`), stacks beyond the limit fail at a push, and `multisig_two` converts the loop verdict into the two signature checks.

@@ -1,0 +1,1 @@
+Symbolic execution of the five instructions (`OP_2`, two pushes, `OP_2`, `OP_CHECKMULTISIG`) with the HTLC mission's private step lemmas and its closed form `cms_two` for `2 k1 k2 2 OP_CHECKMULTISIG`; stack-size checks are discharged from the three-element stack.
