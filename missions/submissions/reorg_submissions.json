@@ -1,0 +1,11 @@
+{
+ "BitcoinReorg.updateCoins_equiv": "ACCEPTED",
+ "BitcoinReorg.connectBlock_equiv": "ACCEPTED",
+ "BitcoinReorg.validate_equiv": "ACCEPTED",
+ "BitcoinReorg.disconnect_connect_equiv": "ACCEPTED",
+ "BitcoinReorg.connectChain_reachable": "ACCEPTED",
+ "BitcoinReorg.connectChain_equiv": "ACCEPTED",
+ "BitcoinReorg.disconnectChain_connectChain": "ACCEPTED",
+ "BitcoinReorg.consistent_connectChain": "ACCEPTED",
+ "BitcoinReorg.reorg_safety": "ACCEPTED"
+}
