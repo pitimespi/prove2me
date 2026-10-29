@@ -1,0 +1,1 @@
+Nonnegativity from the sign of each case over the positive denominator; summability from the geometric form with ratio $\alpha/(1-\alpha) < 1$; mass 1 and the balance equations re-proved as in the selfish-mining mission (`tsum_geometric_of_lt_one`, `field_simp`, `ring`), and invariance assembled from the per-state inflow lemmas.

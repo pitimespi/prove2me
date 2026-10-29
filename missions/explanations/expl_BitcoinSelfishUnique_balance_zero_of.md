@@ -1,0 +1,1 @@
+The inflow into `zero` comes from `zero` (honest block), `tie` (every outcome) and `lead 1` (honest block); the `tsum` over leads has a single nonzero term (`tsum_eq_single`), and `h.invariant zero` is the identity after evaluating `P`.

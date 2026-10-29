@@ -1,0 +1,1 @@
+By `geometric_of_isStationary`, $\pi(\text{lead } n) = r^n \pi(\text{lead } 0)$; `balance_one_of` and `balance_tie_of` express $\pi_1, \pi_{0'}$ through $\pi_0$; `h.mass` with `tsum_geometric_of_lt_one` is a linear equation in $\pi_0$ whose solution is $(1-2\alpha)/\text{denom}$; each state is then compared with `stationary α` by `field_simp` and `ring`.
