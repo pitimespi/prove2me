@@ -1,0 +1,1 @@
+Both sides are tagged hashes with the tags `TapLeaf` and `TapBranch` of the messages `leafMsg v s` and `branchMsg a b`; `tagged_collision` yields either equal tag hashes, contradicting `tapleaf_ne_tapbranch`, or the collision of the two preimages.

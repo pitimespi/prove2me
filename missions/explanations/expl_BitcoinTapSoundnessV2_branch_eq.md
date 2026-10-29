@@ -1,0 +1,1 @@
+`tagged_collision` reduces the hypothesis to equal messages or the collision. Equal messages are the lexicographically sorted concatenations; splitting on the two `lexLt` comparisons gives four cases, in each of which the 32-byte length of the first component splits the concatenation with `List.append_inj`.

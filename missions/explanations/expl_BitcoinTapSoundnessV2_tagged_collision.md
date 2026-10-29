@@ -1,0 +1,1 @@
+Rewrite both hashes through `tagged_pre`. Either the two preimages are equal, in which case `List.append_inj` with the 32-byte length of `sha256` splits them into equal tag hashes and equal messages, or they differ and, having equal SHA-256, they collide.

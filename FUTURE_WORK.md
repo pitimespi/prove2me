@@ -45,9 +45,10 @@ a proof would change what people believe. The first two of group A are done (mis
    against confirmation), which needs an adversary and network model.
 7. **Taproot script-path soundness.** No control block opens a leaf not committed in the tree,
    given collision resistance of the tagged hashes; a reduction over the published commitment
-   arithmetic. *Done (mission 19, `BitcoinTapSoundness`, 7 theorems, published, all proofs accepted):* any
-   verified control block with the honest internal key opens a committed leaf, or exhibits a
-   SHA-256 collision, or two tweak scalars for one output key.
+   arithmetic. *Done (mission 19, revised as `BitcoinTapSoundnessV2`, 8 theorems, after the moderator pointed out
+   that "some collision exists" is provable by counting):* any verified control block with the
+   honest internal key opens a committed leaf, or names two explicit strings with the same SHA-256
+   computed from the inputs, or names two explicit 32-byte tweaks for one output key.
 8. **MuSig2 and FROST aggregation.** The aggregated key verifies under BIP340 exactly when the
    partial signatures combine correctly. *Not attempted, judged infeasible here:* the statement
    needs associativity and commutativity of the secp256k1 group law over the executable
