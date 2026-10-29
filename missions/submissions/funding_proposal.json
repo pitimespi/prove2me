@@ -1,0 +1,10 @@
+{
+ "proposal_id": "b9e16095-3875-4b2f-8188-91352cf5d0ee",
+ "items": {
+  "BitcoinFunding": "f1cc41e7-ad35-4dd5-9819-96342081cebc",
+  "BitcoinFunding.funding_witness": "4a274383-1a3e-42b8-bc9f-16b4935323cc",
+  "BitcoinFunding.funding_spends_iff": "76b6284a-4ff6-41b4-bd70-eb0b32859643",
+  "BitcoinFunding.parseScript_funding": "cef97bf2-de19-4031-adbc-903591255631",
+  "BitcoinFunding.funding_p2wsh_spend": "d052524a-f755-4a81-bad4-b04402c7a0a8"
+ }
+}
