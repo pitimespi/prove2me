@@ -1,0 +1,30 @@
+{
+ "proposal_id": "0d9624a4-f93a-4bbd-b539-bb088746b903",
+ "items": {
+  "BitcoinAnchors": "3c80e939-b83d-4e0b-bfc9-19b2b1d657b7",
+  "BitcoinAnchors.to_remote_eval": "59563bba-e42a-4d49-8572-ba1cb61a5313",
+  "BitcoinAnchors.to_remote_spends_iff": "8ca4eb84-03f5-40e6-a012-7889c058282a",
+  "BitcoinAnchors.anchor_eval": "12faced3-050f-4dee-98c3-222d379ee42e",
+  "BitcoinAnchors.anchor_holder": "4f0c536a-fdaa-4098-9ab2-d2be7e688c5a",
+  "BitcoinAnchors.anchor_anyone": "41bcdff5-9641-48b8-9b17-24d6f3f87a67",
+  "BitcoinAnchors.anchor_spends_iff": "616b2b0f-bee1-4948-8bc2-ba6b0d95ca2a",
+  "BitcoinAnchors.offered_revocation": "9264372a-a6cc-402f-bfde-978753954d5e",
+  "BitcoinAnchors.offered_preimage": "88dafa91-791f-4849-90ab-2c2a1f1b9367",
+  "BitcoinAnchors.offered_timeout": "d7e6ece4-e7b2-4e51-9f2f-39fb80e12424",
+  "BitcoinAnchors.offered_spends_iff": "4e3238a7-ff70-4c3b-9208-abbaa97fc861",
+  "BitcoinAnchors.received_revocation": "b1aa8a6b-316b-40cb-9704-72ec99cf8ca3",
+  "BitcoinAnchors.received_success": "a06f9064-d407-41a8-92a9-89a15e091220",
+  "BitcoinAnchors.received_timeout": "76c528b4-e97a-4768-aa0d-b501562bd0f3",
+  "BitcoinAnchors.received_spends_iff": "cc7d2ffe-7344-4f9e-97a8-948ce08c062c",
+  "BitcoinAnchors.parseScript_toRemote": "6247f932-7dcf-42f4-ba15-fa7a65a6935d",
+  "BitcoinAnchors.parseScript_anchor": "dc98046b-2e71-4655-8d1a-11e048575723",
+  "BitcoinAnchors.parseScript_offered": "a9734880-180f-464d-8bdd-1a4c1605f0ee",
+  "BitcoinAnchors.parseScript_received": "64c2b4b2-455a-43f0-a657-c04714164f3b",
+  "BitcoinAnchors.to_remote_p2wsh_spend": "357d66bb-b23c-47db-9dc5-c7ae2143e4d0",
+  "BitcoinAnchors.anchor_p2wsh_spend": "1658ed97-2dc6-4a09-8c62-dcd08de9c577",
+  "BitcoinAnchors.offered_p2wsh_spend": "2efa2920-339a-414a-9d7c-9e4af1f21d50",
+  "BitcoinAnchors.received_p2wsh_spend": "8c9742f7-1e5a-4c53-b0e5-0654371fa6bc",
+  "BitcoinAnchors.anchor_anyone_concrete": "d03818ef-14e2-416f-9ea5-55b943c30d98",
+  "BitcoinAnchors.anchor_anyone_delay": "f5d60d53-2250-4bab-a9dd-8e97e466a329"
+ }
+}
