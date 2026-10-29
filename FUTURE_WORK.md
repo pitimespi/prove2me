@@ -93,3 +93,18 @@ a proof would change what people believe. The first two of group A are done (mis
 - Differential testing of the Lean interpreter against Core's `script_tests.json` and
   `tx_valid.json` / `tx_invalid.json`. *Done (`REVIEW_DIFFTEST.md`, 994 cases, only L1/L10 diverge).*
 - Closing limits L1 and L10 with a revision of the Script definition.
+
+
+## Round 4 (2026-10-29): every remaining item attempted
+
+Seven missions started in parallel, one per open item: `BitcoinScriptV2` (closing L1/L10 with an
+interpreter that tracks the `OP_CODESEPARATOR` position and FindAndDeletes every multisig signature,
+with an equivalence theorem to the published interpreter outside the two limits and the 9 Core
+vectors), `BitcoinPenalty` (the Lightning penalty at the script level: completeness for the holder of
+the revocation key, delay for the cheater), `BitcoinBackboneProb` (the probabilistic half of the
+backbone analysis, as far as Mathlib's concentration inequalities allow), `BitcoinSelfishErgodic`
+(convergence of the selfish-mining chain, at least in Cesàro mean, and revenue as a long-run average),
+`BitcoinFeerateDiagram` (the cluster-mempool feerate-diagram check of the pinned revision),
+`BitcoinMuSig` (MuSig2 over Mathlib's Weierstrass group law; primality of p as a hypothesis if it
+cannot be certified) and `BitcoinMiniscript` (a kernel of fragments with the type system and a
+compiler-correctness theorem). Status in `STATUS.md` as each reports.
