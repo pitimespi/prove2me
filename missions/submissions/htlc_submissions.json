@@ -1,0 +1,18 @@
+{
+ "BitcoinHtlc.cltv_step": "ACCEPTED",
+ "BitcoinHtlc.multisig_two": "ACCEPTED",
+ "BitcoinHtlc.offered_revocation": "ACCEPTED",
+ "BitcoinHtlc.offered_preimage": "ACCEPTED",
+ "BitcoinHtlc.offered_timeout": "ACCEPTED",
+ "BitcoinHtlc.offered_spends_iff": "ACCEPTED",
+ "BitcoinHtlc.received_revocation": "ACCEPTED",
+ "BitcoinHtlc.received_success": "ACCEPTED",
+ "BitcoinHtlc.received_timeout": "ACCEPTED",
+ "BitcoinHtlc.received_spends_iff": "ACCEPTED",
+ "BitcoinHtlc.parseScript_offered": "ACCEPTED",
+ "BitcoinHtlc.parseScript_received": "ACCEPTED",
+ "BitcoinHtlc.offered_p2wsh_spend": "ACCEPTED",
+ "BitcoinHtlc.received_p2wsh_spend": "ACCEPTED",
+ "BitcoinHtlc.cltv_concrete": "ACCEPTED",
+ "BitcoinHtlc.checkLockTime_iff": "ACCEPTED"
+}

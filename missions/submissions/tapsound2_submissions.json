@@ -1,0 +1,10 @@
+{
+ "BitcoinTapSoundnessV2.tagged_pre": "ACCEPTED",
+ "BitcoinTapSoundnessV2.tagged_collision": "ACCEPTED",
+ "BitcoinTapSoundnessV2.tapleaf_ne_tapbranch": "ACCEPTED",
+ "BitcoinTapSoundnessV2.leaf_ne_branch": "ACCEPTED",
+ "BitcoinTapSoundnessV2.branch_eq": "ACCEPTED",
+ "BitcoinTapSoundnessV2.path_lands": "ACCEPTED",
+ "BitcoinTapSoundnessV2.script_path_soundness": "ACCEPTED",
+ "BitcoinTapSoundnessV2.commitment_soundness": "ACCEPTED"
+}

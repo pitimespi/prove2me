@@ -1,0 +1,10 @@
+{
+ "BitcoinSelfishUnique.stationary_isStationary": "ACCEPTED",
+ "BitcoinSelfishUnique.balance_zero_of": "ACCEPTED",
+ "BitcoinSelfishUnique.balance_tie_of": "ACCEPTED",
+ "BitcoinSelfishUnique.balance_one_of": "ACCEPTED",
+ "BitcoinSelfishUnique.balance_two_of": "ACCEPTED",
+ "BitcoinSelfishUnique.balance_lead_of": "ACCEPTED",
+ "BitcoinSelfishUnique.geometric_of_isStationary": "ACCEPTED",
+ "BitcoinSelfishUnique.stationary_unique": "ACCEPTED"
+}
