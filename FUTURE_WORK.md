@@ -19,7 +19,7 @@ a proof would change what people believe. The first two of group A are done (mis
    limit L3). Makes "the UTXO set is a function of the chain, not the path" a theorem. *Done: `BitcoinReorg.reorg_safety` (mission 16).*
 4. **BIP30 with BIP34 implies no duplicate txids** on any reachable chain, including the two
    historical exception blocks and the 1,983,702 limit; today this argument is a comment in Core.
-   *Partly done (mission 17, `BitcoinUniqueness`, 8 theorems, proposal drafted):* the BIP34 height
+   *Partly done (mission 17, `BitcoinUniqueness`, 8 theorems, published, all proofs accepted):* the BIP34 height
    push is a prefix of the coinbase scriptSig, coinbases of distinct heights are distinct, and the
    BIP30 scan runs exactly where Core runs it and guarantees fresh outputs where it runs. Not done:
    the full "no duplicate txids on any reachable chain" needs the hash-collision-freeness of txids
@@ -27,7 +27,7 @@ a proof would change what people believe. The first two of group A are done (mis
 5. **Difficulty is bounded.** Chain work strictly increases, and across one retarget the target
    changes by at most a factor of four in either direction; the exact statement of what an
    adversary can do with timestamps (the timewarp gap) would be new. *Done (mission 18,
-   `BitcoinDifficulty`, 7 theorems, proposal drafted):* no wraparound, raw and encoded bounds,
+   `BitcoinDifficulty`, 7 theorems, published, all proofs accepted):* no wraparound, raw and encoded bounds,
    `4^m` over `m` periods, never above `powLimit`, and `requiredBits ≤ 4 × tip` on any chain
    state. Chain work increasing was already `BitcoinBlockV2.chainWork_increases`.
 
@@ -43,7 +43,7 @@ a proof would change what people believe. The first two of group A are done (mis
    HTLC scripts, the race against confirmation), which needs an adversary and network model.
 7. **Taproot script-path soundness.** No control block opens a leaf not committed in the tree,
    given collision resistance of the tagged hashes; a reduction over the published commitment
-   arithmetic. *Done (mission 19, `BitcoinTapSoundness`, 7 theorems, proposal drafted):* any
+   arithmetic. *Done (mission 19, `BitcoinTapSoundness`, 7 theorems, published, all proofs accepted):* any
    verified control block with the honest internal key opens a committed leaf, or exhibits a
    SHA-256 collision, or two tweak scalars for one output key.
 8. **MuSig2 and FROST aggregation.** The aggregated key verifies under BIP340 exactly when the
@@ -68,12 +68,12 @@ a proof would change what people believe. The first two of group A are done (mis
     blockProof` at constant difficulty. Not done: the probabilistic part (Chernoff bounds), the
     Δ-synchronous model, and difficulty adjustment.
 11. **Selfish-mining thresholds**, a Markov-chain argument redone several times with different
-    numbers. *Done (mission 22, `BitcoinSelfishMining`, Mathlib, 17 theorems, proposal drafted):*
+    numbers. *Done (mission 22, `BitcoinSelfishMining`, Mathlib, 17 theorems, published, all proofs accepted):*
     the Eyal–Sirer chain, its stationary distribution verified (invariance and total mass), the
     revenues as genuine infinite sums, the closed form, and `R > α ↔ α > (1-γ)/(3-2γ)`.
 12. **Replace-by-fee and pinning**: a precise statement of the property the mempool rules are
     meant to guarantee (no free relay, bounded pinning cost). *Done (mission 23,
-    `BitcoinReplacement`, Mathlib, 15 theorems, proposal drafted):* `PaysForRBF` transcribed from
+    `BitcoinReplacement`, Mathlib, 15 theorems, published, all proofs accepted):* `PaysForRBF` transcribed from
     the pinned revision (`GetFee` as the exact ceiling, 100 sat/kvB default); no free relay along
     any replacement chain in four forms, replacement-count bounds, pinning cost exactly the
     attached descendants' fees, and rule 3 (from v29.0, absent at the pinned revision where the

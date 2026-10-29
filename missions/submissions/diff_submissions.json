@@ -1,0 +1,9 @@
+{
+ "BitcoinDifficulty.no_wrap": "ACCEPTED",
+ "BitcoinDifficulty.raw_target_bounds": "ACCEPTED",
+ "BitcoinDifficulty.encoded_target_upper": "ACCEPTED",
+ "BitcoinDifficulty.encoded_target_lower": "ACCEPTED",
+ "BitcoinDifficulty.target_after_upper": "ACCEPTED",
+ "BitcoinDifficulty.target_after_le_powLimit": "ACCEPTED",
+ "BitcoinDifficulty.requiredBits_le": "ACCEPTED"
+}

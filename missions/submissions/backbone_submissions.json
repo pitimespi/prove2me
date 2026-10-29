@@ -1,0 +1,10 @@
+{
+ "BitcoinBackbone.chainWork_const_bits": "ACCEPTED",
+ "BitcoinBackbone.chain_growth": "ACCEPTED",
+ "BitcoinBackbone.chain_growth_self": "ACCEPTED",
+ "BitcoinBackbone.uniquely_successful_height": "ACCEPTED",
+ "BitcoinBackbone.common_prefix_private": "ACCEPTED",
+ "BitcoinBackbone.common_prefix_rounds": "ACCEPTED",
+ "BitcoinBackbone.common_prefix": "ACCEPTED",
+ "BitcoinBackbone.chain_quality": "ACCEPTED"
+}

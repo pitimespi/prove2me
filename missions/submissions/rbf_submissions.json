@@ -1,0 +1,17 @@
+{
+ "BitcoinReplacement.paysForRBF_iff": "ACCEPTED",
+ "BitcoinReplacement.fee_strictly_increases": "ACCEPTED",
+ "BitcoinReplacement.bandwidth_paid": "ACCEPTED",
+ "BitcoinReplacement.bandwidth_paid_total": "ACCEPTED",
+ "BitcoinReplacement.bandwidth_paid_rate": "ACCEPTED",
+ "BitcoinReplacement.bandwidth_paid_real": "ACCEPTED",
+ "BitcoinReplacement.replacement_count_bound_min_vsize": "ACCEPTED",
+ "BitcoinReplacement.replacement_count_bound": "ACCEPTED",
+ "BitcoinReplacement.replacement_count_le_fee": "ACCEPTED",
+ "BitcoinReplacement.replacement_count_bound_rate": "ACCEPTED",
+ "BitcoinReplacement.pinning_cost": "ACCEPTED",
+ "BitcoinReplacement.pinning_cost_tight": "ACCEPTED",
+ "BitcoinReplacement.feeRateQ_lt_iff": "ACCEPTED",
+ "BitcoinReplacement.evicted_feerate_dominated": "ACCEPTED",
+ "BitcoinReplacement.min_direct_feerate_lt": "ACCEPTED"
+}

@@ -1,0 +1,19 @@
+{
+ "BitcoinSelfishMining.denominator_pos": "ACCEPTED",
+ "BitcoinSelfishMining.stationary_nonneg": "ACCEPTED",
+ "BitcoinSelfishMining.P_row_sum": "ACCEPTED",
+ "BitcoinSelfishMining.balance_zero": "ACCEPTED",
+ "BitcoinSelfishMining.balance_tie": "ACCEPTED",
+ "BitcoinSelfishMining.balance_one": "ACCEPTED",
+ "BitcoinSelfishMining.balance_two": "ACCEPTED",
+ "BitcoinSelfishMining.balance_lead": "ACCEPTED",
+ "BitcoinSelfishMining.stationary_balance": "ACCEPTED",
+ "BitcoinSelfishMining.tail_sum": "ACCEPTED",
+ "BitcoinSelfishMining.total_mass": "ACCEPTED",
+ "BitcoinSelfishMining.pool_revenue_eq": "ACCEPTED",
+ "BitcoinSelfishMining.others_revenue_eq": "ACCEPTED",
+ "BitcoinSelfishMining.relative_revenue": "ACCEPTED",
+ "BitcoinSelfishMining.threshold": "ACCEPTED",
+ "BitcoinSelfishMining.threshold_gamma_zero": "ACCEPTED",
+ "BitcoinSelfishMining.threshold_gamma_one": "ACCEPTED"
+}

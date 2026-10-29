@@ -1,0 +1,10 @@
+{
+ "BitcoinUniqueness.pushBytes_prefix": "ACCEPTED",
+ "BitcoinUniqueness.heightScript_prefix": "ACCEPTED",
+ "BitcoinUniqueness.scan_freshness": "ACCEPTED",
+ "BitcoinUniqueness.scan_runs_late": "ACCEPTED",
+ "BitcoinUniqueness.scan_runs_early": "ACCEPTED",
+ "BitcoinUniqueness.coinbase_height_prefix": "ACCEPTED",
+ "BitcoinUniqueness.coinbases_distinct": "ACCEPTED",
+ "BitcoinUniqueness.chain_coinbases_distinct": "ACCEPTED"
+}

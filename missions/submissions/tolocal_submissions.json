@@ -1,0 +1,11 @@
+{
+ "BitcoinToLocal.serialize_length": "ACCEPTED",
+ "BitcoinToLocal.csv_step": "ACCEPTED",
+ "BitcoinToLocal.eval_cons": "ACCEPTED",
+ "BitcoinToLocal.spends_iff": "ACCEPTED",
+ "BitcoinToLocal.parseScript_toLocal": "ACCEPTED",
+ "BitcoinToLocal.p2wsh_spend": "ACCEPTED",
+ "BitcoinToLocal.csv_concrete": "ACCEPTED",
+ "BitcoinToLocal.checkSequence_iff": "ACCEPTED",
+ "BitcoinToLocal.lightning_delay": "ACCEPTED"
+}
