@@ -1,0 +1,24 @@
+{
+ "proposal_id": "b53df190-f3e0-485a-aa2d-2f71d06875a6",
+ "items": {
+  "BitcoinMiniscript": "4f2d0e5f-2723-4147-bf56-cdcdf879bb7a",
+  "BitcoinMiniscript.runSeq_append": "2496250f-b9d1-467f-a38b-c453c5ea1357",
+  "BitcoinMiniscript.run_eq_runSeq": "68d66adb-1bfc-4c1a-aa54-8de59997394d",
+  "BitcoinMiniscript.evalScript_eq_runSeq": "01ea316c-ece5-41f6-8c81-1f55a81bcc03",
+  "BitcoinMiniscript.sem_consumes": "aef6fa24-5f73-485a-93dc-4fb69bda98ef",
+  "BitcoinMiniscript.compile_skip": "01235bbe-b231-4a1d-90c8-fcc8f0219cc9",
+  "BitcoinMiniscript.goodVal_of_sem": "6bc1f6f7-07c5-4623-893f-9669cdda8f0a",
+  "BitcoinMiniscript.goodVal_of_semW": "f7f75776-7da5-44b6-b55e-17e26f66e309",
+  "BitcoinMiniscript.sem_V_nil": "8468c45c-7a34-46cb-9b93-61c2d16eb93f",
+  "BitcoinMiniscript.sem_K_shape": "fa788b73-8d7d-4b3e-aedb-cb75a501cf8d",
+  "BitcoinMiniscript.sem_sound": "7e1a456e-b7e4-470e-b780-6ebd3f5831f3",
+  "BitcoinMiniscript.semW_sound": "9a590cc9-e22f-4e13-9f91-986099d8d0f7",
+  "BitcoinMiniscript.sat_sound": "dfadee0f-f967-4245-8ecb-d2e2713e778c",
+  "BitcoinMiniscript.dsat_sound": "e6e9c948-878c-4b4e-8561-f780cbb3cc9f",
+  "BitcoinMiniscript.satV_sound": "c312fcea-8f72-4c56-80a2-2ee02c4732fb",
+  "BitcoinMiniscript.sat_spends": "0576a49a-6a3f-44be-91f9-e90a616d05bd",
+  "BitcoinMiniscript.compile_length": "74d970ba-f820-4668-904f-c75b48ce8eec",
+  "BitcoinMiniscript.opsIn_compile_le": "d8539767-8ebf-4a37-a552-397393040d81",
+  "BitcoinMiniscript.typeOf_sound": "18cbf26e-d74c-4677-8f4d-4aa0b99e8e17"
+ }
+}
