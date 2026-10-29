@@ -1,0 +1,5 @@
+{
+ "BitcoinHtlcLocks.isFinalTx_height": "ACCEPTED",
+ "BitcoinHtlcLocks.presigned_timeout_height": "ACCEPTED",
+ "BitcoinHtlcLocks.received_spend_height": "ACCEPTED"
+}

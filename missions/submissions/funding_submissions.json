@@ -1,0 +1,6 @@
+{
+ "BitcoinFunding.funding_witness": "ACCEPTED",
+ "BitcoinFunding.funding_spends_iff": "ACCEPTED",
+ "BitcoinFunding.parseScript_funding": "ACCEPTED",
+ "BitcoinFunding.funding_p2wsh_spend": "ACCEPTED"
+}
