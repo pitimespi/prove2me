@@ -1,0 +1,14 @@
+{
+ "proposal_id": "6f0bbd81-c56d-4ec6-9aba-d54587eae0f6",
+ "items": {
+  "BitcoinTapSoundnessV2.tagged_pre": "561f3668-ef3c-461a-853c-a4cb414afbf9",
+  "BitcoinTapSoundnessV2.tagged_collision": "524bbdfe-f7fa-4a7a-8324-c80f32ea72ff",
+  "BitcoinTapSoundnessV2.tapleaf_ne_tapbranch": "fa15fdbb-a5bf-491d-bcf9-6ec239b02a30",
+  "BitcoinTapSoundnessV2.leaf_ne_branch": "7544916a-f143-4f94-86e9-23f2f7bd3e28",
+  "BitcoinTapSoundnessV2.branch_eq": "b92c7750-0189-4611-9937-7fd553c38c69",
+  "BitcoinTapSoundnessV2.path_lands": "39520408-2646-457e-ba1f-98785844817c",
+  "BitcoinTapSoundnessV2.script_path_soundness": "49cb0515-6873-4e87-a493-64f15ca204e6",
+  "BitcoinTapSoundnessV2.commitment_soundness": "c4d82264-99f1-4f3d-aef6-f63746965e3d",
+  "BitcoinTapSoundnessV2": "cce098b5-0d70-4877-be9a-be601b87dc81"
+ }
+}
