@@ -53,14 +53,19 @@ a proof would change what people believe. The first two of group A are done (mis
    honest internal key opens a committed leaf, or names two explicit strings with the same SHA-256
    computed from the inputs, or names two explicit 32-byte tweaks for one output key.
 8. **MuSig2 and FROST aggregation.** The aggregated key verifies under BIP340 exactly when the
-   partial signatures combine correctly. *Not attempted, judged infeasible here:* the statement
+   partial signatures combine correctly. *Done after all (mission 34, `BitcoinMuSig`, 29 theorems): the executable curve was
+   connected to Mathlib's Weierstrass group with certified primality of p and n, giving the group
+   law; MuSig2 is proved end to end against `schnorrVerify`, FROST in the group.* Originally
+   judged infeasible: the statement
    needs associativity and commutativity of the secp256k1 group law over the executable
    `padd`/`pmul` of the signature mission (the Jacobian-free affine formulas with the model's
    `finv`), which is a Mathlib-scale algebraic development (Weierstrass curve group law), not a
    transcription; without it no identity of the form `(a+b)·G = a·G + b·G` is available.
 9. **Miniscript correctness.** Every compiled policy satisfies its spending conditions and only
    those, and the script is consensus-valid and within the size limits, against the real
-   interpreter. *Not attempted, judged out of scope:* Miniscript is a language with a type system
+   interpreter. *Soundness done (mission 35, `BitcoinMiniscript`, 18 theorems, 23 fragments): every
+   satisfaction makes the compiled script succeed; the converse and malleability analysis remain.*
+   Originally judged out of scope: Miniscript is a language with a type system
    and a compiler; its correctness theorem is a soundness proof of that type system against the
    interpreter for every fragment (dozens of combinators with their malleability and resource
    properties), a project of its own. Mission 20 is the hand-done instance for one fixed script.

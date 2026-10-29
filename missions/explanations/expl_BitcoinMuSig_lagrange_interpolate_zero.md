@@ -1,0 +1,1 @@
+Mathlib's Lagrange interpolation (`Lagrange.interpolate`) over the field `ZMod n` (prime by `n_prime`) with distinct nodes $i < n$: a polynomial of degree below $|S|$ equals its interpolant, evaluated at 0.

@@ -1,0 +1,1 @@
+Case analysis on the executable `padd` (infinity, inverse points, doubling, distinct x): each branch's affine formula is shown equal in `ZMod p` to Mathlib's `Point.add` formula for $y^2 = x^3 + 7$, using `equation_iff_onCurve` and the field structure from the certified primality of $p$.
