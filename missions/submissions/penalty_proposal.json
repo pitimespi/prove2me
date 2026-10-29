@@ -1,0 +1,27 @@
+{
+ "proposal_id": "881d71dc-8a38-43bf-85cd-e5bc91fe3957",
+ "items": {
+  "BitcoinPenalty": "547ed996-7a8c-4a90-92c9-a4eb795484ed",
+  "BitcoinPenalty.to_local_penalty_sig": "96913624-46d2-4924-930c-d99ea84da8bd",
+  "BitcoinPenalty.to_local_penalty": "3ec631aa-c9a6-4f9c-8309-848f1afb178c",
+  "BitcoinPenalty.offered_htlc_penalty": "45d0ccf3-6b9c-4260-ad99-34000427106c",
+  "BitcoinPenalty.received_htlc_penalty": "59f305e0-fd21-4686-a5ab-353928f66ba2",
+  "BitcoinPenalty.offered_htlc_penalty_anchors": "cf524872-d05d-4990-ad45-7fd184a256b3",
+  "BitcoinPenalty.received_htlc_penalty_anchors": "d454b667-24fa-4144-ac9e-8a9073badd8b",
+  "BitcoinPenalty.revoked_commitment_penalty": "c5a2a4ec-12fc-4ad4-b135-a2b3c1f87139",
+  "BitcoinPenalty.to_remote_honest_only": "af2d6c55-0e40-4e56-8b80-caa60d8bc68f",
+  "BitcoinPenalty.anchor_holder_or_delay": "00601704-43be-4103-bc5f-32d3cdbbab9e",
+  "BitcoinPenalty.anchor_anyone_after_16": "59ec97de-937d-4e77-8e76-1e789522b322",
+  "BitcoinPenalty.to_local_cheater_delayed": "c0e403ab-7b2c-4c33-bb46-e4aa51ea345e",
+  "BitcoinPenalty.cheater_delay_in_tx_terms": "0ca4f8b7-96cf-4b57-86a5-e59e7a4885ce",
+  "BitcoinPenalty.cheater_delay_any_sequence": "67b423ea-b0ba-471d-b9ca-33f2b313e9af",
+  "BitcoinPenalty.cheater_needs_delay": "2dee61ab-1de8-4999-8f3b-3a9ac6592037",
+  "BitcoinPenalty.offered_cheater_no_revocation": "bc833a3a-08c0-46c0-a1cf-22bae3c2b11b",
+  "BitcoinPenalty.received_cheater_no_revocation": "e091bca1-1941-4115-86c5-311e4828b51d",
+  "BitcoinPenalty.offered_cheater_no_revocation_anchors": "cf786819-c37b-40c1-a08b-0c1eaef91303",
+  "BitcoinPenalty.received_cheater_no_revocation_anchors": "4605470d-46b1-4688-9f52-55275a278c64",
+  "BitcoinPenalty.htlc_cheater_one_block_anchors": "33ef3b6d-c92d-468d-ac8e-a4633ee01efb",
+  "BitcoinPenalty.received_cheater_height": "4e8e31b6-c879-4078-873f-94c870233a34",
+  "BitcoinPenalty.penalty_any_block": "f455a5e0-5a4f-4fc9-9c38-91145d159c6e"
+ }
+}
