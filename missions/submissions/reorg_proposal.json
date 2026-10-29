@@ -1,0 +1,15 @@
+{
+ "proposal_id": "00f12721-22df-4983-9bc5-d82c140b87a0",
+ "items": {
+  "BitcoinReorg": "e6814731-bcfc-4401-915d-5cb5d9c80337",
+  "BitcoinReorg.updateCoins_equiv": "decfd047-2fa2-4e15-ade3-e7490ca0e727",
+  "BitcoinReorg.connectBlock_equiv": "602df95c-bc6a-4966-a71b-2a33edd9283e",
+  "BitcoinReorg.validate_equiv": "b51b4155-9247-41e5-8af8-b294e9ded092",
+  "BitcoinReorg.disconnect_connect_equiv": "cbf03577-069d-4c98-b714-2cb800ae381a",
+  "BitcoinReorg.connectChain_reachable": "726800d8-7626-4cdd-b13e-e861a7e1b789",
+  "BitcoinReorg.connectChain_equiv": "d910df98-54dd-4d15-bd2c-3d04652c55d7",
+  "BitcoinReorg.disconnectChain_connectChain": "be2231be-ed70-4c28-a87d-ceec674f7166",
+  "BitcoinReorg.consistent_connectChain": "8ae4ffd5-32b1-47ed-ac49-0245dbd8ac30",
+  "BitcoinReorg.reorg_safety": "42e3979b-27a9-4a2c-9ddc-646b5084abea"
+ }
+}

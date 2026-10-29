@@ -1,0 +1,1 @@
+`getCoin` after `addCoinsFrom` and after `spendInputs` has an exact characterization whose conditions do not mention the ledger (`getCoin_addCoinsFrom`, `getCoin_spendInputs`); in every branch where the old ledger is read, the two equivalent ledgers agree.

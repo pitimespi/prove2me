@@ -1,0 +1,1 @@
+`disconnectChain_connectChain` identifies the disconnected state (by determinism of `disconnectChain`) as clean and equivalent to the start; `connectChain_equiv` transports the connection of the new chain to the start state with the same undo data; `connectChain_reachable` makes the result reachable.

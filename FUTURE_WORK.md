@@ -16,7 +16,7 @@ a proof would change what people believe. The first two of group A are done (mis
    `hash160` preimage of the output's hash. This is the property Lightning rests on. *Done: `BitcoinMalleability.txid_determined`.*
 3. **Reorganization safety.** Disconnecting any sequence of blocks and reconnecting another valid
    sequence yields a state reachable by direct validation (currently proved one block at a time,
-   limit L3). Makes "the UTXO set is a function of the chain, not the path" a theorem.
+   limit L3). Makes "the UTXO set is a function of the chain, not the path" a theorem. *Done: `BitcoinReorg.reorg_safety` (mission 16).*
 4. **BIP30 with BIP34 implies no duplicate txids** on any reachable chain, including the two
    historical exception blocks and the 1,983,702 limit; today this argument is a comment in Core.
 5. **Difficulty is bounded.** Chain work strictly increases, and across one retarget the target
