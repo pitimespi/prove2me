@@ -1,0 +1,9 @@
+{
+ "proposal_id": "cb59972f-35bc-413b-ac5b-0e62ea79e1d0",
+ "items": {
+  "BitcoinHtlcLocks": "22c88258-014c-4271-868b-ca19ac607a83",
+  "BitcoinHtlcLocks.isFinalTx_height": "b91bd4cd-aa12-4394-998e-4d76f684d601",
+  "BitcoinHtlcLocks.presigned_timeout_height": "565f0532-d58e-49cb-aed1-843b7603087b",
+  "BitcoinHtlcLocks.received_spend_height": "1bcc37b0-13d6-4169-8c53-3bad57d91e45"
+ }
+}
