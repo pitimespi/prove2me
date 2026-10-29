@@ -1,0 +1,1 @@
+The backward direction of the HTLC mission's `offered_p2wsh_spend` with `ws = [sigR, revPk]`: the revocation disjunct needs `hash160 revPk = revHash` and the accepted signature, both from `HoldsRevocation`; element sizes from the 520-byte bounds.

@@ -1,0 +1,1 @@
+The forward direction of the HTLC mission's `offered_p2wsh_spend`; the revocation disjunct needs an accepted signature for the pushed key `pk` with `hash160 pk = revHash`, so `pk = revPk` by `NoRevHashPreimage` and the signature contradicts `NoRevocationSig`.

@@ -1,0 +1,1 @@
+The backward direction of the `to_local` mission's `p2wsh_spend` with `ws = [sigR, [1]]`: `castToBool [1] = true` selects the revocation branch, and `SpendCondition`'s first disjunct is the accepted signature.
