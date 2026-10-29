@@ -1,0 +1,1 @@
+Unfold `isFinalTx`: the lock time is nonzero and below the threshold, so the comparison is against the height; the `all`-inputs-final fallback is false because input $i$ (a member of `vin` by `getD` at an in-range index) is not final; cases on the comparison.
