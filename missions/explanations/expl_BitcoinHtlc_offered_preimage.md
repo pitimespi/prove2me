@@ -1,0 +1,1 @@
+The revocation test fails and `OP_ELSE` executes: `<remoteKey> OP_SWAP OP_SIZE 32 OP_EQUAL` pushes whether the top is 32 bytes; `OP_NOTIF` skips the multisig branch; `OP_HASH160 <payHash> OP_EQUALVERIFY` fails unless the hashes agree, then `OP_CHECKSIG` on the remote key.

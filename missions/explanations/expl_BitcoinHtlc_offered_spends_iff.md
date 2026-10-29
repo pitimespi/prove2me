@@ -1,0 +1,1 @@
+Forward: case analysis on the stack shape and on the two tests (`hash160 top = revHash`, `top.length = 32`) using the three closed-form lemmas generalised to a trailing `rest`, whose length must be 0 for one element to remain; stacks beyond the limit fail at the first push. Backward: the closed forms on each path's witness.

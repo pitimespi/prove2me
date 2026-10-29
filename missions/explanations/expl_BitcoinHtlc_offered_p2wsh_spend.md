@@ -1,0 +1,1 @@
+The verification mission's `p2wsh_correct` reduces `verifyScript` to the program's truth and `executeWitnessScriptV0` on the reversed witness; unfold to the element-size check and `evalBytes`, parse with `parseScript_offered` (the script is below 10,000 bytes), then `offered_spends_iff` on `ws.reverse`.

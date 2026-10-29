@@ -1,0 +1,1 @@
+Unfold `execOp` at `OP_CHECKLOCKTIMEVERIFY`; `toNum false 5 (serialize expiry) = some expiry` from the `to_local` mission's length bound and the script mission's round-trip; cases on the flag, the sign and the oracle's answer.

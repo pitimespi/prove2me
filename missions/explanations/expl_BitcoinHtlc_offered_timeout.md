@@ -1,0 +1,1 @@
+The size test fails so `OP_NOTIF` executes its branch: `OP_DROP 2 OP_SWAP <localKey> 2 OP_CHECKMULTISIG` is evaluated by a closed-form lemma for the 2-of-2 case (`cms_two`): keys `[localKey, remoteKey]`, signatures `[localSig, remoteSig]`, then the dummy and the `NULLDUMMY` test.

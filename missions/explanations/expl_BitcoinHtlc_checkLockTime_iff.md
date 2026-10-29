@@ -1,0 +1,1 @@
+Unfold `checkLockTime`: with both values below the threshold the type test passes, the comparison is `expiry ≤ nLockTime`, and the final test is the input's `nSequence ≠ SEQUENCE_FINAL`; cases on each.

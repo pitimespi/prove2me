@@ -1,0 +1,1 @@
+Symbolic execution: `OP_DUP OP_HASH160 <revHash> OP_EQUAL` leaves `[1]` above the key when the hash matches, `OP_IF` takes it, `OP_CHECKSIG` consumes key and signature; the `OP_ELSE` branch's instructions are skipped (shown inert by the skip lemmas).
