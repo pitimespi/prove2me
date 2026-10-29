@@ -1,0 +1,1 @@
+`avgPoolGain_eq` and the convergence of `cesaro` pointwise, with dominated convergence over the states (the expected gain per state is bounded and the tails are uniformly geometric); the limit is `poolRevenue` by definition.

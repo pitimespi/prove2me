@@ -1,0 +1,1 @@
+The bound $\mu(\text{lead } m) \le C r^m$ with $r = \alpha/(1-\alpha)$ and $C \ge 1$ is preserved by one step (`dist_lead_le`): for a lead of 1 because `dist μ (lead 0) = α μ(zero) ≤ α ≤ C`, and for longer leads because `α · C r^m + (1-α) · C r^{m+2} = C r^{m+1}` (`ratio_step`). Induction on $n$ from the point mass at `zero`, where the bound holds with $C = 1$.

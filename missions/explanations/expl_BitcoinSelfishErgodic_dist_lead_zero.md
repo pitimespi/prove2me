@@ -1,0 +1,1 @@
+Unfold `dist` and `stateSum`; evaluate `P` on each source state with `step` and `outcomeProb` (only the states that can move into the target contribute), the `tsum` over leads collapsing by `tsum_eq_single` or a finite split.

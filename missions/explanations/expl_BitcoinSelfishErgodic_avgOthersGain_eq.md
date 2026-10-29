@@ -1,0 +1,1 @@
+As `avgPoolGain_eq`.

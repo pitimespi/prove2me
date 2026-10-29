@@ -1,0 +1,1 @@
+Each term of the sum is `μ t · P t s`; the entries of `P` are sums of `α`, `1-α` and the tie row's `(1-α)γ + (1-α)(1-γ) = 1-α`, all nonnegative for $0 \le \alpha \le 1$, so every term and the `tsum` of the lead terms are nonnegative.
