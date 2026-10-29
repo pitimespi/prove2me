@@ -1,0 +1,1 @@
+After `no_wrap` the modulus is the identity; `Nat.div_le_of_le_mul` gives the upper bound from `t·ts ≤ 1209600·4t`; for the lower bound `t/4 = t·302400/1209600` by cancelling the common factor and division is monotone in the dividend; the cap case is immediate.
