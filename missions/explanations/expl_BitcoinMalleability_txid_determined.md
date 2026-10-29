@@ -1,0 +1,1 @@
+Equal intents give equal `(prevout, nSequence)` lists, so every input of `tx'` spends the same outpoint as some input of `tx` and `SpendsWitnessPrograms` transfers to `tx'`. Then `txid_of_intent` on both sides reduces both txids to `txid (ofIntent (intentOf _))`, and the intents are equal.

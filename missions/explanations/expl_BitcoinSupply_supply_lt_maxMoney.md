@@ -1,0 +1,1 @@
+From `supply_bound`, `totalValue ≤ issued n − genesisSubsidy ≤ issued n`, and the subsidy mission's `issuance_bound` gives `issuedBelow n < 21000000 · 10^8`, which is the block mission's `MAX_MONEY` as an integer.

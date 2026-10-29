@@ -1,19 +1,19 @@
 # Claims worth proving next
 
 Saved 2026-10-28 from the discussion after the 23-spot review. Ranked within each group by how much
-a proof would change what people believe. The first two of group A are in progress.
+a proof would change what people believe. The first two of group A are done (missions 14 and 15, published 2026-10-29, all proofs accepted).
 
 ## A. Theorems about the rules themselves (provable now against the published definitions)
 
 1. **The 21 million bound as a chain invariant.** On every state reachable from genesis, the total
    value of the UTXO set is at most the subsidy issued so far, hence below `MAX_MONEY`. The subsidy
    schedule's total is already proved; this is the same bound for the whole validation path, which
-   is what rules out an inflation bug of the CVE-2018-17144 kind. *In progress.*
+   is what rules out an inflation bug of the CVE-2018-17144 kind. *Done: `BitcoinSupply.supply_bound`.*
 2. **SegWit non-malleability.** A transaction whose inputs all spend native witness programs has
    an empty `scriptSig` on every input whenever its scripts verify, so its txid is a function of
    its version, prevouts, sequences, outputs and lock time alone: no third party can change the
    txid of a valid spend. For P2SH-wrapped programs the `scriptSig` is the single push of a
-   `hash160` preimage of the output's hash. This is the property Lightning rests on. *In progress.*
+   `hash160` preimage of the output's hash. This is the property Lightning rests on. *Done: `BitcoinMalleability.txid_determined`.*
 3. **Reorganization safety.** Disconnecting any sequence of blocks and reconnecting another valid
    sequence yields a state reachable by direct validation (currently proved one block at a time,
    limit L3). Makes "the UTXO set is a function of the chain, not the path" a theorem.

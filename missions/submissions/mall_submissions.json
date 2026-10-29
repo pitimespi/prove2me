@@ -1,0 +1,6 @@
+{
+ "BitcoinMalleability.native_scriptSig_empty": "ACCEPTED",
+ "BitcoinMalleability.txid_of_intent": "ACCEPTED",
+ "BitcoinMalleability.txid_determined": "ACCEPTED",
+ "BitcoinMalleability.p2sh_wrapped_scriptSig": "ACCEPTED"
+}

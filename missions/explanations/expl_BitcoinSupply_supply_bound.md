@@ -1,0 +1,1 @@
+Induction on `Reachable`: at the genesis state the ledger is empty and `issued 1 = coreSubsidy 0 = genesisSubsidy`; a step raises `nextHeight` by one (`apply_spec` appends a header) and `issued (n+1) = issued n + coreSubsidy n`, while `block_supply` bounds the new total by the old total plus `coreSubsidy n`.

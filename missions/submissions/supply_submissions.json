@@ -1,0 +1,7 @@
+{
+ "BitcoinSupply.update_bound": "ACCEPTED",
+ "BitcoinSupply.values_in_range": "ACCEPTED",
+ "BitcoinSupply.block_supply": "ACCEPTED",
+ "BitcoinSupply.supply_bound": "ACCEPTED",
+ "BitcoinSupply.supply_lt_maxMoney": "ACCEPTED"
+}
