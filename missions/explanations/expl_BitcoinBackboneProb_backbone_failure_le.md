@@ -1,0 +1,1 @@
+If the event happens for some `base`, `advParent`, the execution is legal but violates $Q$, so by `hdet` it is not typical, hence `TypicalTrunc` fails (`typical_toExecution_iff`); measure monotonicity and `typicalTrunc_failure_le`.

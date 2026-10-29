@@ -1,0 +1,1 @@
+`improvesFeerateDiagram_iff` for the first conjunct; the replacement mission's `paysForRBF_iff` gives `totalFee evicted + getFee ≤ new.fee`, and the two total-fee hypotheses transfer it to the diagrams.

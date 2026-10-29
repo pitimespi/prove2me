@@ -1,0 +1,1 @@
+Windows inside the horizon as in `typicalOn_failure_le`; windows reaching past $L$ see no adversarial blocks after $L$ and one honest block per frozen round, so they fail only if their part inside the horizon fails; at most $(L+1)^2$ distinct events.

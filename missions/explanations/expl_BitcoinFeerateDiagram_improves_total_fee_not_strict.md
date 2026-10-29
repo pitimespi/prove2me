@@ -1,0 +1,1 @@
+The witness: old chunks (3, 1), (1, 1) and the new single chunk (4, 2); both total fee 4; the new diagram is above the old on $(0, 2)$ except at the endpoints, checked through `compare_chunks_sound` and by direct evaluation.

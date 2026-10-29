@@ -1,0 +1,1 @@
+Case on the fast path (small fee) and the fallback; each is `div` of `fee · atSize` by `size` rounding down, then `div_round_down_eq_floor` (with `mulFallback_value`/`divFallback_eq_div` on the fallback).

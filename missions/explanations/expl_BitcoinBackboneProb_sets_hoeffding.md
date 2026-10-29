@@ -1,0 +1,1 @@
+The per-round variables $Z_i$ ($i \in S$) and $Y_i$ ($i \in T$) combine into independent bounded differences with range at most $t+1$ per round; Mathlib's Hoeffding bound for sums of independent bounded variables (sub-Gaussian with parameter $(t+1)^2/4$ per round) gives the exponential tail at deviation $\varepsilon$.
