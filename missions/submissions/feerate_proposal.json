@@ -1,0 +1,23 @@
+{
+ "proposal_id": "3cfa8b06-975a-47df-aa8e-8d09bf7ef9bf",
+ "items": {
+  "BitcoinFeerateDiagram": "8087b567-6ca4-4bb2-8bb4-52147e386c14",
+  "BitcoinFeerateDiagram.byRatio_eq_compare_ratio": "db08a2da-5dc5-4557-936a-605e41b32c52",
+  "BitcoinFeerateDiagram.byRatio_lt_iff": "c0fb7cb4-975b-4520-bd07-b4a7a472d57c",
+  "BitcoinFeerateDiagram.div_round_down_eq_floor": "5f3f5461-8284-484e-bf24-345e8023e78f",
+  "BitcoinFeerateDiagram.div_round_up_eq_ceil": "0faa5ec0-1e79-47ad-85fe-59b2fdb5e441",
+  "BitcoinFeerateDiagram.mulFallback_value": "4b713686-dd96-4a53-9b7b-55e2b83138cf",
+  "BitcoinFeerateDiagram.divFallback_eq_div": "20d01faa-0c40-4869-84e2-6936092bc531",
+  "BitcoinFeerateDiagram.evaluateFeeDown_eq_floor": "af6ec9f3-017a-4e16-98d9-5a66422cc665",
+  "BitcoinFeerateDiagram.evaluateFeeUp_eq_ceil": "54e90fe9-3f3a-42ae-984e-36ee41c4eebf",
+  "BitcoinFeerateDiagram.getFee_eq_evaluateFeeUp": "1ad666b5-eb71-4387-9ba4-572a7aff5a4f",
+  "BitcoinFeerateDiagram.diagram_total": "f9190f42-05ed-4c95-8776-1894099655d1",
+  "BitcoinFeerateDiagram.diagram_at_zero": "e6806485-68df-4197-97e5-04c8eb5fef55",
+  "BitcoinFeerateDiagram.compare_chunks_sound": "eee64a98-aae7-4264-998b-8a3a8adda0da",
+  "BitcoinFeerateDiagram.improvesFeerateDiagram_iff": "81ac0d25-33dc-4c59-a251-8864c5b57805",
+  "BitcoinFeerateDiagram.diagram_concave": "a192124e-ed9e-48b2-be9b-d0e13bc84141",
+  "BitcoinFeerateDiagram.improves_total_fee": "c13d7ed1-16db-41f4-800e-8d2612103e19",
+  "BitcoinFeerateDiagram.improves_total_fee_not_strict": "76215310-3695-439d-b9f6-360c79508b21",
+  "BitcoinFeerateDiagram.no_free_relay_diagram": "aac91fb3-bfa8-41f4-b7b1-7944983e97aa"
+ }
+}

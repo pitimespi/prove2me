@@ -1,0 +1,28 @@
+{
+ "proposal_id": "1fda68b9-3c8a-47c5-b2ac-6b208ea1a414",
+ "items": {
+  "BitcoinBackboneProb": "bfee182c-fee2-404c-854d-bb1ad48b2489",
+  "BitcoinBackboneProb.iIndepFun_rounds": "2263b365-b980-43c0-a1c1-d04435624d66",
+  "BitcoinBackboneProb.map_eval_P": "e5a404ea-8c7e-46e5-ab7e-1238df35904c",
+  "BitcoinBackboneProb.integral_roundY": "f55e3597-bb78-4c50-95ab-f519eb85c43f",
+  "BitcoinBackboneProb.integral_roundX": "38022be7-0ceb-44d1-970c-2c23ca2289f3",
+  "BitcoinBackboneProb.integral_advCount": "342d5248-508f-4d46-b905-874b6ee7e5fa",
+  "BitcoinBackboneProb.expect_Y": "2f1bcf79-d14e-4a51-bd7d-aceb855cc230",
+  "BitcoinBackboneProb.expect_X": "7a8e1617-00cd-4e8b-bffd-f9c334f8fde6",
+  "BitcoinBackboneProb.expect_Z": "64ec5763-36d7-4058-be5e-034db999483f",
+  "BitcoinBackboneProb.expect_Y_sub_expect_Z": "0511dfed-2da9-4948-9a85-b423e1756e34",
+  "BitcoinBackboneProb.margin_ge_of_honest_majority": "4740f06d-5993-4023-a1db-eee91a63365b",
+  "BitcoinBackboneProb.expect_Z_add_le_expect_Y": "ac468093-7da2-4a8e-b792-d6fe45e64b78",
+  "BitcoinBackboneProb.expect_Z_lt_expect_Y": "32701546-177c-417a-9787-5b8e6c21c0c8",
+  "BitcoinBackboneProb.sets_hoeffding": "f4039df5-2a0d-4930-9955-57e601298216",
+  "BitcoinBackboneProb.window_bound": "b0b5f93d-79cb-4b1c-90b7-8f620f87e7e4",
+  "BitcoinBackboneProb.window_bound_rate": "24d959d6-720a-4564-ba2e-21cc18b33afa",
+  "BitcoinBackboneProb.typicalOn_failure_le_of_window": "a15d83bd-43c9-4c3b-944e-3346c59d61ec",
+  "BitcoinBackboneProb.typicalOn_failure_le": "b58939a2-2b44-42d4-bd89-02dc4b27d967",
+  "BitcoinBackboneProb.typicalOn_prob_ge": "42aeebd1-7ba0-4837-9311-8c4a9d9f3677",
+  "BitcoinBackboneProb.typical_toExecution_iff": "f1538b99-10e6-4c9d-9a36-24d96dc485d0",
+  "BitcoinBackboneProb.typicalTrunc_failure_le": "8c5b8e93-449d-40ed-8be8-9fb31f85cb13",
+  "BitcoinBackboneProb.backbone_failure_le": "78e99e33-5c9d-49c0-ab52-886c6c731c8f",
+  "BitcoinBackboneProb.backbone_prob_ge": "de90a34d-a496-43bf-90de-36eab6512db6"
+ }
+}
