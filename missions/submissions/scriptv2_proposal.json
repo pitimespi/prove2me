@@ -1,0 +1,26 @@
+{
+ "proposal_id": "d61c8483-d03d-4932-880c-29d60a3d405c",
+ "items": {
+  "BitcoinScriptV2": "ad2a9b66-b2c0-44da-8c45-b9526f3fac81",
+  "BitcoinScriptV2.legacyOracle_eq": "e870e90f-5ea1-4f84-b46e-cee76b95df52",
+  "BitcoinScriptV2.annotate_parse": "6e9a7948-bea8-413d-91b5-ba0f3105c329",
+  "BitcoinScriptV2.annotate_suffix": "97fc28da-9aab-4f43-b89d-5f79ed7f4afc",
+  "BitcoinScriptV2.annotate_op_suffix": "d74774b1-92f8-4f17-be0b-eb848dc8b4d0",
+  "BitcoinScriptV2.stepV2_codesep": "43291aec-a25d-499d-9aa8-5f53c81555c3",
+  "BitcoinScriptV2.stepV2_keeps": "5047a95f-a75b-4c82-a026-1bf422d5f7ef",
+  "BitcoinScriptV2.codesep_tracks": "b4f52b3d-8626-41e0-bc33-8332c7225693",
+  "BitcoinScriptV2.checksig_deletes_one": "c285524f-b233-4f2f-abbb-cee6f78a4fc4",
+  "BitcoinScriptV2.fadAll_base": "88cf5e4d-df8a-4e35-a2e2-db3cd9fee407",
+  "BitcoinScriptV2.fadAll_witness": "e4d944cc-9657-4cb5-802d-58a615b914d6",
+  "BitcoinScriptV2.multisigSigs_eq": "27375ff4-44c5-4667-bf84-f79eebb76357",
+  "BitcoinScriptV2.multisig_deletes_all": "f15b9215-ea35-4909-b5bf-71ca976b83b8",
+  "BitcoinScriptV2.stepV2_agree": "0b72b154-07b0-446d-be52-4f94b20e6d67",
+  "BitcoinScriptV2.eval_agree": "61916faf-6f3c-4aed-88f8-33a594ae4c4b",
+  "BitcoinScriptV2.evalBytes_agree": "bf8fb4ca-4a2b-4707-8a1a-94e910af34fe",
+  "BitcoinScriptV2.runOk_of_static": "a451c672-278b-4d27-b573-02be2ed95d90",
+  "BitcoinScriptV2.runOk_witness": "a7aa814c-868f-450b-89b5-147c08e5c3ad",
+  "BitcoinScriptV2.evalOk_of_static": "85ee37ed-3e38-48be-a332-d044eb5c9c5e",
+  "BitcoinScriptV2.evalOk_witness": "7a2d0cd7-d834-4f2d-afa7-8f159bcbbb3f",
+  "BitcoinScriptV2.verify_agree": "c6028058-e0a9-42b7-b47d-94e355c62558"
+ }
+}
