@@ -1,0 +1,1 @@
+Induction on `HasType`: every instruction in a non-executing state is skipped by `step` (only the operation count and the conditional stack's `OP_IF`/`OP_ENDIF` pairs move, and they are balanced inside each fragment), using `runSeq_append` to sequence.
