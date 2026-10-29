@@ -1,0 +1,1 @@
+`acceptance` turns the accepted outcome into `Valid`, whose ledger predicate is the non-genesis branch (the hash is not the genesis hash) and whose first conjunct is exactly `bip30Checked → FreshOutputs`.

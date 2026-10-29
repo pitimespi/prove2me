@@ -1,0 +1,1 @@
+Case analysis on the four encoding classes of both pushes (direct, `PUSHDATA1`, `PUSHDATA2`, `PUSHDATA4`): different classes have different first bytes, so a prefix relation forces the same class; in the same class the length field is injective (`readLE_leBytes`), so the lengths agree, and a prefix of equal length is equality.

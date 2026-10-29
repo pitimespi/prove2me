@@ -1,0 +1,2515 @@
+{
+"stats": {
+"valid": [
+122,
+122,
+0
+],
+"invalid": [
+93,
+79,
+14
+]
+},
+"tests": [
+{
+"id": "valid#9",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following are deserialized transactions which are valid. | They are in the form | [[[prevout hash, prevout index, prevout scriptPubKey, amount?], [input 2], ...], | serializedTransaction, excluded verifyFlags] | Objects that are only a single string (like this one) are ignored | The following is 23b397edccd3740a74adb603c9756370fafcde9bcc4483eb271ecad09a94dd63 | It is of particular interest because it contains an invalidly-encoded signature which OpenSSL accepts | See https://r6.ca/blog/20111119T211504Z.html | It is also the first OP_CHECKMULTISIG transaction in standard form"
+},
+{
+"id": "valid#13",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following is a tweaked form of 23b397edccd3740a74adb603c9756370fafcde9bcc4483eb271ecad09a94dd63 | It is an OP_CHECKMULTISIG with an arbitrary extra byte stuffed into the signature at pos length - 2 | The dummy byte is fine however, so the NULLDUMMY flag should be happy"
+},
+{
+"id": "valid#16",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following is a tweaked form of 23b397edccd3740a74adb603c9756370fafcde9bcc4483eb271ecad09a94dd63 | It is an OP_CHECKMULTISIG with the dummy value set to something other than an empty string"
+},
+{
+"id": "valid#18",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "As above, but using an OP_1"
+},
+{
+"id": "valid#20",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "As above, but using an OP_1NEGATE"
+},
+{
+"id": "valid#23",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following is c6c232a36395fa338da458b86ff1327395a9afc28c5d2daa4273e410089fd433 on testnet3 | It contains an OP_CHECKSIG with the shortest valid DER encoded signature (8 bytes w/o sighash flag), i.e. 3006020101020101 (r=1, s=1)"
+},
+{
+"id": "valid#26",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following is c99c49da4c38af669dea436d3e73780dfdb6c1ecf9958baa52960e8baee30e73 | It is of interest because it contains a 0-sequence as well as a signature of SIGHASH type 0 (which is not a real type)"
+},
+{
+"id": "valid#28",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "A nearly-standard transaction with CHECKSIGVERIFY 1 instead of CHECKSIG"
+},
+{
+"id": "valid#30",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Same as above, but with the signature duplicated in the scriptPubKey with the proper pushdata prefix"
+},
+{
+"id": "valid#33",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following is f7fdd091fa6d8f5e7a8c2458f5c38faffff2d3f1406b6e4fe2c99dcc0d2d1cbb | It caught a bug in the workaround for 23b397edccd3740a74adb603c9756370fafcde9bcc4483eb271ecad09a94dd63 in an overly simple implementation. In a signature, it contains an ASN1 integer which isn't strict-DER conformant due to being negative, which doesn't make sense in a signature. Before BIP66 activated, it was a valid signature. After it activated, it's not valid any more."
+},
+{
+"id": "valid#37",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following tests for the presence of a bug in the handling of SIGHASH_SINGLE | It results in signing the constant 1, instead of something generated based on the transaction, | when the input doing the signing has an index greater than the maximum output index"
+},
+{
+"id": "valid#39",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The following tests SIGHASH_SINGLE|SIGHASHANYONECANPAY inputs"
+},
+{
+"id": "valid#41",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "A valid P2SH Transaction using the standard transaction type put forth in BIP 16"
+},
+{
+"id": "valid#44",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Tests for CheckTransaction() | MAX_MONEY output"
+},
+{
+"id": "valid#46",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "MAX_MONEY output + 0 output"
+},
+{
+"id": "valid#49",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Coinbase of size 2 | Note the input is just required to make the tester happy"
+},
+{
+"id": "valid#52",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Coinbase of size 100 | Note the input is just required to make the tester happy"
+},
+{
+"id": "valid#54",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Simple transaction with first input is signed with SIGHASH_ALL, second with SIGHASH_ANYONECANPAY"
+},
+{
+"id": "valid#56",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Same as above, but we change the sequence number of the first input to check that SIGHASH_ANYONECANPAY is being followed"
+},
+{
+"id": "valid#58",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "afd9c17f8913577ec3509520bd6e5d63e9c0fd2a5f70c787993b097ba6ca9fae which has several SIGHASH_SINGLE signatures"
+},
+{
+"id": "valid#60",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "ddc454a1c0c35c188c98976b17670f69e586d9c0f3593ea879928332f0a069e7, which spends an input that pushes using a PUSHDATA1 that is negative when read as signed"
+},
+{
+"id": "valid#63",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Correct signature order | Note the input is just required to make the tester happy"
+},
+{
+"id": "valid#65",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "cc60b1f899ec0a69b7c3f25ddf32c4524096a9c5b01cbd84c6d0312a0c478984, which is a fairly strange transaction which relies on OP_CHECKSIG returning 0 when checking a completely invalid sig of length 0"
+},
+{
+"id": "valid#67",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Empty pubkey"
+},
+{
+"id": "valid#69",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Empty signature"
+},
+{
+"id": "valid#70",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#71",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#72",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#73",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#76",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "OP_CODESEPARATOR tests | Test that SignatureHash() removes OP_CODESEPARATOR with FindAndDelete()"
+},
+{
+"id": "valid#77",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#79",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Hashed data starts at the CODESEPARATOR"
+},
+{
+"id": "valid#81",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "But only if execution has reached it"
+},
+{
+"id": "valid#83",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "CODESEPARATOR in an unexecuted IF block does not change what is hashed"
+},
+{
+"id": "valid#85",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "As above, with the IF block executed"
+},
+{
+"id": "valid#87",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "CHECKSIG is legal in scriptSigs"
+},
+{
+"id": "valid#89",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Same semantics for OP_CODESEPARATOR"
+},
+{
+"id": "valid#91",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Signatures are removed from the script they are in by FindAndDelete() in the CHECKSIG code; even multiple instances of one signature can be removed."
+},
+{
+"id": "valid#93",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "That also includes ahead of the opcode being executed."
+},
+{
+"id": "valid#96",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Finally CHECKMULTISIG removes all signatures prior to hashing the script containing those signatures. In conjunction with the SIGHASH_SINGLE bug this lets us test whether or not FindAndDelete() is actually present in scriptPubKey/redeemScript evaluation by including a signature of the digest 0x01 We can compute in advance for our pubkey, embed it in the scriptPubKey, and then also using a normal SIGHASH_ALL signature. If FindAndDelete() wasn't run, the 'bugged' signature would still be in the hashed script, and the normal signature would fail. | Here's an example on mainnet within a P2SH redeemScript. Remarkably it's a standard transaction in <0.9"
+},
+{
+"id": "valid#98",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Same idea, but with bare CHECKMULTISIG"
+},
+{
+"id": "valid#101",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "CHECKLOCKTIMEVERIFY tests | By-height locks, with argument == 0 and == tx nLockTime"
+},
+{
+"id": "valid#102",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#103",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#105",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "By-time locks, with argument just beyond tx nLockTime (but within numerical boundaries)"
+},
+{
+"id": "valid#106",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#107",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#109",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Any non-maxint nSequence is fine"
+},
+{
+"id": "valid#111",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The argument can be calculated rather than created directly by a PUSHDATA"
+},
+{
+"id": "valid#113",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Perhaps even by an ADD producing a 5-byte result that is out of bounds for other opcodes"
+},
+{
+"id": "valid#115",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "5 byte non-minimally-encoded arguments are valid"
+},
+{
+"id": "valid#117",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid CHECKLOCKTIMEVERIFY in scriptSig"
+},
+{
+"id": "valid#119",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid CHECKLOCKTIMEVERIFY in redeemScript"
+},
+{
+"id": "valid#121",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "A transaction with a non-standard DER signature."
+},
+{
+"id": "valid#124",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "CHECKSEQUENCEVERIFY tests | By-height locks, with argument == 0 and == txin.nSequence"
+},
+{
+"id": "valid#125",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#126",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#127",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#129",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "By-time locks, with argument == 0 and == txin.nSequence"
+},
+{
+"id": "valid#130",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#131",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#132",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#134",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Upper sequence with upper sequence is fine"
+},
+{
+"id": "valid#135",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#136",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#137",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#138",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#139",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#141",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Argument 2^31 with various nSequence"
+},
+{
+"id": "valid#142",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#143",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#145",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Argument 2^32-1 with various nSequence"
+},
+{
+"id": "valid#146",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#147",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#149",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Argument 3<<31 with various nSequence"
+},
+{
+"id": "valid#150",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#151",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#153",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "5 byte non-minimally-encoded operandss are valid"
+},
+{
+"id": "valid#155",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The argument can be calculated rather than created directly by a PUSHDATA"
+},
+{
+"id": "valid#156",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#158",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "An ADD producing a 5-byte result that sets CTxIn::SEQUENCE_LOCKTIME_DISABLE_FLAG"
+},
+{
+"id": "valid#159",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": ""
+},
+{
+"id": "valid#161",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid CHECKSEQUENCEVERIFY in scriptSig"
+},
+{
+"id": "valid#163",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid CHECKSEQUENCEVERIFY in redeemScript"
+},
+{
+"id": "valid#165",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid CHECKSEQUENCEVERIFY even with negative tx version number"
+},
+{
+"id": "valid#167",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid P2WPKH (Private key of segwit tests is L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM)"
+},
+{
+"id": "valid#169",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid P2WSH"
+},
+{
+"id": "valid#171",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid P2SH(P2WPKH)"
+},
+{
+"id": "valid#173",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Valid P2SH(P2WSH)"
+},
+{
+"id": "valid#175",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash Single|AnyoneCanPay"
+},
+{
+"id": "valid#177",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash Single|AnyoneCanPay (same signature as previous)"
+},
+{
+"id": "valid#179",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash Single"
+},
+{
+"id": "valid#181",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash Single (same signature as previous)"
+},
+{
+"id": "valid#183",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash None|AnyoneCanPay"
+},
+{
+"id": "valid#185",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash None|AnyoneCanPay (same signature as previous)"
+},
+{
+"id": "valid#187",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash None"
+},
+{
+"id": "valid#189",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash None (same signature as previous)"
+},
+{
+"id": "valid#191",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash None (same signature, only sequences changed)"
+},
+{
+"id": "valid#193",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash All|AnyoneCanPay"
+},
+{
+"id": "valid#195",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with SigHash All|AnyoneCanPay (same signature as previous)"
+},
+{
+"id": "valid#197",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Unknown witness program version  (without DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM)"
+},
+{
+"id": "valid#199",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness with a push of 520 bytes"
+},
+{
+"id": "valid#201",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Transaction mixing all SigHash, segwit and normal inputs"
+},
+{
+"id": "valid#203",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Unknown version witness program with empty witness"
+},
+{
+"id": "valid#205",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness SIGHASH_SINGLE with output out of bound"
+},
+{
+"id": "valid#207",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "1 byte push should not be considered a witness scriptPubKey"
+},
+{
+"id": "valid#209",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "41 bytes push should not be considered a witness scriptPubKey"
+},
+{
+"id": "valid#211",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The witness version must use OP_1 to OP_16 only"
+},
+{
+"id": "valid#213",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "The witness program push must be canonical"
+},
+{
+"id": "valid#215",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness Single|AnyoneCanPay does not hash input's position"
+},
+{
+"id": "valid#217",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Witness Single|AnyoneCanPay does not hash input's position (permutation)"
+},
+{
+"id": "valid#219",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Non witness Single|AnyoneCanPay hash input's position"
+},
+{
+"id": "valid#222",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "BIP143 examples: details and private keys are available in BIP143 | BIP143 example: P2WSH with OP_CODESEPARATOR and out-of-range SIGHASH_SINGLE."
+},
+{
+"id": "valid#224",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "BIP143 example: P2WSH with unexecuted OP_CODESEPARATOR and SINGLE|ANYONECANPAY"
+},
+{
+"id": "valid#226",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "BIP143 example: Same as the previous example with input-output pairs swapped"
+},
+{
+"id": "valid#228",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "BIP143 example: P2SH-P2WSH 6-of-6 multisig signed with 6 different SIGHASH types"
+},
+{
+"id": "valid#236",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "FindAndDelete tests | This is a test of FindAndDelete. The first tx is a spend of normal P2SH and the second tx is a spend of bare P2WSH. | The redeemScript/witnessScript is CHECKSIGVERIFY <0x30450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e01>. | The signature is <0x30450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e01> <pubkey>, | where the pubkey is obtained through key recovery with sig and correct sighash. | This is to show that FindAndDelete is applied only to non-segwit scripts | Non-segwit: correct sighash (with FindAndDelete) = 1ba1fe3bc90c5d1265460e684ce6774e324f0fabdf67619eda729e64e8b6bc08"
+},
+{
+"id": "valid#238",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "BIP143: correct sighash (without FindAndDelete) = 71c9cd9b2869b9c70b01b1f0360c148f42dee72297db312638df136f43311f23"
+},
+{
+"id": "valid#244",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "This is multisig version of the FindAndDelete tests | Script is 2 CHECKMULTISIGVERIFY <sig1> <sig2> DROP | 52af4830450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e0148304502205286f726690b2e9b0207f0345711e63fa7012045b9eb0f19c2458ce1db90cf43022100e89f17f86abc5b149eba4115d4f128bcf45d77fb3ecdd34f594091340c0395960175 | Signature is 0 <sig1> <sig2> 2 <key1> <key2> | Non-segwit: correct sighash (with FindAndDelete) = 1d50f00ba4db2917b903b0ec5002e017343bb38876398c9510570f5dce099295"
+},
+{
+"id": "valid#246",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "BIP143: correct sighash (without FindAndDelete) = c1628a1e7c67f14ca0c27c06e4fdeec2e6d1a73c7a91d7c046ff83e835aebb72"
+},
+{
+"id": "valid#248",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "Test long outputs, which are streamed using length-prefixed bitcoin strings. This might be surprising."
+},
+{
+"id": "valid#253",
+"kind": "valid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"CHECKSEQUENCEVERIFY",
+"DERSIG",
+"NULLDUMMY",
+"P2SH",
+"TAPROOT",
+"WITNESS"
+],
+"expected": ".ok",
+"comment": "CVE-2024-38365: FindAndDelete only matches whole pushes at opcode boundaries | The redeemScript pushes <0xaaaa || sig>, which contains the signature but is not an exact match, | so the push stays in the scriptCode. btcd <0.24.2 removed any push containing the signature and | computed a different sighash. The pubkey is recovered so the sig only verifies under Core rules."
+},
+{
+"id": "invalid#7",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "The following are deserialized transactions which are invalid. | They are in the form | [[[prevout hash, prevout index, prevout scriptPubKey, amount?], [input 2], ...], | serializedTransaction, verifyFlags] | Use BADTX for verifyFlags if it is expected to fail CheckTransaction() | Objects that are only a single string (like this one) are ignored | 0e1b5688cf179cd9f7cbda1fac0090f6e684bbf8cd946660120197c3f3681809 but with extra junk appended to the end of the scriptPubKey"
+},
+{
+"id": "invalid#11",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "This is the nearly-standard transaction with CHECKSIGVERIFY 1 instead of CHECKSIG from tx_valid.json | but with the signature duplicated in the scriptPubKey with a non-standard pushdata prefix | See FindAndDelete, which will only remove if it uses the same pushdata prefix as is standard"
+},
+{
+"id": "invalid#13",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "Same as above, but with the sig in the scriptSig also pushed with the same non-standard OP_PUSHDATA"
+},
+{
+"id": "invalid#17",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "This is the nearly-standard transaction with CHECKSIGVERIFY 1 instead of CHECKSIG from tx_valid.json | but with the signature duplicated in the scriptPubKey with a different hashtype suffix | See FindAndDelete, which will only remove if the signature, including the hash type, matches"
+},
+{
+"id": "invalid#19",
+"kind": "invalid",
+"flags": [
+"P2SH"
+],
+"expected": ".scriptFail",
+"comment": "An invalid P2SH Transaction"
+},
+{
+"id": "invalid#22",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "Tests for CheckTransaction() | No outputs"
+},
+{
+"id": "invalid#24",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "Negative output"
+},
+{
+"id": "invalid#26",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "MAX_MONEY + 1 output"
+},
+{
+"id": "invalid#28",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "MAX_MONEY output + 1 output"
+},
+{
+"id": "invalid#30",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "Duplicate inputs"
+},
+{
+"id": "invalid#33",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "Coinbase of size 1 | Note the input is just required to make the tester happy"
+},
+{
+"id": "invalid#36",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "Coinbase of size 101 | Note the input is just required to make the tester happy"
+},
+{
+"id": "invalid#38",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": "Null txin, but without being a coinbase (because there are two inputs)"
+},
+{
+"id": "invalid#39",
+"kind": "invalid",
+"flags": [],
+"expected": ".badTx",
+"comment": ""
+},
+{
+"id": "invalid#41",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "Same as the transactions in valid with one input SIGHASH_ALL and one SIGHASH_ANYONECANPAY, but we set the _ANYONECANPAY sequence number, invalidating the SIGHASH_ALL signature"
+},
+{
+"id": "invalid#44",
+"kind": "invalid",
+"flags": [
+"P2SH"
+],
+"expected": ".scriptFail",
+"comment": "CHECKMULTISIG with incorrect signature order | Note the input is just required to make the tester happy"
+},
+{
+"id": "invalid#47",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "The following is a tweaked form of 23b397edccd3740a74adb603c9756370fafcde9bcc4483eb271ecad09a94dd63 | It is an OP_CHECKMULTISIG with the dummy value missing"
+},
+{
+"id": "invalid#51",
+"kind": "invalid",
+"flags": [
+"NULLDUMMY"
+],
+"expected": ".scriptFail",
+"comment": "CHECKMULTISIG SCRIPT_VERIFY_NULLDUMMY tests: | The following is a tweaked form of 23b397edccd3740a74adb603c9756370fafcde9bcc4483eb271ecad09a94dd63 | It is an OP_CHECKMULTISIG with the dummy value set to something other than an empty string"
+},
+{
+"id": "invalid#53",
+"kind": "invalid",
+"flags": [
+"NULLDUMMY"
+],
+"expected": ".scriptFail",
+"comment": "As above, but using an OP_1"
+},
+{
+"id": "invalid#55",
+"kind": "invalid",
+"flags": [
+"NULLDUMMY"
+],
+"expected": ".scriptFail",
+"comment": "As above, but using an OP_1NEGATE"
+},
+{
+"id": "invalid#57",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "As above, but with the dummy byte missing"
+},
+{
+"id": "invalid#59",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "Empty stack when we try to run CHECKSIG"
+},
+{
+"id": "invalid#62",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "Inverted versions of tx_valid CODESEPARATOR IF block tests | CODESEPARATOR in an unexecuted IF block does not change what is hashed"
+},
+{
+"id": "invalid#64",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "As above, with the IF block executed"
+},
+{
+"id": "invalid#67",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "CHECKLOCKTIMEVERIFY tests | By-height locks, with argument just beyond tx nLockTime"
+},
+{
+"id": "invalid#68",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#70",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "By-time locks, with argument just beyond tx nLockTime (but within numerical boundaries)"
+},
+{
+"id": "invalid#71",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#73",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument missing"
+},
+{
+"id": "invalid#74",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#76",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument negative with by-blockheight nLockTime=0"
+},
+{
+"id": "invalid#78",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument negative with by-blocktime nLockTime=500,000,000"
+},
+{
+"id": "invalid#79",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#81",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Input locked"
+},
+{
+"id": "invalid#82",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#84",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Another input being unlocked isn't sufficient; the CHECKLOCKTIMEVERIFY-using input must be unlocked"
+},
+{
+"id": "invalid#86",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument/tx height/time mismatch, both versions"
+},
+{
+"id": "invalid#87",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#88",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#89",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#90",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#92",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument 2^32 with nLockTime=2^32-1"
+},
+{
+"id": "invalid#94",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Same, but with nLockTime=2^31-1"
+},
+{
+"id": "invalid#96",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "6 byte non-minimally-encoded arguments are invalid even if their contents are valid"
+},
+{
+"id": "invalid#98",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Failure due to failing CHECKLOCKTIMEVERIFY in scriptSig"
+},
+{
+"id": "invalid#100",
+"kind": "invalid",
+"flags": [
+"CHECKLOCKTIMEVERIFY",
+"P2SH"
+],
+"expected": ".scriptFail",
+"comment": "Failure due to failing CHECKLOCKTIMEVERIFY in redeemScript"
+},
+{
+"id": "invalid#102",
+"kind": "invalid",
+"flags": [
+"DERSIG"
+],
+"expected": ".scriptFail",
+"comment": "A transaction with a non-standard DER signature."
+},
+{
+"id": "invalid#105",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "CHECKSEQUENCEVERIFY tests | By-height locks, with argument just beyond txin.nSequence"
+},
+{
+"id": "invalid#106",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#108",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "By-time locks, with argument just beyond txin.nSequence (but within numerical boundaries)"
+},
+{
+"id": "invalid#109",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#111",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument missing"
+},
+{
+"id": "invalid#113",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument negative with by-blockheight txin.nSequence=0"
+},
+{
+"id": "invalid#115",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument negative with by-blocktime txin.nSequence=CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG"
+},
+{
+"id": "invalid#117",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Argument/tx height/time mismatch, both versions"
+},
+{
+"id": "invalid#118",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#119",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#120",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#122",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "6 byte non-minimally-encoded arguments are invalid even if their contents are valid"
+},
+{
+"id": "invalid#124",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Failure due to failing CHECKSEQUENCEVERIFY in scriptSig"
+},
+{
+"id": "invalid#126",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY",
+"P2SH"
+],
+"expected": ".scriptFail",
+"comment": "Failure due to failing CHECKSEQUENCEVERIFY in redeemScript"
+},
+{
+"id": "invalid#128",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": "Failure due to insufficient tx.version (<2)"
+},
+{
+"id": "invalid#129",
+"kind": "invalid",
+"flags": [
+"CHECKSEQUENCEVERIFY"
+],
+"expected": ".scriptFail",
+"comment": ""
+},
+{
+"id": "invalid#133",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Unknown length for witness program v0"
+},
+{
+"id": "invalid#135",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Witness with SigHash Single|AnyoneCanPay (same index output value changed)"
+},
+{
+"id": "invalid#137",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Witness with SigHash None|AnyoneCanPay (input sequence changed)"
+},
+{
+"id": "invalid#139",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Witness with SigHash All|AnyoneCanPay (third output value changed)"
+},
+{
+"id": "invalid#141",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Witness with a push of 521 bytes"
+},
+{
+"id": "invalid#143",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "Witness with unknown version which push false on the stack should be invalid (even without DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM)"
+},
+{
+"id": "invalid#145",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Witness program should leave clean stack"
+},
+{
+"id": "invalid#147",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Witness v0 with a push of 2 bytes"
+},
+{
+"id": "invalid#149",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "Unknown witness version with non empty scriptSig"
+},
+{
+"id": "invalid#151",
+"kind": "invalid",
+"flags": [],
+"expected": ".scriptFail",
+"comment": "Non witness Single|AnyoneCanPay hash input's position (permutation)"
+},
+{
+"id": "invalid#153",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "P2WSH with a redeem representing a witness scriptPubKey should fail due to too many stack items"
+},
+{
+"id": "invalid#155",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "P2WSH with an empty redeem should fail due to empty stack"
+},
+{
+"id": "invalid#167",
+"kind": "invalid",
+"flags": [
+"P2SH"
+],
+"expected": ".scriptFail",
+"comment": "FindAndDelete tests | This is a test of FindAndDelete. The first tx is a spend of normal scriptPubKey and the second tx is a spend of bare P2WSH. | The redeemScript/witnessScript is CHECKSIGVERIFY <0x30450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e01>. | The signature is <0x30450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e01> <pubkey>, | where the pubkey is obtained through key recovery with sig and the wrong sighash. | This is to show that FindAndDelete is applied only to non-segwit scripts | To show that the tests are 'correctly wrong', they should pass by modifying OP_CHECKSIG under interpreter.cpp | by replacing (sigversion == SigVersion::BASE) with (sigversion != SigVersion::BASE) | Non-segwit: wrong sighash (without FindAndDelete) = 1ba1fe3bc90c5d1265460e684ce6774e324f0fabdf67619eda729e64e8b6bc08"
+},
+{
+"id": "invalid#169",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "BIP143: wrong sighash (with FindAndDelete) = 71c9cd9b2869b9c70b01b1f0360c148f42dee72297db312638df136f43311f23"
+},
+{
+"id": "invalid#176",
+"kind": "invalid",
+"flags": [
+"P2SH"
+],
+"expected": ".scriptFail",
+"comment": "This is multisig version of the FindAndDelete tests | Script is 2 CHECKMULTISIGVERIFY <sig1> <sig2> DROP | 52af4830450220487fb382c4974de3f7d834c1b617fe15860828c7f96454490edd6d891556dcc9022100baf95feb48f845d5bfc9882eb6aeefa1bc3790e39f59eaa46ff7f15ae626c53e0148304502205286f726690b2e9b0207f0345711e63fa7012045b9eb0f19c2458ce1db90cf43022100e89f17f86abc5b149eba4115d4f128bcf45d77fb3ecdd34f594091340c0395960175 | Signature is 0 <sig1> <sig2> 2 <key1> <key2> | Should pass by replacing (sigversion == SigVersion::BASE) with (sigversion != SigVersion::BASE) under OP_CHECKMULTISIG | Non-segwit: wrong sighash (without FindAndDelete) = 4bc6a53e8e16ef508c19e38bba08831daba85228b0211f323d4cb0999cf2a5e8"
+},
+{
+"id": "invalid#178",
+"kind": "invalid",
+"flags": [
+"P2SH",
+"WITNESS"
+],
+"expected": ".scriptFail",
+"comment": "BIP143: wrong sighash (with FindAndDelete) = 17c50ec2181ecdfdc85ca081174b248199ba81fff730794d4f69b8ec031f2dce"
+}
+]
+}

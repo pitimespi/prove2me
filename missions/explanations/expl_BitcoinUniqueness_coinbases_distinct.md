@@ -1,0 +1,1 @@
+Both coinbase `scriptSig`s carry their height push as a prefix (`coinbase_height_prefix`); if they were equal, the two pushes would both prefix the same bytes, so the shorter prefixes the longer (`List.prefix_of_prefix_length_le`), and `heightScript_prefix` forces the heights equal.
