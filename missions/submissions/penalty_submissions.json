@@ -1,0 +1,23 @@
+{
+ "BitcoinPenalty.to_local_penalty_sig": "ACCEPTED",
+ "BitcoinPenalty.to_local_penalty": "ACCEPTED",
+ "BitcoinPenalty.offered_htlc_penalty": "ACCEPTED",
+ "BitcoinPenalty.received_htlc_penalty": "ACCEPTED",
+ "BitcoinPenalty.offered_htlc_penalty_anchors": "ACCEPTED",
+ "BitcoinPenalty.received_htlc_penalty_anchors": "ACCEPTED",
+ "BitcoinPenalty.revoked_commitment_penalty": "ACCEPTED",
+ "BitcoinPenalty.to_remote_honest_only": "ACCEPTED",
+ "BitcoinPenalty.anchor_holder_or_delay": "ACCEPTED",
+ "BitcoinPenalty.anchor_anyone_after_16": "ACCEPTED",
+ "BitcoinPenalty.to_local_cheater_delayed": "ACCEPTED",
+ "BitcoinPenalty.cheater_delay_in_tx_terms": "ACCEPTED",
+ "BitcoinPenalty.cheater_delay_any_sequence": "ACCEPTED",
+ "BitcoinPenalty.cheater_needs_delay": "ACCEPTED",
+ "BitcoinPenalty.offered_cheater_no_revocation": "ACCEPTED",
+ "BitcoinPenalty.received_cheater_no_revocation": "ACCEPTED",
+ "BitcoinPenalty.offered_cheater_no_revocation_anchors": "ACCEPTED",
+ "BitcoinPenalty.received_cheater_no_revocation_anchors": "ACCEPTED",
+ "BitcoinPenalty.htlc_cheater_one_block_anchors": "ACCEPTED",
+ "BitcoinPenalty.received_cheater_height": "ACCEPTED",
+ "BitcoinPenalty.penalty_any_block": "ACCEPTED"
+}

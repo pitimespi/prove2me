@@ -1,0 +1,20 @@
+{
+ "BitcoinMiniscript.runSeq_append": "ACCEPTED",
+ "BitcoinMiniscript.run_eq_runSeq": "ACCEPTED",
+ "BitcoinMiniscript.evalScript_eq_runSeq": "ACCEPTED",
+ "BitcoinMiniscript.sem_consumes": "ACCEPTED",
+ "BitcoinMiniscript.compile_skip": "ACCEPTED",
+ "BitcoinMiniscript.goodVal_of_sem": "ACCEPTED",
+ "BitcoinMiniscript.goodVal_of_semW": "ACCEPTED",
+ "BitcoinMiniscript.sem_V_nil": "ACCEPTED",
+ "BitcoinMiniscript.sem_K_shape": "ACCEPTED",
+ "BitcoinMiniscript.sem_sound": "ACCEPTED",
+ "BitcoinMiniscript.semW_sound": "ACCEPTED",
+ "BitcoinMiniscript.sat_sound": "ACCEPTED",
+ "BitcoinMiniscript.dsat_sound": "ACCEPTED",
+ "BitcoinMiniscript.satV_sound": "ACCEPTED",
+ "BitcoinMiniscript.sat_spends": "ACCEPTED",
+ "BitcoinMiniscript.compile_length": "ACCEPTED",
+ "BitcoinMiniscript.opsIn_compile_le": "ACCEPTED",
+ "BitcoinMiniscript.typeOf_sound": "ACCEPTED"
+}

@@ -1,0 +1,22 @@
+{
+ "BitcoinScriptV2.legacyOracle_eq": "ACCEPTED",
+ "BitcoinScriptV2.annotate_parse": "ACCEPTED",
+ "BitcoinScriptV2.annotate_suffix": "ACCEPTED",
+ "BitcoinScriptV2.annotate_op_suffix": "ACCEPTED",
+ "BitcoinScriptV2.stepV2_codesep": "ACCEPTED",
+ "BitcoinScriptV2.stepV2_keeps": "ACCEPTED",
+ "BitcoinScriptV2.codesep_tracks": "ACCEPTED",
+ "BitcoinScriptV2.checksig_deletes_one": "ACCEPTED",
+ "BitcoinScriptV2.fadAll_base": "ACCEPTED",
+ "BitcoinScriptV2.fadAll_witness": "ACCEPTED",
+ "BitcoinScriptV2.multisigSigs_eq": "ACCEPTED",
+ "BitcoinScriptV2.multisig_deletes_all": "ACCEPTED",
+ "BitcoinScriptV2.stepV2_agree": "ACCEPTED",
+ "BitcoinScriptV2.eval_agree": "ACCEPTED",
+ "BitcoinScriptV2.evalBytes_agree": "ACCEPTED",
+ "BitcoinScriptV2.runOk_of_static": "ACCEPTED",
+ "BitcoinScriptV2.runOk_witness": "ACCEPTED",
+ "BitcoinScriptV2.evalOk_of_static": "ACCEPTED",
+ "BitcoinScriptV2.evalOk_witness": "ACCEPTED",
+ "BitcoinScriptV2.verify_agree": "ACCEPTED"
+}

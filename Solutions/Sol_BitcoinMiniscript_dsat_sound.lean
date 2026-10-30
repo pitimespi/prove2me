@@ -38,9 +38,6 @@ private theorem serialize_length (n : Int) (k : Nat) (h : n.natAbs < 256 ^ k) :
       · omega
 
 /-- Arithmetic on stack lengths. -/
-macro "lenomega" : tactic =>
-  `(tactic| (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton,
-      List.length_nil, List.length_reverse]; omega)))
 private theorem toNum_serialize5 (n : Int) (h : n.natAbs < 2 ^ 32) :
     toNum false 5 (serialize n) = some n := by
   unfold toNum
@@ -1367,7 +1364,7 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     apply spec_K_intro key sig
     intro rest alt vf k hvf hk hsz
     simp only [List.length_singleton, size] at hsz
-    exact ⟨k, runs_one (sPush f o _ alt vf k key hvf hkey (by lenomega)), by simp [opsMax]⟩
+    exact ⟨k, runs_one (sPush f o _ alt vf k key hvf hkey (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))), by simp [opsMax]⟩
   | pk_h hh hlen =>
     intro w out hs
     obtain ⟨key, sig, rfl, hhash, rfl⟩ := hs
@@ -1376,11 +1373,11 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     simp only [List.length_cons, List.length_nil, size, opsMax] at hsz hk
     refine ⟨k + 3, ?_, by simp [opsMax]⟩
     exact runs_app (runs_app (runs_app
-      (runs_one (sDup f o key (sig :: rest) alt vf k hvf (by omega) (by lenomega)))
-      (runs_one (sHash160 f o key (key :: sig :: rest) alt vf (k + 1) hvf (by omega) (by lenomega))))
-      (runs_one (sPush f o _ alt vf (k + 2) hh hvf hlen (by lenomega))))
+      (runs_one (sDup f o key (sig :: rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))))
+      (runs_one (sHash160 f o key (key :: sig :: rest) alt vf (k + 1) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))))
+      (runs_one (sPush f o _ alt vf (k + 2) hh hvf hlen (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))))
       (runs_one (sEqualVerify f o hh (o.hash160 key) (key :: sig :: rest) alt vf (k + 2) hvf (by omega)
-        (by lenomega) hhash))
+        (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))) hhash))
   | older n h1 h2 =>
     intro w out hs
     obtain ⟨rfl, hp, rfl⟩ := hs
@@ -1423,7 +1420,7 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     apply spec_of_ne hne hshape
     intro rest alt vf k hvf hk hsz
     simp only [opsMax, size, List.length_append] at hk hsz ⊢
-    obtain ⟨k1, h1, hk1⟩ := hrx (wy ++ rest) alt vf k hvf (by omega) (by lenomega)
+    obtain ⟨k1, h1, hk1⟩ := hrx (wy ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
     obtain ⟨k2, h2, hk2⟩ := hry rest alt vf k1 hvf (by omega) (by omega)
     refine ⟨k2, ?_, by omega⟩
     simp only [compile]
@@ -1438,14 +1435,14 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     apply spec_B_intro _ (goodVal_bool _)
     intro rest alt vf k hvf hk hsz
     simp only [opsMax, size, List.length_append] at hk hsz ⊢
-    obtain ⟨k1, h1, hk1⟩ := hrx (wy ++ rest) alt vf k hvf (by omega) (by lenomega)
+    obtain ⟨k1, h1, hk1⟩ := hrx (wy ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
     simp only [compile]
     rcases hry with hry | hry
-    · obtain ⟨k2, h2, hk2⟩ := hry vx rest alt vf k1 hvf (by omega) (by lenomega)
+    · obtain ⟨k2, h2, hk2⟩ := hry vx rest alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       have h3 := sBoolAnd f o vy vx rest alt vf k2 _ _ hvf (by omega) (by omega) (goodVal_toNum vy hgy) (goodVal_toNum vx hgx)
       rw [booland_val, Bool.and_comm] at h3
       exact ⟨k2 + 1, runs_app (runs_app (runs_assoc h1) h2) (runs_one h3), by omega⟩
-    · obtain ⟨k2, h2, hk2⟩ := hry vx rest alt vf k1 hvf (by omega) (by lenomega)
+    · obtain ⟨k2, h2, hk2⟩ := hry vx rest alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       have h3 := sBoolAnd f o vx vy rest alt vf k2 _ _ hvf (by omega) (by omega) (goodVal_toNum vx hgx) (goodVal_toNum vy hgy)
       rw [booland_val] at h3
       exact ⟨k2 + 1, runs_app (runs_app (runs_assoc h1) h2) (runs_one h3), by omega⟩
@@ -1459,14 +1456,14 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     apply spec_B_intro _ (goodVal_bool _)
     intro rest alt vf k hvf hk hsz
     simp only [opsMax, size, List.length_append] at hk hsz ⊢
-    obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by lenomega)
+    obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
     simp only [compile]
     rcases hrz with hrz | hrz
-    · obtain ⟨k2, h2, hk2⟩ := hrz vx rest alt vf k1 hvf (by omega) (by lenomega)
+    · obtain ⟨k2, h2, hk2⟩ := hrz vx rest alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       have h3 := sBoolOr f o vz vx rest alt vf k2 _ _ hvf (by omega) (by omega) (goodVal_toNum vz hgz) (goodVal_toNum vx hgx)
       rw [boolor_val, Bool.or_comm] at h3
       exact ⟨k2 + 1, runs_app (runs_app (runs_assoc h1) h2) (runs_one h3), by omega⟩
-    · obtain ⟨k2, h2, hk2⟩ := hrz vx rest alt vf k1 hvf (by omega) (by lenomega)
+    · obtain ⟨k2, h2, hk2⟩ := hrz vx rest alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       have h3 := sBoolOr f o vx vz rest alt vf k2 _ _ hvf (by omega) (by omega) (goodVal_toNum vx hgx) (goodVal_toNum vz hgz)
       rw [boolor_val] at h3
       exact ⟨k2 + 1, runs_app (runs_app (runs_assoc h1) h2) (runs_one h3), by omega⟩
@@ -1489,8 +1486,8 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
         (runs_one (sEndIf f o rest alt false vf k2 (by omega) (by omega))), by omega⟩
     · obtain ⟨-, hrz⟩ := spec_V (ihz wz [] hsz')
       simp only [opsMax, size, List.length_append] at hk hsz ⊢
-      obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by lenomega)
-      have h2 := sNotIf f o vx (wz ++ rest) alt vf k1 hvf (by omega) (by lenomega)
+      obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
+      have h2 := sNotIf f o vx (wz ++ rest) alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [hvx, Bool.not_false] at h2
       obtain ⟨k2, h3, hk2⟩ := hrz rest alt (true :: vf) (k1 + 1) (by rw [allTrue_cons, hvf]; rfl) (by omega) (by omega)
       exact ⟨k2 + 1, runs_app (runs_app (runs_app (runs_assoc h1) (runs_one h2)) h3)
@@ -1506,24 +1503,24 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
       simp only [compile, opsMax, size, List.length_append] at hk hsz ⊢
       obtain ⟨k1, h1, hk1⟩ := hrx rest alt vf k hvf (by omega) (by omega)
       have h2 := sIfDupT f o vx rest alt vf k1 hvf (by omega) (by omega) hvx
-      have h3 := sNotIf f o vx (vx :: rest) alt vf (k1 + 1) hvf (by omega) (by lenomega)
+      have h3 := sNotIf f o vx (vx :: rest) alt vf (k1 + 1) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [hvx, Bool.not_true] at h3
       obtain ⟨k2, h4, hk2⟩ := skip_of_hasType f o hz (vx :: rest) alt (false :: vf) (k1 + 2) (by rw [allTrue_cons]; simp)
-        (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k2 + 1, runs_app (runs_app (runs_app (runs_app h1 (runs_one h2)) (runs_one h3)) h4)
-        (runs_one (sEndIf f o (vx :: rest) alt false vf k2 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o (vx :: rest) alt false vf k2 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
     · obtain ⟨vz, hvz, hgz, hrz⟩ := spec_B (ihz wz out hsz')
       subst hvz
       apply spec_B_intro _ hgz
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_append] at hk hsz ⊢
-      obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by lenomega)
-      have h2 := sIfDupF f o vx (wz ++ rest) alt vf k1 hvf (by omega) (by lenomega) hvx
-      have h3 := sNotIf f o vx (wz ++ rest) alt vf (k1 + 1) hvf (by omega) (by lenomega)
+      obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
+      have h2 := sIfDupF f o vx (wz ++ rest) alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))) hvx
+      have h3 := sNotIf f o vx (wz ++ rest) alt vf (k1 + 1) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [hvx, Bool.not_false] at h3
       obtain ⟨k2, h4, hk2⟩ := hrz rest alt (true :: vf) (k1 + 2) (by rw [allTrue_cons, hvf]; rfl) (by omega) (by omega)
       exact ⟨k2 + 1, runs_app (runs_app (runs_app (runs_app (runs_assoc h1) (runs_one h2)) (runs_one h3)) h4)
-        (runs_one (sEndIf f o (vz :: rest) alt true vf k2 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o (vz :: rest) alt true vf k2 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
   | or_i hx hz hne ihx ihz =>
     intro w out hs
     obtain ⟨b, w', rfl, hs⟩ := hs
@@ -1533,29 +1530,29 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
       apply spec_of_ne hne hshape
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_cons] at hk hsz ⊢
-      have h1 := sIf f o b (w' ++ rest) alt vf k hvf (by omega) (by lenomega)
+      have h1 := sIf f o b (w' ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [hb] at h1
       obtain ⟨k1, h2, hk1⟩ := hrx rest alt (true :: vf) (k + 1) (by rw [allTrue_cons, hvf]; rfl) (by omega) (by omega)
-      have h3 := sElse f o (out ++ rest) alt true vf k1 (by omega) (by lenomega)
+      have h3 := sElse f o (out ++ rest) alt true vf k1 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [Bool.not_true] at h3
       obtain ⟨k2, h4, hk2⟩ := skip_of_hasType f o hz (out ++ rest) alt (false :: vf) (k1 + 1) (by rw [allTrue_cons]; simp)
-        (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k2 + 1, runs_app (runs_app (runs_app (runs_app (runs_one h1) h2) (runs_one h3)) h4)
-        (runs_one (sEndIf f o (out ++ rest) alt false vf k2 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o (out ++ rest) alt false vf k2 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
     · obtain ⟨hshape, hrz⟩ := spec_ne hne (ihz w' out hsz')
       have hol := shape_len hshape
       apply spec_of_ne hne hshape
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_cons] at hk hsz ⊢
-      have h1 := sIf f o b (w' ++ rest) alt vf k hvf (by omega) (by lenomega)
+      have h1 := sIf f o b (w' ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [hb] at h1
       obtain ⟨k1, h2, hk1⟩ := skip_of_hasType f o hx (w' ++ rest) alt (false :: vf) (k + 1) (by rw [allTrue_cons]; simp)
-        (by omega) (by lenomega)
-      have h3 := sElse f o (w' ++ rest) alt false vf k1 (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
+      have h3 := sElse f o (w' ++ rest) alt false vf k1 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [Bool.not_false] at h3
       obtain ⟨k2, h4, hk2⟩ := hrz rest alt (true :: vf) (k1 + 1) (by rw [allTrue_cons, hvf]; rfl) (by omega) (by omega)
       exact ⟨k2 + 1, runs_app (runs_app (runs_app (runs_app (runs_one h1) h2) (runs_one h3)) h4)
-        (runs_one (sEndIf f o (out ++ rest) alt true vf k2 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o (out ++ rest) alt true vf k2 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
   | andor hx hdx hux hy hz hne ihx ihy ihz =>
     intro w out hs
     obtain ⟨wx, vx, hsx, hs⟩ := hs
@@ -1567,31 +1564,31 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
       apply spec_of_ne hne hshape
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_append] at hk hsz ⊢
-      obtain ⟨k1, h1, hk1⟩ := hrx (wy ++ rest) alt vf k hvf (by omega) (by lenomega)
-      have h2 := sNotIf f o vx (wy ++ rest) alt vf k1 hvf (by omega) (by lenomega)
+      obtain ⟨k1, h1, hk1⟩ := hrx (wy ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
+      have h2 := sNotIf f o vx (wy ++ rest) alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [hvx, Bool.not_true] at h2
       obtain ⟨k2, h3, hk2⟩ := skip_of_hasType f o hz (wy ++ rest) alt (false :: vf) (k1 + 1) (by rw [allTrue_cons]; simp)
-        (by omega) (by lenomega)
-      have h4 := sElse f o (wy ++ rest) alt false vf k2 (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
+      have h4 := sElse f o (wy ++ rest) alt false vf k2 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [Bool.not_false] at h4
       obtain ⟨k3, h5, hk3⟩ := hry rest alt (true :: vf) (k2 + 1) (by rw [allTrue_cons, hvf]; rfl) (by omega) (by omega)
       exact ⟨k3 + 1, runs_app (runs_app (runs_app (runs_app (runs_app (runs_assoc h1) (runs_one h2)) h3) (runs_one h4)) h5)
-        (runs_one (sEndIf f o (out ++ rest) alt true vf k3 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o (out ++ rest) alt true vf k3 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
     · obtain ⟨hshape, hrz⟩ := spec_ne hne (ihz wz out hsz')
       have hol := shape_len hshape
       apply spec_of_ne hne hshape
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_append] at hk hsz ⊢
-      obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by lenomega)
-      have h2 := sNotIf f o vx (wz ++ rest) alt vf k1 hvf (by omega) (by lenomega)
+      obtain ⟨k1, h1, hk1⟩ := hrx (wz ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
+      have h2 := sNotIf f o vx (wz ++ rest) alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [hvx, Bool.not_false] at h2
       obtain ⟨k2, h3, hk2⟩ := hrz rest alt (true :: vf) (k1 + 1) (by rw [allTrue_cons, hvf]; rfl) (by omega) (by omega)
-      have h4 := sElse f o (out ++ rest) alt true vf k2 (by omega) (by lenomega)
+      have h4 := sElse f o (out ++ rest) alt true vf k2 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [Bool.not_true] at h4
       obtain ⟨k3, h5, hk3⟩ := skip_of_hasType f o hy (out ++ rest) alt (false :: vf) (k2 + 1) (by rw [allTrue_cons]; simp)
-        (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k3 + 1, runs_app (runs_app (runs_app (runs_app (runs_app (runs_assoc h1) (runs_one h2)) h3) (runs_one h4)) h5)
-        (runs_one (sEndIf f o (out ++ rest) alt false vf k3 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o (out ++ rest) alt false vf k3 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
   | multi kk keys hk1 hk2 hk3 hkeys =>
     intro w out hs
     obtain ⟨sigs, dummy, ok, rfl, hlen, hloop, hdummy, rfl⟩ := hs
@@ -1607,9 +1604,9 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     rw [e]
     refine ⟨k + 1 + keys.length, ?_, by omega⟩
     exact runs_app (runs_app (runs_app
-      (runs_one (sNum f o _ alt vf k _ hvf hkk (by lenomega)))
-      (runs_pushes f o keys hkeys _ alt vf k hvf (by lenomega)))
-      (runs_one (sNum f o _ alt vf k _ hvf hnn (by lenomega))))
+      (runs_one (sNum f o _ alt vf k _ hvf hkk (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))))
+      (runs_pushes f o keys hkeys _ alt vf k hvf (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))))
+      (runs_one (sNum f o _ alt vf k _ hvf hnn (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))))
       (runs_one (sCms f o keys sigs dummy rest alt vf k ok hvf hk3 hk2 (by omega) (by omega) hloop hdummy))
   | wrap_a hx ihx =>
     intro w out hs
@@ -1619,10 +1616,10 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     right
     intro x rest alt vf k hvf hk hsz
     simp only [compile, opsMax, size, List.length_cons] at hk hsz ⊢
-    obtain ⟨k1, h1, hk1⟩ := hrx rest (x :: alt) vf (k + 1) hvf (by omega) (by lenomega)
+    obtain ⟨k1, h1, hk1⟩ := hrx rest (x :: alt) vf (k + 1) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
     exact ⟨k1 + 1, runs_app (runs_app
-      (runs_one (sToAlt f o x (w ++ rest) alt vf k hvf (by omega) (by lenomega))) h1)
-      (runs_one (sFromAlt f o x (v :: rest) alt vf k1 hvf (by omega) (by lenomega))), by omega⟩
+      (runs_one (sToAlt f o x (w ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))) h1)
+      (runs_one (sFromAlt f o x (v :: rest) alt vf k1 hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
   | wrap_s hx hox ihx =>
     intro w out hs
     obtain ⟨v, hv, hg, hrx⟩ := spec_B (ihx w out hs)
@@ -1634,7 +1631,7 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
     simp only [compile, opsMax, size, List.length_cons] at hk hsz ⊢
     match w, hlen with
     | [w1], _ =>
-      obtain ⟨k1, h1, hk1⟩ := hrx (x :: rest) alt vf (k + 1) hvf (by omega) (by lenomega)
+      obtain ⟨k1, h1, hk1⟩ := hrx (x :: rest) alt vf (k + 1) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k1, runs_app
         (runs_one (sSwap f o x w1 rest alt vf k hvf (by omega) (by omega))) h1, by omega⟩
   | wrap_c hx ihx =>
@@ -1655,22 +1652,22 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_singleton] at hk hsz ⊢
       have h1 := sDup f o [1] rest alt vf k hvf (by omega) (by omega)
-      have h2 := sIf f o [1] ([1] :: rest) alt vf (k + 1) hvf (by omega) (by lenomega)
+      have h2 := sIf f o [1] ([1] :: rest) alt vf (k + 1) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [castToBool_one] at h2
       obtain ⟨k1, h3, hk1⟩ := hrx ([1] :: rest) alt (true :: vf) (k + 2) (by rw [allTrue_cons, hvf]; rfl) (by omega)
-        (by lenomega)
+        (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k1 + 1, runs_app (runs_app (runs_app (runs_one h1) (runs_one h2)) h3)
-        (runs_one (sEndIf f o ([1] :: rest) alt true vf k1 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o ([1] :: rest) alt true vf k1 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
     · apply spec_B_intro _ goodVal_nil
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_singleton] at hk hsz ⊢
       have h1 := sDup f o [] rest alt vf k hvf (by omega) (by omega)
-      have h2 := sIf f o [] ([] :: rest) alt vf (k + 1) hvf (by omega) (by lenomega)
+      have h2 := sIf f o [] ([] :: rest) alt vf (k + 1) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [castToBool_nil] at h2
       obtain ⟨k1, h3, hk1⟩ := skip_of_hasType f o hx ([] :: rest) alt (false :: vf) (k + 2) (by rw [allTrue_cons]; simp)
-        (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k1 + 1, runs_app (runs_app (runs_app (runs_one h1) (runs_one h2)) h3)
-        (runs_one (sEndIf f o ([] :: rest) alt false vf k1 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o ([] :: rest) alt false vf k1 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
   | wrap_v hx ihx =>
     intro w out hs
     obtain ⟨v, hsx, hv, rfl⟩ := hs
@@ -1689,34 +1686,34 @@ private theorem sound_of_hasType (f : Flags) (o : Oracle) {m : Ms} {ty : Ty} (ht
       apply spec_B_intro _ hg
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_cons] at hk hsz ⊢
-      have h1 := sSize f o e (w' ++ rest) alt vf k hvf (by omega) (by lenomega)
+      have h1 := sSize f o e (w' ++ rest) alt vf k hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       have h2 := s0NotEqual f o (serialize (e.length : Int)) (e :: (w' ++ rest)) alt vf (k + 1) (e.length : Int) hvf
-        (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
         (toNum4_serialize _ (by omega) (by simp only [MAX_SCRIPT_ELEMENT_SIZE] at helen; omega))
       have hne' : (e.length : Int) ≠ 0 := by
         intro h; apply hne; cases e with
         | nil => rfl
         | cons _ _ => simp only [List.length_cons] at h; omega
       rw [if_pos hne', serialize_one] at h2
-      have h3 := sIf f o [1] (e :: (w' ++ rest)) alt vf (k + 2) hvf (by omega) (by lenomega)
+      have h3 := sIf f o [1] (e :: (w' ++ rest)) alt vf (k + 2) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [castToBool_one] at h3
       obtain ⟨k1, h4, hk1⟩ := hrx rest alt (true :: vf) (k + 3) (by rw [allTrue_cons, hvf]; rfl) (by omega)
-        (by lenomega)
+        (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k1 + 1, runs_app (runs_app (runs_app (runs_app (runs_one h1) (runs_one h2)) (runs_one h3)) h4)
-        (runs_one (sEndIf f o (v :: rest) alt true vf k1 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o (v :: rest) alt true vf k1 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
     · apply spec_B_intro _ goodVal_nil
       intro rest alt vf k hvf hk hsz
       simp only [compile, opsMax, size, List.length_singleton] at hk hsz ⊢
       have h1 := sSize f o [] rest alt vf k hvf (by omega) (by omega)
       have h2 := s0NotEqual f o (serialize (([] : Bytes).length : Int)) ([] :: rest) alt vf (k + 1) 0 hvf
-        (by omega) (by lenomega) (by simp only [List.length_nil, Int.ofNat_zero, serialize_zero]; rfl)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))) (by simp only [List.length_nil, Int.ofNat_zero, serialize_zero]; rfl)
       rw [if_neg (by simp), serialize_zero] at h2
-      have h3 := sIf f o [] ([] :: rest) alt vf (k + 2) hvf (by omega) (by lenomega)
+      have h3 := sIf f o [] ([] :: rest) alt vf (k + 2) hvf (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       rw [castToBool_nil] at h3
       obtain ⟨k1, h4, hk1⟩ := skip_of_hasType f o hx ([] :: rest) alt (false :: vf) (k + 3) (by rw [allTrue_cons]; simp)
-        (by omega) (by lenomega)
+        (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega)))
       exact ⟨k1 + 1, runs_app (runs_app (runs_app (runs_app (runs_one h1) (runs_one h2)) (runs_one h3)) h4)
-        (runs_one (sEndIf f o ([] :: rest) alt false vf k1 (by omega) (by lenomega))), by omega⟩
+        (runs_one (sEndIf f o ([] :: rest) alt false vf k1 (by omega) (by (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton, List.length_nil, List.length_reverse]; omega))))), by omega⟩
   | wrap_n hx ihx =>
     intro w out hs
     obtain ⟨v, hsx, rfl⟩ := hs

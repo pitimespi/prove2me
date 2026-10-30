@@ -1,0 +1,19 @@
+{
+ "BitcoinFeerateDiagram.byRatio_eq_compare_ratio": "ACCEPTED",
+ "BitcoinFeerateDiagram.byRatio_lt_iff": "ACCEPTED",
+ "BitcoinFeerateDiagram.div_round_down_eq_floor": "ACCEPTED",
+ "BitcoinFeerateDiagram.div_round_up_eq_ceil": "ACCEPTED",
+ "BitcoinFeerateDiagram.mulFallback_value": "ACCEPTED",
+ "BitcoinFeerateDiagram.divFallback_eq_div": "ACCEPTED",
+ "BitcoinFeerateDiagram.evaluateFeeDown_eq_floor": "ACCEPTED",
+ "BitcoinFeerateDiagram.evaluateFeeUp_eq_ceil": "ACCEPTED",
+ "BitcoinFeerateDiagram.getFee_eq_evaluateFeeUp": "ACCEPTED",
+ "BitcoinFeerateDiagram.diagram_total": "ACCEPTED",
+ "BitcoinFeerateDiagram.diagram_at_zero": "ACCEPTED",
+ "BitcoinFeerateDiagram.compare_chunks_sound": "ACCEPTED",
+ "BitcoinFeerateDiagram.improvesFeerateDiagram_iff": "ACCEPTED",
+ "BitcoinFeerateDiagram.diagram_concave": "ACCEPTED",
+ "BitcoinFeerateDiagram.improves_total_fee": "ACCEPTED",
+ "BitcoinFeerateDiagram.improves_total_fee_not_strict": "ACCEPTED",
+ "BitcoinFeerateDiagram.no_free_relay_diagram": "ACCEPTED"
+}

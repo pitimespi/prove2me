@@ -36,9 +36,6 @@ private theorem serialize_length (n : Int) (k : Nat) (h : n.natAbs < 256 ^ k) :
       · omega
 
 /-- Arithmetic on stack lengths. -/
-macro "lenomega" : tactic =>
-  `(tactic| (first | omega | (simp only [List.length_append, List.length_cons, List.length_singleton,
-      List.length_nil, List.length_reverse]; omega)))
 private theorem toNum_serialize5 (n : Int) (h : n.natAbs < 2 ^ 32) :
     toNum false 5 (serialize n) = some n := by
   unfold toNum
