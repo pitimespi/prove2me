@@ -14,11 +14,17 @@ sufficiently earlier than every other's, it runs alone: its pre-voting round and
 starts (the progress missions prove that such a stable election succeeds).
 
 This file models one round of competing timers. Candidate `i` fires at `offset i + randomDelay (bound i) (x i)`, where
-`x i` is its draw of `random.nextLong()` — modelled as uniform over the `2^64` Java `long`s, independently across
-candidates and attempts — `bound i` is its attempt's `maxDelay`, and `offset i` (when its timer was started, plus the
-grace period) is arbitrary: the theorems hold whatever the offsets and bounds, even chosen by an adversary that
-schedules the network, provided every bound is at least some `Mmin` (they hold, for example, once every attempt has
-reached `cluster.election.max_timeout`). Probabilities are counts of draws divided by `2^(64 n)`.
+`x i` is its draw of `random.nextLong()`, `bound i` is its attempt's `maxDelay`, and `offset i` (when its timer was
+started, plus the grace period) is arbitrary: the theorems hold whatever the offsets and bounds, even chosen by an
+adversary that schedules the network (as a function of the earlier rounds' draws), provided every bound is at least
+some `Mmin` (they hold, for example, once every attempt has reached `cluster.election.max_timeout`). Probabilities are
+counts of draws divided by `2^(64 n)`.
+
+Idealization: each node's scheduler draws from its own `java.util.Random`, seeded from `Randomness.get().nextLong()`
+(`DiscoveryModule.java:213`); the draws are modelled as uniform over the `2^64` Java `long`s and independent across
+nodes and attempts. `java.util.Random` is a 48-bit linear congruential generator, so `nextLong()` takes `2^48` distinct
+values; the model does not capture that, nor any correlation between seeds. Grouping competing timers into rounds is
+itself an abstraction of the scheduler's timeline.
 -/
 
 namespace OpenSearchElectionTimer
