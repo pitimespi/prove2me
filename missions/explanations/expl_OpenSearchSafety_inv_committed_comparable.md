@@ -1,0 +1,1 @@
+Both committed keys are keys of publications (`inv_committed_published`). Compare the terms: if they differ, `inv_leader_completeness` applied to the publication of the later term gives the descent from the earlier committed key; if they are equal, `pub_same_term` relates the two publications by descent.

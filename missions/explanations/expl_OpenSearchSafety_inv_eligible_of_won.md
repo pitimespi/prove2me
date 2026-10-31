@@ -1,0 +1,1 @@
+`won_quorum` says the node's join votes are a quorum of its last committed configuration. Case on the list of voters: an empty list is a quorum of no configuration (the private lemma `hasQuorum_nil`), a contradiction; otherwise the first voter is backed by a sent join addressed to the node (`joinVotes_sent`), and `join_wf` says that the target of every sent join is eligible.

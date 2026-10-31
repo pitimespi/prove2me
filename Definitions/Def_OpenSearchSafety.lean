@@ -248,10 +248,10 @@ def Won (P : Params) (W : Cluster V) (b : NodeId) (t : Nat) : Prop :=
       ∃ s pt pv, W.sent (.publishRequest b s pt pv) ∧ s.term = t)
 
 /-- The inductive invariant. Field names are descriptive; each docstring names the conjunct of the design it
-transcribes (`design_1/RESULT.md`: P*, C1, J*, R*, N*, L*). Node facts about the persisted state hold for
-cluster-manager-eligible nodes only (a node that is not eligible may restart with any persisted state); facts about
-the transient state hold for every node (a node that is not eligible never receives a join, so never holds votes or
-wins). -/
+transcribes (labels P*, C1, J*, R*, N*, L*, listed in `NOTES_OpenSearchSafety.md`). Node facts about the persisted
+state hold for cluster-manager-eligible nodes only (a node that is not eligible may restart with any persisted state);
+facts about the transient state hold for every node (a node that is not eligible never receives a join, so never holds
+votes or wins). -/
 structure Inv (P : Params) (W : Cluster V) : Prop where
   -- Every node.
   /-- Every node's `localNode` is its own `DiscoveryNode` `P.dn n`. -/

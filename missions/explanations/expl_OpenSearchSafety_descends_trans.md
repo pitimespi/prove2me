@@ -1,0 +1,1 @@
+Induction on the second descent. In the reflexive case the first descent is the goal. In the step case the second descent ends with a parent link from some key to `(t₃, v₃)`; the induction hypothesis gives a descent from `(t₁, v₁)` to that key, and `Descends.step` extends it by the link. No property of the cluster is used.

@@ -3,3 +3,4 @@
 *.ilean
 lake-manifest.json
 credentials.json
+__pycache__/

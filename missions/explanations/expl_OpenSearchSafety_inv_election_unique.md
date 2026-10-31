@@ -1,0 +1,1 @@
+`inv_election_quorums` gives a voter `m` in both lists. By `BaseVoters`, `m` is eligible and sent a join of term `t` to `L₁` and one to `L₂`; `join_unique` makes them the same join, so their targets, `L₁` and `L₂`, are equal.

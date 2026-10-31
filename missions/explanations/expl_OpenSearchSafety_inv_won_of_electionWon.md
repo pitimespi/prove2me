@@ -1,0 +1,1 @@
+`Won` requires eligibility, given by `inv_eligible_of_won`, and either a won election in the current term or a publication of that term; the first alternative holds by the hypothesis, with the current term itself.

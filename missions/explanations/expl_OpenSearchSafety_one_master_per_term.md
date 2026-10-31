@@ -1,0 +1,1 @@
+Obtain the invariant from `reachable_inv`. Both publishers are eligible (`pub_wf`) and have sent a publication of the common term, so both have won that term in the sense of `Won`; `won_unique` makes them equal.
