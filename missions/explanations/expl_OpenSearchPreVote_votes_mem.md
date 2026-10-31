@@ -1,0 +1,1 @@
+Unfold `votes` and apply the private lemma `pv_foldr_votes_mem`, an induction on the recorded list: at each step `addVote` adds exactly the id of an eligible sender (`pv_addVote_eligible`, the per-node mission's `addVote_eligible` proved again), and the existential over the list splits into the head and the tail.

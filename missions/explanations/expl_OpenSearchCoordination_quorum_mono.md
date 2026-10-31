@@ -1,0 +1,1 @@
+Unfold `hasQuorum`. The private lemma `filter_length_mono` (induction on the list) shows that filtering by a weaker predicate keeps at least as many elements; membership in `a` implies membership in `b` (`List.contains_iff_mem` and the hypothesis), so the count for `b` is at least the count for `a`, and `omega` concludes.

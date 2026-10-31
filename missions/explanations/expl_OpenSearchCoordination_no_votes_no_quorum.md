@@ -1,0 +1,1 @@
+Unfold `isQuorum`, `hasQuorum` and `VoteCollection.empty`, and turn the goal into the negation of the inequality (`decide_eq_false_iff_not`). Filtering the configuration by membership in the empty list leaves nothing (`List.filter_eq_nil_iff`, `simp`), so the count is 0 and `0 * 2 > c.nodeIds.length` is false (`omega`).

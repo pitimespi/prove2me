@@ -1,0 +1,1 @@
+Unfold `javaInvariant`. The accepted term is `s.term ≤ t` by hypothesis; the election is not won, and `isElectionQuorum` of the empty join votes is false by `no_votes_no_quorum`; the third assertion reduces to `lastPublishedVersion = 0`, true by construction (`rfl`); the fourth is vacuous; the publish votes are empty.

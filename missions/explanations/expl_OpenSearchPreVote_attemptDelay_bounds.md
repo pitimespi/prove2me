@@ -1,0 +1,1 @@
+Validity gives `initialTimeout ≥ 1` and `maxTimeout ≥ 200`, so the minimum defining `maxDelay s k` is at least 1 (`omega`). The remainder of `nonNegative r` modulo that bound is below it (`Nat.mod_lt`); unfolding `attemptDelay` and `toPositiveLongAtMost`, both inequalities follow by `omega`.

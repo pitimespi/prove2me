@@ -1,0 +1,1 @@
+Replace `2^63` by its numeral in the hypotheses and the goal (both equalities by `decide`), unfold `nonNegative`, and split on whether `n` is `-2^63` and on whether `v = 0`; each of the four cases is closed by `omega`.

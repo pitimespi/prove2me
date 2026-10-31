@@ -1,0 +1,1 @@
+Unfold `handlePreVoteResponse` and split. A closed round is returned unchanged with `false`. Otherwise the hypothesis gives `electionStarted = true`; the freshness rejection returns the round unchanged; the updated round keeps `electionStarted`, and in the branch where the quorum test passes, the test of `electionStarted` returns `false` (`simp`).

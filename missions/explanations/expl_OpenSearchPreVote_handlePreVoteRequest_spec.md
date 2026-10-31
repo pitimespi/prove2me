@@ -1,0 +1,1 @@
+Unfold `handlePreVoteRequest` and case on `healthy`: when it is `false` both sides are false (`simp`). Otherwise case on `st.leader`: with no leader both sides reduce to `resp = st.response` (`simp`); with a leader `l`, case on `l = req.sourceNode`, substituting it or using it to discharge the conditional, and `simp`.
