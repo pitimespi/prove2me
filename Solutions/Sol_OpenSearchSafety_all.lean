@@ -179,6 +179,14 @@ theorem OpenSearchSafety.lastCommitted_committed {V : Type} (P : Params) (hP : P
     · exact Or.inr (Or.inr ⟨src', s', pt', pv', hs', hc', he.trans h4.symm⟩)
   · exact Or.inr (Or.inr ⟨src, s, pt, pv, hs, by rw [h1, h2]; exact hc, h4.symm⟩)
 
+/-- Counting: an element satisfying both `p` and `q` is counted at most twice on the left and once on each side. -/
+private theorem filter_length_add_le {α : Type} (L : List α) (p q : α → Bool) :
+    (L.filter p).length + (L.filter q).length ≤ L.length + (L.filter (fun x => p x && q x)).length := by
+  induction L with
+  | nil => simp
+  | cons y ys ih =>
+    cases hp : p y <;> cases hq : q y <;> simp [hp, hq] <;> omega
+
 /-- **Bootstrapping is safe even with different partial views.** The configurations `ClusterBootstrapService` builds
 are compatible, whatever subset of the required nodes each bootstrapping node has discovered, provided each requirement
 names the same node everywhere (`resolve` injective on the requirements), placeholders are distinct from each other
@@ -192,10 +200,101 @@ theorem OpenSearchSafety.bootstrap_compatible (eligible : NodeId → Bool) (k : 
     (hX : BootstrapConfig k resolve placeholder mX X) (hY : BootstrapConfig k resolve placeholder mY Y)
     (q₁ q₂ : List NodeId) (hq₁ : ∀ x ∈ q₁, eligible x = true) (hq₂ : ∀ x ∈ q₂, eligible x = true)
     (h₁ : X.hasQuorum q₁ = true) (h₂ : Y.hasQuorum q₂ = true) : ∃ x, x ∈ q₁ ∧ x ∈ q₂ := by
-  sorry
+  -- an eligible quorum of a bootstrap configuration names more than half of the requirements, all matched
+  have key : ∀ (m : Nat → Bool) (Z : VotingConfiguration) (q : List NodeId),
+      BootstrapConfig k resolve placeholder m Z → (∀ x ∈ q, eligible x = true) → Z.hasQuorum q = true →
+      ((List.range k).filter (fun i => m i && q.contains (resolve i))).length * 2 > k := by
+    intro m Z q hZ hq hQ
+    have hinj : ∀ i j, i < k → j < k → (if m i then resolve i else placeholder i) =
+        (if m j then resolve j else placeholder j) → i = j := by
+      intro i j hi hj he
+      cases hmi : m i <;> cases hmj : m j <;> simp only [hmi, hmj, if_true, if_false,
+        Bool.false_eq_true] at he
+      · exact hph i j hi hj he
+      · exact absurd he (hdis i j hi hj)
+      · exact absurd he.symm (hdis j i hj hi)
+      · exact hres i j hi hj he
+    have hnodupZ : Z.nodeIds.Nodup := Z.sorted.imp (fun h => Nat.ne_of_lt h)
+    -- the configuration has at least `k` members
+    have hL : ((List.range k).map (fun i => if m i then resolve i else placeholder i)).Nodup := by
+      rw [List.Nodup, List.pairwise_map]
+      exact List.nodup_range.imp_of_mem
+        (fun ha hb hab he => hab (hinj _ _ (List.mem_range.mp ha) (List.mem_range.mp hb) he))
+    have hsub1 : (List.range k).map (fun i => if m i then resolve i else placeholder i) ⊆ Z.nodeIds := by
+      intro x hx
+      obtain ⟨i, hi, rfl⟩ := List.mem_map.mp hx
+      exact (hZ.1 _).mpr ⟨i, List.mem_range.mp hi, rfl⟩
+    have hk : k ≤ Z.nodeIds.length := by
+      have := List.Nodup.length_le_of_subset hL hsub1
+      simpa using this
+    -- its members in the quorum are the matched requirements named in the quorum
+    have hsub2 : Z.nodeIds.filter (fun x => q.contains x) ⊆
+        ((List.range k).filter (fun i => m i && q.contains (resolve i))).map resolve := by
+      intro x hx
+      rw [List.mem_filter, List.contains_iff_mem] at hx
+      obtain ⟨i, hi, rfl⟩ := (hZ.1 _).mp hx.1
+      have hxq := hx.2
+      cases hmi : m i
+      · simp only [hmi, if_false, Bool.false_eq_true] at hxq
+        have := hq _ hxq
+        rw [hphe i hi] at this
+        cases this
+      · simp only [hmi, if_true] at hxq ⊢
+        exact List.mem_map.mpr ⟨i, List.mem_filter.mpr ⟨List.mem_range.mpr hi, by simp [hmi, hxq]⟩, rfl⟩
+    have hle := List.Nodup.length_le_of_subset (hnodupZ.sublist List.filter_sublist) hsub2
+    rw [List.length_map] at hle
+    simp only [VotingConfiguration.hasQuorum, decide_eq_true_eq] at hQ
+    omega
+  have hA := key mX X q₁ hX hq₁ h₁
+  have hB := key mY Y q₂ hY hq₂ h₂
+  have hc := filter_length_add_le (List.range k) (fun i => mX i && q₁.contains (resolve i))
+    (fun i => mY i && q₂.contains (resolve i))
+  rw [List.length_range] at hc
+  have hpos : 0 < ((List.range k).filter
+      (fun i => (mX i && q₁.contains (resolve i)) && (mY i && q₂.contains (resolve i)))).length := by
+    omega
+  obtain ⟨i, hi⟩ := List.exists_mem_of_length_pos hpos
+  simp only [List.mem_filter, Bool.and_eq_true, List.contains_iff_mem] at hi
+  exact ⟨resolve i, hi.2.1.2, hi.2.2.2⟩
 
 /-- **Commits happen.** Some cluster with a compatible bootstrap configuration and the default strategy reaches a
 commit of term 1, version 1: the hypotheses of the safety theorems are satisfiable, and they are not vacuous. -/
 theorem OpenSearchSafety.commit_reachable : ∃ (P : Params) (W : Cluster Unit), P.InitCompatible ∧
     P.strategy = ElectionStrategy.DEFAULT_INSTANCE ∧ Reachable P W ∧ Committed W 1 1 := by
-  sorry
+  -- one cluster-manager-eligible node, 0, bootstrapping alone
+  let X₀ : VotingConfiguration := ⟨[0], List.Pairwise.cons (fun _ h => by cases h) .nil⟩
+  let P : Params := ⟨fun _ => true, fun X => X = X₀, ElectionStrategy.DEFAULT_INSTANCE⟩
+  have hP : P.InitCompatible := by
+    intro X Y hX hY q₁ q₂ _ _ h₁ h₂
+    have hX' : X = X₀ := hX
+    have hY' : Y = X₀ := hY
+    subst hX' hY'
+    have m₁ : (0 : NodeId) ∈ q₁ := by
+      by_cases hc : (0 : NodeId) ∈ q₁
+      · exact hc
+      · simp [VotingConfiguration.hasQuorum, X₀, hc] at h₁
+    have m₂ : (0 : NodeId) ∈ q₂ := by
+      by_cases hc : (0 : NodeId) ∈ q₂
+      · exact hc
+      · simp [VotingConfiguration.hasQuorum, X₀, hc] at h₂
+    exact ⟨0, m₁, m₂⟩
+  let s₀ : ClusterState Unit :=
+    ⟨0, 0, 0, VotingConfiguration.EMPTY_CONFIG, VotingConfiguration.EMPTY_CONFIG, none, false, false, ()⟩
+  let W₀ : Cluster Unit := ⟨fun n => CoordinationState.init (P.dn n) 0 s₀, fun _ => False⟩
+  have r₀ : Reachable P W₀ := Reachable.init _ ⟨fun n => ⟨s₀, rfl, rfl, rfl, rfl⟩, fun _ h => h⟩
+  -- 1. node 0 bootstraps with {0}
+  let s₁ : ClusterState Unit := ⟨0, 0, 0, X₀, X₀, none, false, false, ()⟩
+  have r₁ := Reachable.step _ _ r₀ (Step.bootstrap (P := P) W₀ 0 X₀ s₁ _ rfl
+    ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩ ⟨rfl, rfl⟩ rfl)
+  -- 2. node 0 starts an election in term 1 (a join from 0 to 0)
+  have r₂ := Reachable.step _ _ r₁ (Step.startJoin (P := P) _ 0 0 1 _ _ rfl rfl)
+  -- 3. node 0 handles its own join: it wins term 1
+  have r₃ := Reachable.step _ _ r₂ (Step.join (P := P) _ 0 ⟨P.dn 0, P.dn 0, 1, 0, 0⟩ _ _ (Or.inr rfl) rfl rfl)
+  -- 4. node 0 publishes version 1 of term 1
+  let s₄ : ClusterState Unit := ⟨1, 1, 0, X₀, X₀, none, false, false, ()⟩
+  have r₄ := Reachable.step _ _ r₃ (Step.clientValue (P := P) _ 0 s₄ _ _ rfl rfl)
+  -- 5. node 0 accepts it
+  have r₅ := Reachable.step _ _ r₄ (Step.publish (P := P) _ 0 0 s₄ 0 0 _ _ (Or.inr rfl) rfl)
+  -- 6. node 0 handles its own response: a quorum of {0}, the commit is sent
+  have r₆ := Reachable.step _ _ r₅ (Step.respond (P := P) _ 0 0 ⟨1, 1⟩ _ (some ⟨P.dn 0, 1, 1⟩) (Or.inr rfl) rfl)
+  exact ⟨P, _, hP, rfl, r₆, ⟨P.dn 0, Or.inr rfl⟩⟩
