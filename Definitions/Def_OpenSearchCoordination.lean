@@ -15,8 +15,10 @@ Abstractions:
 * A `ClusterState` is reduced to the fields that `CoordinationState` reads or writes; everything else is an opaque
   payload `value : V`.
 * `VotingConfiguration` stores its node ids strictly sorted, so that `=` is Java's `Set.equals`.
-* The REMOTE persisted state (remote cluster-state store) is written but never read by these handlers (every read is
-  of the LOCAL persisted state), so it is omitted.
+* The REMOTE persisted state (remote cluster-state store) is omitted. The handlers read it only to decide whether to
+  write it (CS:616-642), and every value they compute is read from the LOCAL persisted state. A failed remote write
+  makes the Java method throw after its local effects (for example after `publishVotes.addVote` in
+  `handlePublishResponse`, CS:503-510); the transcription returns the result instead, which only adds behaviours.
 * Java `assert`s are not checked in production; they are caller contracts. The handlers below do not check them; the
   cluster model states them as preconditions of the corresponding steps.
 -/
@@ -38,7 +40,7 @@ def ZEN1_BWC_TERM : Nat := 0
 
 /-! ## Voting configurations and vote collections -/
 
-/-- `CoordinationMetadata.VotingConfiguration` (CM:380-450): a set of node ids. Stored strictly sorted, so that
+/-- `CoordinationMetadata.VotingConfiguration` (CM:383-449): a set of node ids. Stored strictly sorted, so that
 structural equality is set equality (Java `equals` compares the `Set<String> nodeIds`). -/
 structure VotingConfiguration where
   nodeIds : List NodeId
@@ -65,8 +67,8 @@ end VotingConfiguration
 
 /-- `CoordinationState.VoteCollection` (CS:750-814): the ids of the nodes whose votes were added, most recent first.
 (Java keys a `Map<String, DiscoveryNode>` by node id and also records the `Join`s in a set that only tests read. Java's
-`equals`, used only by tests, compares the sets of voters; no handler compares vote collections, and the handlers read
-them only through membership.) -/
+`equals`, used only by tests, compares that map and the set of joins, CS:798-806; no handler compares vote
+collections, and the handlers read them only through membership.) -/
 structure VoteCollection where
   nodes : List NodeId
   deriving DecidableEq, Repr
@@ -168,7 +170,8 @@ structure ApplyCommitRequest where
 
 /-- `ElectionStrategy` (ES): `isElectionQuorum` is final; plugins override only
 `satisfiesAdditionalQuorumConstraints(localNode, currentTerm, acceptedTerm, acceptedVersion, lastCommitted,
-lastAccepted, joinVotes)`. -/
+lastAccepted, joinVotes)`. A Java strategy also sees the voters' `DiscoveryNode`s and the recorded joins; here it sees
+the voters' ids. `DEFAULT_INSTANCE`, the only strategy in OpenSearch itself, uses none of them. -/
 structure ElectionStrategy where
   satisfiesAdditionalQuorumConstraints :
     DiscoveryNode → Nat → Nat → Int → VotingConfiguration → VotingConfiguration → VoteCollection → Bool
@@ -226,7 +229,7 @@ def lastCommittedConfiguration (cs : CoordinationState V) : VotingConfiguration 
 def lastAcceptedConfiguration (cs : CoordinationState V) : VotingConfiguration :=
   cs.lastAcceptedState.lastAcceptedConfiguration
 
-/-- `isElectionQuorum(joinVotes)` (CS:144-154, ES:66-89). -/
+/-- `isElectionQuorum(joinVotes)` (CS:144-154, ES:68-88). -/
 def isElectionQuorum (es : ElectionStrategy) (cs : CoordinationState V) (votes : VoteCollection) : Bool :=
   votes.isQuorum cs.lastCommittedConfiguration && votes.isQuorum cs.lastAcceptedConfiguration &&
     es.satisfiesAdditionalQuorumConstraints cs.localNode cs.currentTerm cs.lastAcceptedTerm cs.lastAcceptedVersion

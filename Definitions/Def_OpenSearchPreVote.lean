@@ -48,15 +48,16 @@ structure PreVoteResponse where
 def preVoteResponseOf (cs : CoordinationState V) : PreVoteResponse :=
   ⟨cs.currentTerm, cs.lastAcceptedTerm, cs.lastAcceptedVersionOrMetadataVersion⟩
 
-/-- The pre-vote collector's state (PVC:78): the known leader (`none` is Java `null`, no known leader) and the node's
+/-- The pre-vote collector's state (PVC:79): the known leader (`none` is Java `null`, no known leader) and the node's
 own response, both as last set by `update` (PVC:128-131) — `Coordinator` sets the leader to itself when it becomes
-leader, to the leader it follows when it becomes a follower, and to `null` when it becomes a candidate. -/
+leader, to the leader it follows when it becomes a follower, and to `null` when it becomes a candidate (CO:516, 653, 777,
+801, 839, 1157). Java's state is `null` before the first `update`; a node answers pre-votes only after it. -/
 structure CollectorState where
   leader : Option DiscoveryNode
   response : PreVoteResponse
   deriving DecidableEq, Repr
 
-/-- `PreVoteCollector.handlePreVoteRequest(request)` (PVC:133-164). `healthy` is the node health status
+/-- `PreVoteCollector.handlePreVoteRequest(request)` (PVC:133-163). `healthy` is the node health status
 (`nodeHealthService.getHealth()`). A node that knows a leader other than the requester refuses. (Before answering, the
 handler calls `updateMaxTermSeen(request.getCurrentTerm())`, PVC:134; see the module documentation.) -/
 def handlePreVoteRequest (healthy : Bool) (st : CollectorState) (req : PreVoteRequest) :
@@ -66,9 +67,11 @@ def handlePreVoteRequest (healthy : Bool) (st : CollectorState) (req : PreVoteRe
     | none => .ok st.response
     | some l => if l = req.sourceNode then .ok st.response else .error "rejecting as there is already a leader"
 
-/-- A pre-voting round (`PreVoteCollector.PreVotingRound`, PVC:175-299): the last accepted cluster state of the
+/-- A pre-voting round (`PreVoteCollector.PreVotingRound`, PVC:175-300): the last accepted cluster state of the
 requester when the round started, the requester, the pre-votes received so far (Java: a map keyed by sender; the
-most recent first here, at most one entry per sender), whether it has started an election, and whether it was closed. -/
+most recent first here, at most one entry per sender), whether it has started an election, and whether it was closed.
+Java takes the requester from the round's cluster state (`clusterState.nodes().getLocalNode()`, PVC:244); the request's
+term (PVC:112) is not needed here. -/
 structure PreVotingRound (V : Type) where
   clusterState : ClusterState V
   localNode : DiscoveryNode
@@ -80,18 +83,18 @@ structure PreVotingRound (V : Type) where
 def PreVotingRound.start (s : ClusterState V) (localNode : DiscoveryNode) : PreVotingRound V :=
   ⟨s, localNode, [], false, false⟩
 
-/-- The `VoteCollection` the round builds from its pre-votes (PVC:242-256): `addJoinVote` of a join from each sender,
+/-- The `VoteCollection` the round builds from its pre-votes (PVC:242-257): `addJoinVote` of a join from each sender,
 which counts the cluster-manager-eligible senders. -/
 def PreVotingRound.votes (r : PreVotingRound V) : VoteCollection :=
   r.preVotesReceived.foldr (fun p v => (v.addVote p.1).1) VoteCollection.empty
 
-/-- `ElectionStrategy.isElectionQuorum` (ElectionStrategy.java:68-90), as called with explicit arguments. -/
+/-- `ElectionStrategy.isElectionQuorum` (ElectionStrategy.java:68-88), as called with explicit arguments. -/
 def isElectionQuorumFor (es : ElectionStrategy) (localNode : DiscoveryNode) (currentTerm acceptedTerm : Nat)
     (acceptedVersion : Int) (committed accepted : VotingConfiguration) (votes : VoteCollection) : Bool :=
   votes.isQuorum committed && votes.isQuorum accepted &&
     es.satisfiesAdditionalQuorumConstraints localNode currentTerm acceptedTerm acceptedVersion committed accepted votes
 
-/-- `PreVotingRound.handlePreVoteResponse(response, sender)` (PVC:225-280). `localResponse` is the requester's own
+/-- `PreVotingRound.handlePreVoteResponse(response, sender)` (PVC:225-279). `localResponse` is the requester's own
 current response (`getPreVoteResponse()`, read when the response arrives). Returns the new round, whether
 `startElection` is called, and the argument of the `updateMaxTermSeen` call (`none` when the round is closed and the
 response is ignored before it). A response fresher than the round's accepted state is ignored. -/
@@ -144,7 +147,7 @@ def handleJoins (es : ElectionStrategy) (cs : CoordinationState V) (js : List Jo
     | .ok (cs', _) => cs'
     | .error _ => cs) cs
 
-/-- The term of the election `Coordinator.startElection` starts (CO:583-605): one above the larger of the current term
+/-- The term of the election `Coordinator.startElection` starts (CO:583-602): one above the larger of the current term
 and the largest term seen. -/
 def startElectionTerm (currentTerm maxTermSeen : Nat) : Nat := max currentTerm maxTermSeen + 1
 
@@ -183,7 +186,8 @@ def nonNegative (n : Int) : Nat := if n = -2 ^ 63 then 0 else n.natAbs
 def toPositiveLongAtMost (randomNumber : Int) (upperBound : Nat) : Nat := nonNegative randomNumber % upperBound + 1
 
 /-- The delay before attempt `k` fires, given the random long drawn for it and the grace period (ESF:195-204):
-the grace period is 0 for the first attempt and `duration` for every later one (ESF:152-155, ESF:218). -/
+the grace period is 0 for the first attempt (`Coordinator.startElectionScheduler`, CO:1574) and `duration` for every later
+one (ESF:218). -/
 def attemptDelay (s : SchedulerSettings) (k : Nat) (randomNumber : Int) (gracePeriod : Nat) : Nat :=
   toPositiveLongAtMost randomNumber (maxDelay s k) + gracePeriod
 
