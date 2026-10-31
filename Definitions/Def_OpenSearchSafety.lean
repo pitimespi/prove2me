@@ -183,4 +183,231 @@ inductive Descends (W : Cluster V) : Nat → Int → Nat → Int → Prop where
   | step (t : Nat) (v : Int) (t' : Nat) (v' : Int) (t'' : Nat) (v'' : Int) :
       Descends W t v t' v' → Parent W t' v' t'' v'' → Descends W t v t'' v''
 
+/-! ## The inductive invariant
+
+Proof-side notions (none of them is used by the model above) and the invariant `Inv`, from which the safety theorems
+follow. A publication is named by its *key*, its (term, version); its ghost parent is the key of the state its publisher
+had accepted. Publications thus form a forest: following parents, versions strictly decrease until a term-0 key, the
+*root*, which stands for a bootstrap state (several nodes may bootstrap, with different bootstrap configurations). All
+notions are relations over the messages sent, never functions computed from them; all sets of voters are lists of
+cluster-manager-eligible nodes, so that `Params.InitCompatible` applies to them. -/
+
+/-- The lexicographic order on (term, version) keys: `(t, v)` is at most `(t', v')`. -/
+def KeyLE (t : Nat) (v : Int) (t' : Nat) (v' : Int) : Prop := t < t' ∨ (t = t' ∧ v ≤ v')
+
+/-- The last accepted (term, version) `(lt, lv)` carried by a join is at or below the base `(bt, bv)` in the way
+`handleJoin` compares them: an older term, or the same term and, unless that term is 0, a version at most `bv`.
+(At term 0 a join carries a metadata version, `versionOrMetadataVersion`, which plays no role in safety.) -/
+def Below (lt : Nat) (lv : Int) (bt : Nat) (bv : Int) : Prop := lt < bt ∨ (lt = bt ∧ (bt = 0 ∨ lv ≤ bv))
+
+/-- A publication of term `t` and version `v` has been sent. -/
+def Published (W : Cluster V) (t : Nat) (v : Int) : Prop :=
+  ∃ src s pt pv, W.sent (.publishRequest src s pt pv) ∧ s.term = t ∧ s.version = v
+
+/-- The pair of configurations `(x, y)` (last committed, last accepted) *realizes* the key `(t, v)`: either `t = 0`
+and `x = y` is a bootstrap configuration (a bootstrap state), or `(t, v)` is the key of a sent publication whose last
+accepted configuration is `y` and whose last committed configuration is `x` — or, if `(t, v)` is committed, whose last
+accepted configuration is also `x` (a node that applied the commit, `markCommitted`). The accepted state of every
+bootstrapped cluster-manager-eligible node realizes its own key (`Inv.accepted_realizes`). -/
+def Realizes (P : Params) (W : Cluster V) (t : Nat) (v : Int) (x y : VotingConfiguration) : Prop :=
+  (t = 0 ∧ x = y ∧ P.initConfs x) ∨
+  ∃ src s pt pv, W.sent (.publishRequest src s pt pv) ∧ s.term = t ∧ s.version = v ∧
+    y = s.lastAcceptedConfiguration ∧
+    (x = s.lastCommittedConfiguration ∨ (x = s.lastAcceptedConfiguration ∧ Committed W t v))
+
+/-- Every member of `J` is a cluster-manager-eligible node that sent node `L` a join for term `t`. -/
+def JoinVoters (P : Params) (W : Cluster V) (L : NodeId) (t : Nat) (J : List NodeId) : Prop :=
+  ∀ x ∈ J, P.eligible x = true ∧
+    ∃ j : Join, W.sent (.join j) ∧ j.sourceNode.id = x ∧ j.targetNode.id = L ∧ j.term = t
+
+/-- Every member of `J` is a cluster-manager-eligible node that sent node `L` a join for term `t` whose last accepted
+(term, version) is `Below` the base `(bt, bv)`. -/
+def BaseVoters (P : Params) (W : Cluster V) (L : NodeId) (t bt : Nat) (bv : Int) (J : List NodeId) : Prop :=
+  ∀ x ∈ J, P.eligible x = true ∧
+    ∃ j : Join, W.sent (.join j) ∧ j.sourceNode.id = x ∧ j.targetNode.id = L ∧ j.term = t ∧
+      Below j.lastAcceptedTerm j.lastAcceptedVersion bt bv
+
+/-- Every member of `A` is a cluster-manager-eligible node that sent a `PublishResponse` for term `t` and version
+`v` (to any node). -/
+def RespVoters (P : Params) (W : Cluster V) (t : Nat) (v : Int) (A : List NodeId) : Prop :=
+  ∀ x ∈ A, P.eligible x = true ∧ ∃ d, W.sent (.publishResponse x d ⟨t, v⟩)
+
+/-- An *election record* of node `L` for term `t`: the base `(bt, bv)` is of an older term, `(x, y)` realizes it, and
+`J`, a quorum of both `x` and `y`, consists of eligible nodes that each sent `L` a term-`t` join with a last accepted
+(term, version) `Below` the base. Both a node that has just won its election (its accepted state is the base) and the
+first publication of a term (the publisher's state when it won) carry one. -/
+def ElectionRecord (P : Params) (W : Cluster V) (L : NodeId) (t bt : Nat) (bv : Int) (x y : VotingConfiguration)
+    (J : List NodeId) : Prop :=
+  bt < t ∧ Realizes P W bt bv x y ∧ BaseVoters P W L t bt bv J ∧ x.hasQuorum J = true ∧ y.hasQuorum J = true
+
+/-- Node `b` *won* term `t`: it is cluster-manager-eligible, and it has currently won the election of its current
+term `t`, or it has sent a publication of term `t`. -/
+def Won (P : Params) (W : Cluster V) (b : NodeId) (t : Nat) : Prop :=
+  P.eligible b = true ∧
+    (((W.node b).electionWon = true ∧ (W.node b).currentTerm = t) ∨
+      ∃ s pt pv, W.sent (.publishRequest b s pt pv) ∧ s.term = t)
+
+/-- The inductive invariant. Field names are descriptive; each docstring names the conjunct of the design it
+transcribes (`design_1/RESULT.md`: P*, C1, J*, R*, N*, L*). Node facts about the persisted state hold for
+cluster-manager-eligible nodes only (a node that is not eligible may restart with any persisted state); facts about
+the transient state hold for every node (a node that is not eligible never receives a join, so never holds votes or
+wins). -/
+structure Inv (P : Params) (W : Cluster V) : Prop where
+  -- Every node.
+  /-- Every node's `localNode` is its own `DiscoveryNode` `P.dn n`. -/
+  localNode_eq : ∀ n, (W.node n).localNode = P.dn n
+  /-- (N4) A node that has not won its election has published nothing in its term and holds no publish votes. -/
+  idle_of_not_won : ∀ n, (W.node n).electionWon = false →
+    (W.node n).lastPublishedVersion = 0 ∧ (W.node n).publishVotes = VoteCollection.empty
+  /-- (N2) A node that has won its election has started a join since its last restart. -/
+  won_started : ∀ n, (W.node n).electionWon = true → (W.node n).startedJoinSinceLastReboot = true
+  /-- (N6) A node that holds join votes has started a join since its last restart. -/
+  votes_started : ∀ n, (W.node n).joinVotes.nodes ≠ [] → (W.node n).startedJoinSinceLastReboot = true
+  /-- (N10) A node that has started a join since its last restart is in a term ≥ 1. -/
+  started_term_pos : ∀ n, (W.node n).startedJoinSinceLastReboot = true → 1 ≤ (W.node n).currentTerm
+  /-- (N3) The join votes of a node that has won are a quorum of both its last committed and its last accepted
+  configuration. -/
+  won_quorum : ∀ n, (W.node n).electionWon = true →
+    (W.node n).joinVotes.isQuorum (W.node n).lastCommittedConfiguration = true ∧
+    (W.node n).joinVotes.isQuorum (W.node n).lastAcceptedConfiguration = true
+  /-- (N3r, the reverse half of `invariant()`) The join votes of a node that has not won are not a quorum of both its
+  last committed and its last accepted configuration. -/
+  not_won_no_quorum : ∀ n, (W.node n).electionWon = false →
+    ¬ ((W.node n).joinVotes.isQuorum (W.node n).lastCommittedConfiguration = true ∧
+      (W.node n).joinVotes.isQuorum (W.node n).lastAcceptedConfiguration = true)
+  /-- (N8) Every join vote node `n` holds is of an eligible node `m` that sent `n` a join for `n`'s current term, with
+  a last accepted (term, version) `Below` `n`'s last accepted (term, version). -/
+  joinVotes_sent : ∀ n m, m ∈ (W.node n).joinVotes.nodes → P.eligible m = true ∧
+    ∃ j : Join, W.sent (.join j) ∧ j.sourceNode.id = m ∧ j.targetNode.id = n ∧
+      j.term = (W.node n).currentTerm ∧
+      Below j.lastAcceptedTerm j.lastAcceptedVersion (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion
+  /-- (N9) Every publish vote node `n` holds is of an eligible node `m` that sent `n` a `PublishResponse` for `n`'s
+  current term and last published version. -/
+  publishVotes_sent : ∀ n m, m ∈ (W.node n).publishVotes.nodes → P.eligible m = true ∧
+    W.sent (.publishResponse m n ⟨(W.node n).currentTerm, (W.node n).lastPublishedVersion⟩)
+  -- Cluster-manager-eligible nodes.
+  /-- (N1) The last accepted term of an eligible node is at most its current term. -/
+  term_le : ∀ n, P.eligible n = true → (W.node n).lastAcceptedTerm ≤ (W.node n).currentTerm
+  /-- (N7) The accepted state of an eligible node is either a never-bootstrapped term-0 state with empty
+  configurations, or its configurations `Realize` its key: a bootstrap state with a bootstrap configuration, or a sent
+  publication's term, version and configurations (the last committed one possibly replaced by the last accepted one,
+  if the publication is committed). Nothing else of the state (payload, metadata version, cluster-manager node,
+  cluster-UUID flags) is related to the publication, since a restart may rebuild it. -/
+  accepted_realizes : ∀ n, P.eligible n = true →
+    ((W.node n).lastAcceptedTerm = 0 ∧
+      (W.node n).lastCommittedConfiguration = VotingConfiguration.EMPTY_CONFIG ∧
+      (W.node n).lastAcceptedConfiguration = VotingConfiguration.EMPTY_CONFIG) ∨
+    Realizes P W (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion
+      (W.node n).lastCommittedConfiguration (W.node n).lastAcceptedConfiguration
+  -- Joins and publish responses.
+  /-- Every join comes from the `DiscoveryNode` of its source and is addressed to an eligible node. -/
+  join_wf : ∀ j : Join, W.sent (.join j) →
+    j.sourceNode = P.dn j.sourceNode.id ∧ P.eligible j.targetNode.id = true
+  /-- (J1) An eligible node's joins are for terms at most its current term. -/
+  join_term_le : ∀ j : Join, W.sent (.join j) → P.eligible j.sourceNode.id = true →
+    j.term ≤ (W.node j.sourceNode.id).currentTerm
+  /-- (J2) An eligible node sends at most one join per term. -/
+  join_unique : ∀ j j' : Join, W.sent (.join j) → W.sent (.join j') → P.eligible j.sourceNode.id = true →
+    j.sourceNode.id = j'.sourceNode.id → j.term = j'.term → j = j'
+  /-- (J3) An eligible node's join for a term later than one of its publish responses carries a last accepted
+  (term, version) at least that of the response: it accepted before it voted. -/
+  join_after_response : ∀ (j : Join) (a d : NodeId) (r : PublishResponse), W.sent (.join j) →
+    W.sent (.publishResponse a d r) → j.sourceNode.id = a → P.eligible a = true → r.term < j.term →
+    KeyLE r.term r.version j.lastAcceptedTerm j.lastAcceptedVersion
+  /-- (R1) An eligible node's publish responses are for terms at most its current term, and for (term, version)s at
+  most its last accepted (term, version). -/
+  response_le : ∀ (a d : NodeId) (r : PublishResponse), W.sent (.publishResponse a d r) → P.eligible a = true →
+    r.term ≤ (W.node a).currentTerm ∧
+    KeyLE r.term r.version (W.node a).lastAcceptedTerm (W.node a).lastAcceptedVersion
+  /-- (R2) Every publish response answers a publication of its (term, version) sent by the node it is addressed to. -/
+  response_published : ∀ (a d : NodeId) (r : PublishResponse), W.sent (.publishResponse a d r) →
+    ∃ s pt pv, W.sent (.publishRequest d s pt pv) ∧ s.term = r.term ∧ s.version = r.version
+  -- Publications.
+  /-- (P1) Every publication is sent by an eligible node, has term ≥ 1 (so the Zen1 branch of
+  `handlePublishRequest` is dead), a parent of at most its term and of a smaller version, and, if its parent is a
+  bootstrap state (term 0), a bootstrap configuration as last committed configuration. -/
+  pub_wf : ∀ src s pt pv, W.sent (.publishRequest src s pt pv) →
+    P.eligible src = true ∧ 1 ≤ s.term ∧ pt ≤ s.term ∧ pv < s.version ∧
+    (pt = 0 → P.initConfs s.lastCommittedConfiguration)
+  /-- (P1, P5) The parent of a publication, if not a bootstrap state, is a publication (of key `(pt, pv)`), and the
+  configurations follow the reconfiguration discipline: the last committed configuration is the parent's, or, if the
+  parent is committed, the parent's last accepted one (R1); and the last accepted configuration changes only if the
+  last committed configuration is the parent's last accepted one (R2). -/
+  pub_parent : ∀ src s pt pv, W.sent (.publishRequest src s pt pv) → 1 ≤ pt →
+    ∃ src' s' pt' pv', W.sent (.publishRequest src' s' pt' pv') ∧ s'.term = pt ∧ s'.version = pv ∧
+      (s.lastCommittedConfiguration = s'.lastCommittedConfiguration ∨
+        (s.lastCommittedConfiguration = s'.lastAcceptedConfiguration ∧ Committed W pt pv)) ∧
+      (s.lastAcceptedConfiguration ≠ s'.lastAcceptedConfiguration →
+        s.lastCommittedConfiguration = s'.lastAcceptedConfiguration)
+  /-- (P2) Two publications with the same key are the same message (source, state and parent). -/
+  pub_unique : ∀ src s pt pv src' s' pt' pv', W.sent (.publishRequest src s pt pv) →
+    W.sent (.publishRequest src' s' pt' pv') → s.term = s'.term → s.version = s'.version →
+    src = src' ∧ s = s' ∧ pt = pt' ∧ pv = pv'
+  /-- Every publication descends from a root (a term-0 key): the chain of its ancestors is finite. -/
+  pub_rooted : ∀ src s pt pv, W.sent (.publishRequest src s pt pv) → ∃ v₀, Descends W 0 v₀ s.term s.version
+  /-- (P4) Two publications of the same term are related by descent. -/
+  pub_same_term : ∀ src s pt pv src' s' pt' pv', W.sent (.publishRequest src s pt pv) →
+    W.sent (.publishRequest src' s' pt' pv') → s.term = s'.term →
+    Descends W s.term s.version s'.term s'.version ∨ Descends W s'.term s'.version s.term s.version
+  /-- (P6) The eligible nodes that sent the publisher a join for the publication's term include a quorum of both of
+  the publication's configurations. -/
+  pub_voters : ∀ src s pt pv, W.sent (.publishRequest src s pt pv) →
+    ∃ J, JoinVoters P W src s.term J ∧ s.lastCommittedConfiguration.hasQuorum J = true ∧
+      s.lastAcceptedConfiguration.hasQuorum J = true
+  /-- (P7) The first publication of a term (its parent is of an older term) carries the election record of its
+  publisher: the parent key, realized by the publication's last committed configuration and some `y` (the parent's
+  last accepted configuration), with a quorum of joins `Below` the parent. -/
+  pub_election : ∀ src s pt pv, W.sent (.publishRequest src s pt pv) → pt < s.term →
+    ∃ y J, ElectionRecord P W src s.term pt pv s.lastCommittedConfiguration y J
+  -- Commits.
+  /-- (C1, with the weakening forced by `handleCommit` at a leader, D1) Every commit is of a sent publication whose
+  publish responses from eligible nodes include a quorum `A` of its last accepted configuration and either of its last
+  committed configuration, or (D1) its parent is committed and has the same last accepted configuration. -/
+  commit_quorum : ∀ c : ApplyCommitRequest, W.sent (.applyCommit c) →
+    ∃ src s pt pv, W.sent (.publishRequest src s pt pv) ∧ s.term = c.term ∧ s.version = c.version ∧
+      ∃ A, RespVoters P W c.term c.version A ∧ s.lastAcceptedConfiguration.hasQuorum A = true ∧
+        (s.lastCommittedConfiguration.hasQuorum A = true ∨
+          (Committed W pt pv ∧ ∃ src' s' pt' pv', W.sent (.publishRequest src' s' pt' pv') ∧ s'.term = pt ∧
+            s'.version = pv ∧ s'.lastAcceptedConfiguration = s.lastAcceptedConfiguration))
+  -- Leaders.
+  /-- (L1) At most one node wins each term. -/
+  won_unique : ∀ a b t, Won P W a t → Won P W b t → a = b
+  /-- (L2) A node that published in a term is past that term, or still in it and either still elected or restarted
+  since (so it cannot win that term again). -/
+  pub_source_term : ∀ src s pt pv, W.sent (.publishRequest src s pt pv) →
+    s.term < (W.node src).currentTerm ∨
+    (s.term = (W.node src).currentTerm ∧
+      ((W.node src).electionWon = true ∨ (W.node src).startedJoinSinceLastReboot = false))
+  /-- (L3) An elected node's publications of its term have versions at most its last published version, from which
+  they descend, and its join votes are a quorum of both of their configurations. -/
+  leader_pubs : ∀ n, (W.node n).electionWon = true → ∀ src s pt pv, W.sent (.publishRequest src s pt pv) →
+    s.term = (W.node n).currentTerm →
+    s.version ≤ (W.node n).lastPublishedVersion ∧
+    Descends W s.term s.version (W.node n).currentTerm (W.node n).lastPublishedVersion ∧
+    (W.node n).joinVotes.isQuorum s.lastCommittedConfiguration = true ∧
+    (W.node n).joinVotes.isQuorum s.lastAcceptedConfiguration = true
+  /-- (L4) An elected node with a publication in flight (last published version ≠ last accepted version) sent it on
+  top of its current accepted key; its last published configuration is that publication's last accepted one; and its
+  last committed configuration is the publication's, or (D1: the node applied the commit of its accepted state) the
+  publication's last accepted configuration, its accepted state being committed with that same last accepted
+  configuration. -/
+  leader_inflight : ∀ n, (W.node n).electionWon = true →
+    (W.node n).lastPublishedVersion ≠ (W.node n).lastAcceptedVersion →
+    ∃ s, W.sent (.publishRequest n s (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion) ∧
+      s.term = (W.node n).currentTerm ∧ s.version = (W.node n).lastPublishedVersion ∧
+      (W.node n).lastPublishedConfiguration = s.lastAcceptedConfiguration ∧
+      ((W.node n).lastCommittedConfiguration = s.lastCommittedConfiguration ∨
+        ((W.node n).lastCommittedConfiguration = s.lastAcceptedConfiguration ∧
+          Committed W (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion ∧
+          (W.node n).lastAcceptedConfiguration = s.lastAcceptedConfiguration))
+  /-- (L5) An elected node with no publication in flight has either accepted a publication of its term (and its last
+  published configuration is its last accepted one), or has an accepted state of an older term and no publication of
+  its term exists. -/
+  leader_settled : ∀ n, (W.node n).electionWon = true →
+    (W.node n).lastPublishedVersion = (W.node n).lastAcceptedVersion →
+    ((W.node n).lastAcceptedTerm = (W.node n).currentTerm ∧
+      (W.node n).lastPublishedConfiguration = (W.node n).lastAcceptedConfiguration) ∨
+    ((W.node n).lastAcceptedTerm < (W.node n).currentTerm ∧
+      ∀ src s pt pv, W.sent (.publishRequest src s pt pv) → s.term ≠ (W.node n).currentTerm)
+
 end OpenSearchSafety
