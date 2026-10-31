@@ -24,7 +24,7 @@ Java `assert`s are disabled in production and are caller contracts; the transcri
 - **Quorums**: two quorums of the same configuration intersect; a superset of a quorum is a quorum; the empty configuration has no quorum; no votes are no quorum; only eligible votes count.
 - **Handler specifications**: what each handler requires and changes (`handleStartJoin_spec`, `handleJoin_spec`, `handleClientValue_spec`, `handlePublishRequest_spec`, `handlePublishResponse_spec`, `handleCommit_spec`).
 - **Monotonicity**: only `handleStartJoin` changes the current term, and only upwards; the accepted state of a node moves strictly forward in the (term, version) order except in the Zen1 compatibility branch; the last accepted term never exceeds the current term.
-- **Elections**: a node only counts votes from voters whose accepted state is no fresher than its own; for a monotone election strategy (the default is) a won election stays won — the assertion at `CoordinationState.java:323`.
+- **Elections**: a node only counts votes from voters whose accepted state is no fresher than its own; for a monotone election strategy (the default is) a won election stays won — the assertion at `CoordinationState.java:323-324`.
 - **The assertions of `invariant()`**: they hold for a freshly started node and are preserved by `handleStartJoin`, `handleJoin`, `handleClientValue` and `handlePublishResponse`, but **not** by `handlePublishRequest` in isolation: an explicit node satisfies `invariant()`, accepts a publication, and violates it. That `invariant()` holds at every node of every execution is therefore a property of the whole cluster, proved in the next mission.
 
 ## What this rests on

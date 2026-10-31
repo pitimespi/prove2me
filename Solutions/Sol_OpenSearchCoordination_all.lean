@@ -157,7 +157,7 @@ theorem OpenSearchCoordination.handlePublishRequest_spec {V : Type} (cs : Coordi
         omega
 
 /-- `handleCommit` changes nothing but the last accepted state's committed configuration (which becomes the accepted
-one, the assertion of CS:573) and its cluster-UUID flag; it applies only to the last accepted state, and only in the
+one, the assertion of CS:572) and its cluster-UUID flag; it applies only to the last accepted state, and only in the
 current term. -/
 theorem OpenSearchCoordination.handleCommit_spec {V : Type} (cs : CoordinationState V) (c : ApplyCommitRequest) (cs' : CoordinationState V)
     (h : cs.handleCommit c = .ok cs') :

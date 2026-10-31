@@ -23,7 +23,7 @@ private theorem filter_length_mono {α : Type} (L : List α) (p q : α → Bool)
     exact absurd this (by decide)
 
 /-- `handleCommit` changes nothing but the last accepted state's committed configuration (which becomes the accepted
-one, the assertion of CS:573) and its cluster-UUID flag; it applies only to the last accepted state, and only in the
+one, the assertion of CS:572) and its cluster-UUID flag; it applies only to the last accepted state, and only in the
 current term. -/
 theorem solution {V : Type} (cs : CoordinationState V) (c : ApplyCommitRequest) (cs' : CoordinationState V)
     (h : cs.handleCommit c = .ok cs') :

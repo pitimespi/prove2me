@@ -63,8 +63,10 @@ def hasQuorum (c : VotingConfiguration) (votes : List NodeId) : Bool :=
 
 end VotingConfiguration
 
-/-- `CoordinationState.VoteCollection` (CS:745-815): the ids of the nodes whose votes were added. (Java keys a
-`Map<String, DiscoveryNode>` by node id and also records the `Join`s in a set that only tests read.) -/
+/-- `CoordinationState.VoteCollection` (CS:750-814): the ids of the nodes whose votes were added, most recent first.
+(Java keys a `Map<String, DiscoveryNode>` by node id and also records the `Join`s in a set that only tests read. Java's
+`equals`, used only by tests, compares the sets of voters; no handler compares vote collections, and the handlers read
+them only through membership.) -/
 structure VoteCollection where
   nodes : List NodeId
   deriving DecidableEq, Repr
@@ -74,18 +76,18 @@ namespace VoteCollection
 /-- `new VoteCollection()`. -/
 def empty : VoteCollection := ⟨[]⟩
 
-/-- `addVote(sourceNode)` (CS:751-753): `sourceNode.isClusterManagerNode() && nodes.put(id, sourceNode) == null`. The
+/-- `addVote(sourceNode)` (CS:755-757): `sourceNode.isClusterManagerNode() && nodes.put(id, sourceNode) == null`. The
 new collection and whether the vote was added. -/
 def addVote (v : VoteCollection) (n : DiscoveryNode) : VoteCollection × Bool :=
   if n.isClusterManagerNode && !(v.nodes.contains n.id) then (⟨n.id :: v.nodes⟩, true) else (v, false)
 
-/-- `isQuorum(configuration)` (CS:770-772). -/
+/-- `isQuorum(configuration)` (CS:772-774). -/
 def isQuorum (v : VoteCollection) (c : VotingConfiguration) : Bool := c.hasQuorum v.nodes
 
-/-- `containsVoteFor(node)` (CS:774-776). -/
+/-- `containsVoteFor(node)` (CS:776-778). -/
 def containsVoteFor (v : VoteCollection) (n : DiscoveryNode) : Bool := v.nodes.contains n.id
 
-/-- `isEmpty()` (CS:778-780). -/
+/-- `isEmpty()` (CS:780-782). -/
 def isEmpty (v : VoteCollection) : Bool := v.nodes.isEmpty
 
 end VoteCollection
@@ -122,7 +124,7 @@ variable {V : Type}
 def versionOrMetadataVersion (s : ClusterState V) : Int :=
   if s.term = ZEN1_BWC_TERM then s.metadataVersion else s.version
 
-/-- `PersistedState.markLastAcceptedStateAsCommitted()` (CS:648-680) with `commitVotingConfiguration` (CS:682-693):
+/-- `PersistedState.markLastAcceptedStateAsCommitted()` (CS:703-728) with `commitVotingConfiguration` (CS:730-740):
 the committed configuration becomes the accepted one, and a known cluster UUID is marked committed. -/
 def markCommitted (s : ClusterState V) : ClusterState V :=
   let s₁ := if s.lastAcceptedConfiguration ≠ s.lastCommittedConfiguration then
@@ -352,7 +354,7 @@ def handlePublishResponse (cs : CoordinationState V) (sourceNode : DiscoveryNode
     else
       .ok (cs', none)
 
-/-- `handleCommit(applyCommit)` (CS:522-574). -/
+/-- `handleCommit(applyCommit)` (CS:523-573). -/
 def handleCommit (cs : CoordinationState V) (c : ApplyCommitRequest) : Except String (CoordinationState V) :=
   if c.term ≠ cs.currentTerm then
     .error "incoming term does not match current term"
@@ -363,7 +365,7 @@ def handleCommit (cs : CoordinationState V) (c : ApplyCommitRequest) : Except St
   else
     .ok { cs with lastAcceptedState := cs.lastAcceptedState.markCommitted }
 
-/-- `invariant()` (CS:603-613), the assertions Java checks in tests. -/
+/-- `invariant()` (CS:601-611), the assertions Java checks in tests. -/
 def javaInvariant (es : ElectionStrategy) (cs : CoordinationState V) : Prop :=
   cs.lastAcceptedTerm ≤ cs.currentTerm ∧
   cs.electionWon = isElectionQuorum es cs cs.joinVotes ∧
