@@ -1,5 +1,6 @@
 SRC = ("OpenSearch b2a54ba5c0defba3d1d20423e911d4bf920bab19: Coordinator (handlePublishRequest lines 454-526 with ensureTermAtLeast "
-       "at 512, startElection 583-602, ensureTermAtLeast 635-641, joinLeaderInTerm 643-657, handleJoin 1267-1299, publish 1350 with "
+       "at 512, startElection 583-602, ensureTermAtLeast 635-641, joinLeaderInTerm 643-657, handleJoin 1267-1287 with "
+       "handleJoinIgnoringExceptions 1289-1299, publish 1350 with "
        "the handleClientValue call at 1404, CoordinatorPublication.handlePublishResponse 1871-1876): "
        "https://github.com/opensearch-project/OpenSearch/blob/b2a54ba5c0defba3d1d20423e911d4bf920bab19/server/src/main/java/org/opensearch/cluster/coordination/Coordinator.java; "
        "CoordinationState (isPublishQuorum lines 156-158, handleStartJoin 213-255, handleJoin 264-339, handleClientValue 348-407, "
@@ -75,7 +76,7 @@ No hypothesis on the voters' accepted states is needed: the votes are already co
 there is a cluster `W'` with `ElectionExec P c t Q (W.node c).lastAcceptedTerm (W.node c).lastAcceptedVersion W W'`, `(W'.node c).currentTerm = t` and `(W'.node c).electionWon = true`.
 
 In the witness, `c` handles its own start-join request for `t`, every voter not yet in term `t` handles it and sends its join, and `c` handles every voter's join. The restrictions of the stable period leave enabled every step an election needs, so the premises of `election_won` are reached.""",
-    ms=("Stable elections succeed", "An explicit stable execution: the candidate's own start-join for t, each voter's start-join, then each voter's join handled and counted.")),
+    ms=None),
 "OpenSearchProgress.publication_acks_accepted": dict(
     title="Acknowledgements keep counting during a stable publication",
     nl=r"""For every payload type `V`, cluster parameters `P` with `P.InitCompatible` and `P.strategy = ElectionStrategy.DEFAULT_INSTANCE`, every cluster `W` with `Reachable P W`, every node `c`, term `t` and list `Q` of cluster-manager-eligible node ids, such that `c` has won the election and is in term `t` (`(W.node c).electionWon = true`, `(W.node c).currentTerm = t`), every cluster state `s`, term `pt` and version `pv` such that `c` has sent the publication of `s` with ghost parent `(pt, pv)` (`W.sent (.publishRequest c s pt pv)`), `s.term = t` and `s.version = (W.node c).lastPublishedVersion` (it is `c`'s latest publication), and every cluster `W'` with `PublicationExec P c t Q W W'`:
@@ -95,7 +96,7 @@ A node of `Q` that has not reached term `t` can do so in the period by handling 
 and every cluster `W'` with `PublicationExec P c t Q W W'` in which every member of `Q` is among `c`'s publish votes (`q ∈ (W'.node c).publishVotes.nodes` for every `q ∈ Q`): `Committed W' t s.version`, that is, an `ApplyCommitRequest` for term `t` and version `s.version` has been sent.
 
 `handlePublishResponse` sends the commit when the votes are a quorum of `c`'s current last committed configuration and of the configuration being published (`isPublishQuorum`, `CoordinationState.java:156-158`). During the period `c`'s last committed configuration can change: applying the commit of its accepted state makes it `c`'s last accepted configuration (Java's `handleCommit` allows this while a publication is in flight), and accepting its own publication makes it `s`'s last committed configuration, which can move it backwards. `Q` must therefore be a quorum of every configuration `c` may be using when the acknowledgement that completes `Q` arrives; otherwise all of `Q` could be counted without a commit.""",
-    ms=None),
+    ms=("A stable publication is committed", "Only the cluster-manager's own handlePublishResponse changes its publish votes; the acknowledgement that completes Q meets a publish quorum, Q being a quorum of every configuration the cluster-manager can be using.")),
 "OpenSearchProgress.publication_possible": dict(
     title="Stable publications are committed: some stable publication execution reaches the commit",
     nl=r"""For every payload type `V`, cluster parameters `P` with `P.InitCompatible` and `P.strategy = ElectionStrategy.DEFAULT_INSTANCE`, every cluster `W` with `Reachable P W`, every node `c`, term `t` and list `Q` of cluster-manager-eligible node ids, such that `c` has won the election and is in term `t`, every cluster state `s`, term `pt` and version `pv` with `W.sent (.publishRequest c s pt pv)`, `s.term = t` and `s.version = (W.node c).lastPublishedVersion`, such that

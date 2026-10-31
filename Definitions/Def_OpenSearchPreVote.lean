@@ -138,10 +138,11 @@ inductive RoundReachable (es : ElectionStrategy) (Delivered : DiscoveryNode → 
       RoundReachable es Delivered (r.handlePreVoteResponse es localResponse resp sender).1
   | close (r : PreVotingRound V) : RoundReachable es Delivered r → RoundReachable es Delivered r.close
 
-/-- The joins a node handles, in the order given, as `Coordinator.handleJoin` (CO:1267-1299) does for joins whose term is
-not above the node's current term (for a higher term it first moves the node to that term, CO:1269). A rejected join
-leaves the state unchanged: `handleJoin` throws before changing anything, and `Coordinator.handleJoin` either
-propagates the exception to the joining node or ignores it. -/
+/-- The joins a node handles, in the order given, as `Coordinator.handleJoin` (CO:1267-1287, with
+`handleJoinIgnoringExceptions`, CO:1289-1299) does for joins whose term is not above the node's current term (for a
+higher term it first moves the node to that term, CO:1269). A rejected join leaves the state unchanged: `handleJoin`
+throws before changing anything, and `Coordinator.handleJoin` either propagates the exception to the joining node or
+ignores it. -/
 def handleJoins (es : ElectionStrategy) (cs : CoordinationState V) (js : List Join) : CoordinationState V :=
   js.foldl (fun cs j => match cs.handleJoin es j with
     | .ok (cs', _) => cs'
