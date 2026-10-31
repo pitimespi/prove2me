@@ -102,3 +102,40 @@ Mission 19 was returned by the moderator (closed collision propositions) and rev
 - `expl/` — proof explanations per theorem.
 - `*_description.md`, `*_items.py` — mission descriptions and prose statements.
 - `core-src/` — the pinned Bitcoin Core sources consulted.
+
+## OpenSearch cluster coordination (2026-10-31)
+
+OpenSearch `b2a54ba5c0defba3d1d20423e911d4bf920bab19`, `org.opensearch.cluster.coordination`. All proofs complete
+locally (axioms `propext`, `Classical.choice`, `Quot.sound` only); **not yet proposed on Prove2me** (no proposals,
+no submissions).
+
+| Mission | Namespace | Goal theorem | Theorems | Proofs |
+|---|---|---|---|---|
+| Per-node state machine (`CoordinationState.java`) | `OpenSearchCoordination` | `javaInvariant_preserved` | 18 | 18 |
+| Pre-voting (`PreVoteCollector`) and election scheduling | `OpenSearchPreVote` | `preVote_then_election` | 10 | 10 |
+| Cluster safety (message soup, crash-recovery, bootstrap configurations) | `OpenSearchSafety` | `committed_linear` | 44 | 44 |
+| Liveness under a stable period | `OpenSearchProgress` | `election_possible` | 6 | 6 |
+| Randomized election timers (Mathlib) | `OpenSearchElectionTimer` | `all_contested_prob_le` | 7 | 7 |
+
+What the theorems say, in short:
+- **Safety** (every execution): one cluster-manager per term; one cluster state per (term, version); leader
+  completeness (every publication of a later term descends from every committed publication); committed states form a
+  single history, a committed version is committed once, committed versions increase with the term; election safety;
+  the assertions of `CoordinationState.invariant()` hold at every cluster-manager-eligible node (although no handler
+  preserves them on its own); committed configurations are committed; bootstrapping with different partial views is
+  safe. Assumes the default election strategy (a non-monotone plugin strategy breaks safety) and compatible bootstrap
+  configurations (proved for `ClusterBootstrapService`'s construction).
+- **Liveness**: pre-voting protects a stable leader; a successful pre-vote over unchanged voters predicts a successful
+  election; in a stable period votes and acknowledgements keep counting in any delivery order, elections are won and
+  publications committed, and such executions exist; competing randomized timers produce an uncontested round with
+  high probability, even against a scheduler adapting to earlier draws (3 candidates, default 10 s maximum timeout,
+  100 ms margin: below 6% per round, below 10⁻⁶ over five rounds; draws idealized as uniform 64-bit longs).
+- **Findings**: Elastic's TLA+ invariant `CommitHasQuorumVsPreviousCommittedConfiguration` fails for the Java
+  semantics (`handleCommit` lacks the TLA+ guard; 17-step trace), although safety holds; a leader's last committed
+  configuration can move backwards; changing a node's cluster-manager role and back can reset its persisted term
+  (outside the model).
+
+Validation: two independent invariant designs with explicit-state model checkers (one a C++ port, ~1.3 billion
+states), inductiveness spot-checks with no counterexample; fidelity audit of the transcription against the Java; 58
+OpenSearch unit tests replayed as 218 `decide` checks (`tests/OpenSearch*Vectors.lean`); blind read-backs in
+`missions/readbacks/os*`.
