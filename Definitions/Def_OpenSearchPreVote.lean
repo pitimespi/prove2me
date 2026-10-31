@@ -13,8 +13,15 @@ requester starts an election (`Coordinator.startElection`, Coordinator.java, cit
 `StartJoinRequest` in a term above every term it has seen. Pre-voting rounds are started by an **election scheduler**
 (`ElectionSchedulerFactory`, cited `ESF:<line>`) at randomized, backed-off intervals.
 
-The pre-vote messages and handlers are transcribed below as functions; the side effect of both handlers on the
-Coordinator's `maxTermSeen` (`updateMaxTermSeen`) is returned explicitly.
+The pre-vote messages and handlers are transcribed below as functions. Both handlers first raise the Coordinator's
+`maxTermSeen` (`updateMaxTermSeen`, CO:560-581): `handlePreVoteResponse` returns the term it passes; for
+`handlePreVoteRequest` it is always the request's term. When `maxTermSeen` exceeds the current term of a leader, the
+leader moves to that term and starts an election itself (CO:565-577); that effect is outside these functions.
+
+Node equality: Java's `DiscoveryNode.equals` compares ephemeral ids, which change when a node restarts; here nodes are
+compared by id and role. The two agree except between two incarnations of the same node, which Java treats as
+different nodes (so a follower of a node's previous incarnation refuses that node's pre-vote request in Java, and
+accepts it here).
 -/
 
 namespace OpenSearchPreVote
@@ -50,8 +57,8 @@ structure CollectorState where
   deriving DecidableEq, Repr
 
 /-- `PreVoteCollector.handlePreVoteRequest(request)` (PVC:133-164). `healthy` is the node health status
-(`nodeHealthService.getHealth()`). A node that knows a leader other than the requester refuses. The returned term is
-the argument of the `updateMaxTermSeen` call the handler makes first (the request's term). -/
+(`nodeHealthService.getHealth()`). A node that knows a leader other than the requester refuses. (Before answering, the
+handler calls `updateMaxTermSeen(request.getCurrentTerm())`, PVC:134; see the module documentation.) -/
 def handlePreVoteRequest (healthy : Bool) (st : CollectorState) (req : PreVoteRequest) :
     Except String PreVoteResponse :=
   if !healthy then .error "rejecting on unhealthy node"
@@ -128,9 +135,10 @@ inductive RoundReachable (es : ElectionStrategy) (Delivered : DiscoveryNode → 
       RoundReachable es Delivered (r.handlePreVoteResponse es localResponse resp sender).1
   | close (r : PreVotingRound V) : RoundReachable es Delivered r → RoundReachable es Delivered r.close
 
-/-- The joins a node handles, in the order given. A rejected join leaves the state unchanged: `handleJoin` throws before
-changing anything, and `Coordinator.handleJoin` (Coordinator.java:1267-1299) either propagates the exception to the
-joining node or ignores it. -/
+/-- The joins a node handles, in the order given, as `Coordinator.handleJoin` (CO:1267-1299) does for joins whose term is
+not above the node's current term (for a higher term it first moves the node to that term, CO:1269). A rejected join
+leaves the state unchanged: `handleJoin` throws before changing anything, and `Coordinator.handleJoin` either
+propagates the exception to the joining node or ignores it. -/
 def handleJoins (es : ElectionStrategy) (cs : CoordinationState V) (js : List Join) : CoordinationState V :=
   js.foldl (fun cs j => match cs.handleJoin es j with
     | .ok (cs', _) => cs'
