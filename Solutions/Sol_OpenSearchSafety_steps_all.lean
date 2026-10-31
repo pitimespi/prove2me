@@ -1110,7 +1110,278 @@ theorem OpenSearchSafety.inv_clientValue {V : Type} (P : Params) (_hP : P.InitCo
     (hcontract : (W.node n).clientValueContract s) (h : (W.node n).handleClientValue s = .ok (cs', p)) :
     Inv P ((W.set n cs').send (.publishRequest n p.acceptedState (W.node n).lastAcceptedTerm
       (W.node n).lastAcceptedVersion)) := by
-  sorry
+  obtain ⟨hew, hlpv, hst, hsv, hreconf, hq, rfl, hcs⟩ := spec_clientValue _ _ _ _ h
+  clear h
+  have hlcc : s.lastCommittedConfiguration = (W.node n).lastCommittedConfiguration := hcontract
+  have e_ln : cs'.localNode = (W.node n).localNode := by rw [hcs]
+  have e_ct : cs'.currentTerm = (W.node n).currentTerm := by rw [hcs]
+  have e_ew : cs'.electionWon = (W.node n).electionWon := by rw [hcs]
+  have e_jv : cs'.joinVotes = (W.node n).joinVotes := by rw [hcs]
+  have e_pv : cs'.publishVotes = VoteCollection.empty := by rw [hcs]
+  have e_sj : cs'.startedJoinSinceLastReboot = (W.node n).startedJoinSinceLastReboot := by rw [hcs]
+  have e_lpv : cs'.lastPublishedVersion = s.version := by rw [hcs]
+  have e_lpc : cs'.lastPublishedConfiguration = s.lastAcceptedConfiguration := by rw [hcs]
+  have e_lat : cs'.lastAcceptedTerm = (W.node n).lastAcceptedTerm := by rw [hcs]; rfl
+  have e_lav : cs'.lastAcceptedVersion = (W.node n).lastAcceptedVersion := by rw [hcs]; rfl
+  have e_lcc : cs'.lastCommittedConfiguration = (W.node n).lastCommittedConfiguration := by rw [hcs]; rfl
+  have e_lac : cs'.lastAcceptedConfiguration = (W.node n).lastAcceptedConfiguration := by rw [hcs]; rfl
+  clear hcs
+  have hne : P.eligible n = true := inv_eligible_of_won P W hinv n hew
+  have hctpos : 1 ≤ (W.node n).currentTerm := hinv.started_term_pos n (hinv.won_started n hew)
+  obtain ⟨hq1, hq2⟩ := hinv.won_quorum n hew
+  -- the leader's accepted state realizes its key
+  have hreal : Realizes P W (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion
+      (W.node n).lastCommittedConfiguration (W.node n).lastAcceptedConfiguration := by
+    rcases hinv.accepted_realizes n hne with ⟨-, -, h0⟩ | hr
+    · unfold VoteCollection.isQuorum at hq2
+      rw [h0, empty_no_quorum] at hq2
+      cases hq2
+    · exact hr
+  -- the soup: one new publication, of term `t` = the current term, on top of the accepted key `(lat, lav)`
+  generalize hW' : (W.set n cs').send (.publishRequest n s (W.node n).lastAcceptedTerm
+    (W.node n).lastAcceptedVersion) = W'
+  have hg : ∀ m, W.sent m → W'.sent m := fun _ h => by rw [← hW']; exact Or.inl h
+  have hnew : W'.sent (.publishRequest n s (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion) := by
+    rw [← hW']; exact Or.inr rfl
+  have hpr : ∀ a s' pt' pv', W'.sent (.publishRequest a s' pt' pv') → W.sent (.publishRequest a s' pt' pv') ∨
+      (a = n ∧ s' = s ∧ pt' = (W.node n).lastAcceptedTerm ∧ pv' = (W.node n).lastAcceptedVersion) := by
+    intro a s' pt' pv' h'; rw [← hW'] at h'
+    rcases h' with h' | h'
+    · exact Or.inl h'
+    · cases h'; exact Or.inr ⟨rfl, rfl, rfl, rfl⟩
+  have hrs : ∀ a d r, W'.sent (.publishResponse a d r) → W.sent (.publishResponse a d r) := by
+    intro _ _ _ h'; rw [← hW'] at h'
+    rcases h' with h' | h'
+    · exact h'
+    · cases h'
+  have hjn : ∀ j, W'.sent (.join j) → W.sent (.join j) := by
+    intro _ h'; rw [← hW'] at h'
+    rcases h' with h' | h'
+    · exact h'
+    · cases h'
+  have hac : ∀ c, W'.sent (.applyCommit c) → W.sent (.applyCommit c) := by
+    intro _ h'; rw [← hW'] at h'
+    rcases h' with h' | h'
+    · exact h'
+    · cases h'
+  have hnode : ∀ m, m ≠ n → W'.node m = W.node m := fun m hm => by rw [← hW']; exact set_node_ne _ _ _ _ hm
+  have hnode_n : W'.node n = cs' := by rw [← hW']; exact set_node_self _ _ _
+  have hparent : Parent W' (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion s.term s.version :=
+    ⟨n, s, hnew, rfl, rfl⟩
+  -- the publications of the term so far descend to the accepted key (the leader's previous publication)
+  have hold_term : ∀ a s' pt' pv', W.sent (.publishRequest a s' pt' pv') → s'.term = s.term →
+      s'.version ≤ (W.node n).lastAcceptedVersion ∧
+      Descends W s'.term s'.version (W.node n).lastAcceptedTerm (W.node n).lastAcceptedVersion := by
+    intro a s' pt' pv' hs' ht'
+    rcases hinv.leader_settled n hew hlpv with ⟨hlt, -⟩ | ⟨-, hnone⟩
+    · obtain ⟨h1, h2, -, -⟩ := hinv.leader_pubs n hew a s' pt' pv' hs' (ht'.trans hst)
+      rw [hlpv] at h1 h2
+      rw [hlt]
+      exact ⟨h1, h2⟩
+    · exact absurd (ht'.trans hst) (hnone a s' pt' pv' hs')
+  -- other leaders are in other terms
+  have hother : ∀ m, m ≠ n → (W.node m).electionWon = true → (W.node m).currentTerm ≠ s.term := by
+    intro m hm hwm hct
+    exact hm (hinv.won_unique m n _ (inv_won_of_electionWon P W hinv m hwm)
+      (by rw [hct, hst]; exact inv_won_of_electionWon P W hinv n hew))
+  have hwon : ∀ a t, Won P W' a t → Won P W a t := by
+    rintro a t ⟨he, hw | ⟨s', pt', pv', hs', hst'⟩⟩
+    · by_cases ha : a = n
+      · subst ha; rw [hnode_n, e_ew, e_ct] at hw; exact ⟨he, Or.inl hw⟩
+      · rw [hnode a ha] at hw; exact ⟨he, Or.inl hw⟩
+    · rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, -, -⟩
+      · exact ⟨he, Or.inr ⟨s', pt', pv', hs0, hst'⟩⟩
+      · rw [← hst', hst]; exact inv_won_of_electionWon P W hinv a hew
+  refine
+    { localNode_eq := ?_, idle_of_not_won := ?_, won_started := ?_, votes_started := ?_, started_term_pos := ?_,
+      won_quorum := ?_, not_won_no_quorum := ?_, joinVotes_sent := ?_, publishVotes_sent := ?_, term_le := ?_,
+      accepted_realizes := ?_, join_wf := ?_, join_term_le := ?_, join_unique := ?_,
+      join_after_response := ?_, response_le := ?_, response_published := ?_, pub_wf := ?_, pub_parent := ?_,
+      pub_unique := ?_, pub_rooted := ?_, pub_same_term := ?_, pub_voters := ?_, pub_election := ?_,
+      commit_quorum := ?_, won_unique := ?_, pub_source_term := ?_, leader_pubs := ?_, leader_inflight := ?_,
+      leader_settled := ?_ }
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ln]; exact hinv.localNode_eq m
+    · rw [hnode m hm]; exact hinv.localNode_eq m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, hew]; intro h'; cases h'
+    · rw [hnode m hm]; exact hinv.idle_of_not_won m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_sj]; exact hinv.won_started m
+    · rw [hnode m hm]; exact hinv.won_started m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_jv, e_sj]; exact hinv.votes_started m
+    · rw [hnode m hm]; exact hinv.votes_started m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_sj, e_ct]; exact hinv.started_term_pos m
+    · rw [hnode m hm]; exact hinv.started_term_pos m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_jv, e_lcc, e_lac]; exact hinv.won_quorum m
+    · rw [hnode m hm]; exact hinv.won_quorum m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_jv, e_lcc, e_lac]; exact hinv.not_won_no_quorum m
+    · rw [hnode m hm]; exact hinv.not_won_no_quorum m
+  · intro m x
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_jv, e_ct, e_lat, e_lav]
+      intro hx
+      obtain ⟨he, j, hj, h1⟩ := hinv.joinVotes_sent m x hx
+      exact ⟨he, j, hg _ hj, h1⟩
+    · rw [hnode m hm]
+      intro hx
+      obtain ⟨he, j, hj, h1⟩ := hinv.joinVotes_sent m x hx
+      exact ⟨he, j, hg _ hj, h1⟩
+  · intro m x
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_pv]; intro hx; cases hx
+    · rw [hnode m hm]
+      intro hx
+      obtain ⟨he, h1⟩ := hinv.publishVotes_sent m x hx
+      exact ⟨he, hg _ h1⟩
+  · intro m hme
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_lat, e_ct]; exact hinv.term_le m hme
+    · rw [hnode m hm]; exact hinv.term_le m hme
+  · intro m hme
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_lat, e_lav, e_lcc, e_lac]
+      exact (hinv.accepted_realizes m hme).imp id (realizes_mono hg)
+    · rw [hnode m hm]; exact (hinv.accepted_realizes m hme).imp id (realizes_mono hg)
+  · intro j hj; exact hinv.join_wf j (hjn j hj)
+  · intro j hj hje
+    by_cases hm : j.sourceNode.id = n
+    · rw [hm, hnode_n, e_ct]; have := hinv.join_term_le j (hjn j hj) hje; rw [hm] at this; exact this
+    · rw [hnode _ hm]; exact hinv.join_term_le j (hjn j hj) hje
+  · intro j j' hj hj'; exact hinv.join_unique j j' (hjn j hj) (hjn j' hj')
+  · intro j a d r hj hr; exact hinv.join_after_response j a d r (hjn j hj) (hrs a d r hr)
+  · intro a d r hr ha
+    by_cases hm : a = n
+    · subst hm; rw [hnode_n, e_ct, e_lat, e_lav]; exact hinv.response_le a d r (hrs a d r hr) ha
+    · rw [hnode a hm]; exact hinv.response_le a d r (hrs a d r hr) ha
+  · intro a d r hr
+    obtain ⟨s', pt', pv', hs', h1, h2⟩ := hinv.response_published a d r (hrs a d r hr)
+    exact ⟨s', pt', pv', hg _ hs', h1, h2⟩
+  · intro a s' pt' pv' hs'
+    rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+    · exact hinv.pub_wf _ _ _ _ hs0
+    · refine ⟨hne, by omega, by have := hinv.term_le a hne; omega, hsv, ?_⟩
+      intro h0
+      rcases hreal with ⟨-, hxy, hX⟩ | ⟨src₂, s₂, pt₂, pv₂, hs₂, h1, -⟩
+      · rw [hlcc]; exact hX
+      · have := (hinv.pub_wf _ _ _ _ hs₂).2.1; omega
+  · intro a s' pt' pv' hs' hpt
+    rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+    · obtain ⟨src', s'', pt'', pv'', hs'', h1, h2, h3, h4⟩ := hinv.pub_parent _ _ _ _ hs0 hpt
+      exact ⟨src', s'', pt'', pv'', hg _ hs'', h1, h2, h3.imp id (fun h => ⟨h.1, committed_mono hg h.2⟩), h4⟩
+    · rcases hreal with ⟨h0, -⟩ | ⟨src₂, s₂, pt₂, pv₂, hs₂, h1, h2, h3, h4⟩
+      · omega
+      · refine ⟨src₂, s₂, pt₂, pv₂, hg _ hs₂, h1, h2, ?_, ?_⟩
+        · rw [hlcc]; exact h4.imp id (fun h => ⟨h.1, committed_mono hg h.2⟩)
+        · intro hac'
+          rcases hreconf with hr | hr
+          · exact absurd (hr.trans h3) hac'
+          · rw [hlcc, hr, h3]
+  · intro a₁ s₁ pt₁ pv₁ a₂ s₂ pt₂ pv₂ h₁ h₂ ht hv
+    rcases hpr _ _ _ _ h₁ with h₁' | ⟨rfl, rfl, rfl, rfl⟩ <;>
+      rcases hpr _ _ _ _ h₂ with h₂' | ⟨rfl, rfl, rfl, rfl⟩
+    · exact hinv.pub_unique _ _ _ _ _ _ _ _ h₁' h₂' ht hv
+    · have := (hold_term _ _ _ _ h₁' ht).1; omega
+    · have := (hold_term _ _ _ _ h₂' ht.symm).1; omega
+    · exact ⟨rfl, rfl, rfl, rfl⟩
+  · intro a s' pt' pv' hs'
+    rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+    · obtain ⟨v₀, h'⟩ := hinv.pub_rooted _ _ _ _ hs0
+      exact ⟨v₀, descends_mono hg h'⟩
+    · rcases hreal with ⟨h0, -⟩ | ⟨src₂, s₂, pt₂, pv₂, hs₂, h1, h2, -⟩
+      · refine ⟨(W.node a).lastAcceptedVersion, .step _ _ _ _ _ _ ?_ hparent⟩
+        rw [← h0]; exact .refl _ _
+      · obtain ⟨v₀, h'⟩ := hinv.pub_rooted _ _ _ _ hs₂
+        rw [h1, h2] at h'
+        exact ⟨v₀, .step _ _ _ _ _ _ (descends_mono hg h') hparent⟩
+  · intro a₁ s₁ pt₁ pv₁ a₂ s₂ pt₂ pv₂ h₁ h₂ ht
+    rcases hpr _ _ _ _ h₁ with h₁' | ⟨rfl, rfl, rfl, rfl⟩ <;>
+      rcases hpr _ _ _ _ h₂ with h₂' | ⟨rfl, rfl, rfl, rfl⟩
+    · exact (hinv.pub_same_term _ _ _ _ _ _ _ _ h₁' h₂' ht).imp (descends_mono hg) (descends_mono hg)
+    · exact Or.inl (.step _ _ _ _ _ _ (descends_mono hg (hold_term _ _ _ _ h₁' ht).2) hparent)
+    · exact Or.inr (.step _ _ _ _ _ _ (descends_mono hg (hold_term _ _ _ _ h₂' ht.symm).2) hparent)
+    · exact Or.inl (.refl _ _)
+  · intro a s' pt' pv' hs'
+    rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+    · obtain ⟨J, h1, h2, h3⟩ := hinv.pub_voters _ _ _ _ hs0
+      exact ⟨J, joinVoters_mono hg h1, h2, h3⟩
+    · refine ⟨(W.node a).joinVotes.nodes, ?_, by rw [hlcc]; exact hq1, hq⟩
+      intro x hx
+      obtain ⟨he, j, hj, h1, h2, h3, -⟩ := hinv.joinVotes_sent a x hx
+      exact ⟨he, j, hg _ hj, h1, h2, by rw [h3, hst]⟩
+  · intro a s' pt' pv' hs' hpt
+    rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+    · obtain ⟨y, J, h1⟩ := hinv.pub_election _ _ _ _ hs0 hpt
+      exact ⟨y, J, electionRecord_mono hg h1⟩
+    · refine ⟨(W.node a).lastAcceptedConfiguration, (W.node a).joinVotes.nodes, hpt,
+        by rw [hlcc]; exact realizes_mono hg hreal, ?_, by rw [hlcc]; exact hq1, hq2⟩
+      intro x hx
+      obtain ⟨he, j, hj, h1, h2, h3, h4⟩ := hinv.joinVotes_sent a x hx
+      exact ⟨he, j, hg _ hj, h1, h2, by rw [h3, hst], h4⟩
+  · intro c hc
+    obtain ⟨src, s', pt, pv, hs', h1, h2, A, hA, h3, h4⟩ := hinv.commit_quorum c (hac c hc)
+    refine ⟨src, s', pt, pv, hg _ hs', h1, h2, A, respVoters_mono hg hA, h3, ?_⟩
+    rcases h4 with h4 | ⟨h4, src', s'', pt', pv', hs'', h5, h6, h7⟩
+    · exact Or.inl h4
+    · exact Or.inr ⟨committed_mono hg h4, src', s'', pt', pv', hg _ hs'', h5, h6, h7⟩
+  · intro a b t ha hb
+    exact hinv.won_unique a b t (hwon a t ha) (hwon b t hb)
+  · intro a s' pt' pv' hs'
+    rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+    · by_cases hm : a = n
+      · subst hm; rw [hnode_n, e_ct, e_ew, e_sj]; exact hinv.pub_source_term _ _ _ _ hs0
+      · rw [hnode a hm]; exact hinv.pub_source_term _ _ _ _ hs0
+    · rw [hnode_n, e_ct, e_ew]; exact Or.inr ⟨hst, Or.inl hew⟩
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_ct, e_lpv, e_jv]
+      intro _ a s' pt' pv' hs' ht'
+      rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+      · obtain ⟨h1, h2⟩ := hold_term _ _ _ _ hs0 (ht'.trans hst.symm)
+        obtain ⟨-, -, h3, h4⟩ := hinv.leader_pubs m hew _ _ _ _ hs0 ht'
+        refine ⟨by omega, ?_, h3, h4⟩
+        rw [← hst]
+        exact .step _ _ _ _ _ _ (descends_mono hg h2) hparent
+      · exact ⟨Int.le_refl _, by rw [← hst]; exact .refl _ _, by rw [hlcc]; exact hq1, hq⟩
+    · rw [hnode m hm]
+      intro hw a s' pt' pv' hs' ht'
+      rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+      · obtain ⟨h1, h2, h3, h4⟩ := hinv.leader_pubs m hw _ _ _ _ hs0 ht'
+        exact ⟨h1, descends_mono hg h2, h3, h4⟩
+      · exact absurd ht'.symm (hother m hm hw)
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_lpv, e_lav, e_lat, e_ct, e_lpc, e_lcc]
+      intro _ _
+      exact ⟨s, hnew, hst, rfl, rfl, Or.inl hlcc.symm⟩
+    · rw [hnode m hm]
+      intro hw hne'
+      obtain ⟨s', hs', h1, h2, h3, h4⟩ := hinv.leader_inflight m hw hne'
+      exact ⟨s', hg _ hs', h1, h2, h3, h4.imp id (fun h => ⟨h.1, committed_mono hg h.2.1, h.2.2⟩)⟩
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_lpv, e_lav]
+      intro _ hv
+      omega
+    · rw [hnode m hm]
+      intro hw hv
+      rcases hinv.leader_settled m hw hv with h' | ⟨h1, h2⟩
+      · exact Or.inl h'
+      · refine Or.inr ⟨h1, fun a s' pt' pv' hs' => ?_⟩
+        rcases hpr _ _ _ _ hs' with hs0 | ⟨rfl, rfl, rfl, rfl⟩
+        · exact h2 _ _ _ _ hs0
+        · exact fun ht' => hother m hm hw ht'.symm
 
 /-- `publish` preserves the invariant. -/
 theorem OpenSearchSafety.inv_publish {V : Type} (P : Params) (_hP : P.InitCompatible)
@@ -1118,7 +1389,279 @@ theorem OpenSearchSafety.inv_publish {V : Type} (P : Params) (_hP : P.InitCompat
     (n src : NodeId) (s : ClusterState V) (pt : Nat) (pv : Int) (cs' : CoordinationState V) (r : PublishResponse)
     (hsent : W.sent (.publishRequest src s pt pv)) (h : (W.node n).handlePublishRequest ⟨s⟩ = .ok (cs', r)) :
     Inv P ((W.set n cs').send (.publishResponse n src r)) := by
-  sorry
+  obtain ⟨hst, hfresh, hr, hcs⟩ := spec_publish _ _ _ _ h
+  clear h
+  have hst : s.term = (W.node n).currentTerm := hst
+  obtain ⟨hsrce, hspos, -, -, -⟩ := hinv.pub_wf src s pt pv hsent
+  have hfresh' : ¬ (s.term = (W.node n).lastAcceptedTerm ∧ s.version ≤ (W.node n).lastAcceptedVersion) := by
+    rcases hfresh with h0 | h0
+    · have : s.term = 0 := h0
+      omega
+    · exact h0
+  have e_ln : cs'.localNode = (W.node n).localNode := by rw [hcs]
+  have e_ct : cs'.currentTerm = (W.node n).currentTerm := by rw [hcs]
+  have e_ew : cs'.electionWon = (W.node n).electionWon := by rw [hcs]
+  have e_jv : cs'.joinVotes = (W.node n).joinVotes := by rw [hcs]
+  have e_pv : cs'.publishVotes = (W.node n).publishVotes := by rw [hcs]
+  have e_sj : cs'.startedJoinSinceLastReboot = (W.node n).startedJoinSinceLastReboot := by rw [hcs]
+  have e_lpv : cs'.lastPublishedVersion = (W.node n).lastPublishedVersion := by rw [hcs]
+  have e_lpc : cs'.lastPublishedConfiguration = (W.node n).lastPublishedConfiguration := by rw [hcs]
+  have e_lat : cs'.lastAcceptedTerm = s.term := by rw [hcs]; rfl
+  have e_lav : cs'.lastAcceptedVersion = s.version := by rw [hcs]; rfl
+  have e_lcc : cs'.lastCommittedConfiguration = s.lastCommittedConfiguration := by rw [hcs]; rfl
+  have e_lac : cs'.lastAcceptedConfiguration = s.lastAcceptedConfiguration := by rw [hcs]; rfl
+  clear hcs
+  -- the soup: one new publish response
+  have hg : ∀ m, W.sent m → ((W.set n cs').send (.publishResponse n src r)).sent m := fun _ h => Or.inl h
+  have hpr : ∀ a s' pt' pv', ((W.set n cs').send (.publishResponse n src r)).sent (.publishRequest a s' pt' pv') →
+      W.sent (.publishRequest a s' pt' pv') := by
+    intro _ _ _ _ h; rcases h with h | h
+    · exact h
+    · cases h
+  have hjn : ∀ j, ((W.set n cs').send (.publishResponse n src r)).sent (.join j) → W.sent (.join j) := by
+    intro _ h; rcases h with h | h
+    · exact h
+    · cases h
+  have hac : ∀ c, ((W.set n cs').send (.publishResponse n src r)).sent (.applyCommit c) →
+      W.sent (.applyCommit c) := by
+    intro _ h; rcases h with h | h
+    · exact h
+    · cases h
+  have hrs : ∀ a d r', ((W.set n cs').send (.publishResponse n src r)).sent (.publishResponse a d r') →
+      W.sent (.publishResponse a d r') ∨ (a = n ∧ d = src ∧ r' = r) := by
+    intro a d r' h; rcases h with h | h
+    · exact Or.inl h
+    · cases h; exact Or.inr ⟨rfl, rfl, rfl⟩
+  have hnode : ∀ m, m ≠ n → ((W.set n cs').send (.publishResponse n src r)).node m = W.node m :=
+    fun m hm => set_node_ne _ _ _ _ hm
+  have hnode_n : ((W.set n cs').send (.publishResponse n src r)).node n = cs' := set_node_self _ _ _
+  -- an eligible node's accepted key strictly increases
+  have hinc : P.eligible n = true → (W.node n).lastAcceptedTerm < s.term ∨
+      ((W.node n).lastAcceptedTerm = s.term ∧ (W.node n).lastAcceptedVersion < s.version) := by
+    intro hne
+    have := hinv.term_le n hne
+    by_cases heq : (W.node n).lastAcceptedTerm = s.term
+    · exact Or.inr ⟨heq, by have := fun h => hfresh' ⟨heq.symm, h⟩; omega⟩
+    · exact Or.inl (by omega)
+  -- a node holding a vote is eligible
+  have helig : ∀ x, x ∈ (W.node n).joinVotes.nodes → P.eligible n = true := by
+    intro x hx
+    obtain ⟨-, j, hj, -, htgt, -⟩ := hinv.joinVotes_sent n x hx
+    have := (hinv.join_wf j hj).2; rwa [htgt] at this
+  -- an elected node accepts only its own publications
+  have hsrc : (W.node n).electionWon = true → src = n := by
+    intro hw
+    exact hinv.won_unique src n s.term ⟨hsrce, Or.inr ⟨s, pt, pv, hsent, rfl⟩⟩
+      (by rw [hst]; exact inv_won_of_electionWon P W hinv n hw)
+  -- an elected node accepts exactly its publication in flight
+  have hlead : (W.node n).electionWon = true → (W.node n).lastPublishedVersion = s.version ∧
+      (W.node n).lastPublishedConfiguration = s.lastAcceptedConfiguration := by
+    intro hw
+    have hne := inv_eligible_of_won P W hinv n hw
+    have hsn := hsrc hw
+    obtain ⟨hv, hd, -, -⟩ := hinv.leader_pubs n hw src s pt pv hsent hst
+    have hlv : (W.node n).lastPublishedVersion ≠ (W.node n).lastAcceptedVersion := by
+      intro hlv
+      rcases hinv.leader_settled n hw hlv with ⟨hlt, -⟩ | ⟨-, hnone⟩
+      · exact hfresh' ⟨hst.trans hlt.symm, by omega⟩
+      · exact hnone src s pt pv hsent hst
+    obtain ⟨C, hC, hCt, hCv, hlpc, -⟩ := hinv.leader_inflight n hw hlv
+    have hsv : s.version = (W.node n).lastPublishedVersion := by
+      by_cases hne' : s.version = (W.node n).lastPublishedVersion
+      · exact hne'
+      exfalso
+      have hd' := inv_descends_parent P W hinv _ _ n C _ _ hC (by rw [hCt, hCv]; exact hd)
+        (fun h => hne' (h.2.trans hCv))
+      rcases inv_descends_key P W hinv _ _ _ _ hd' with ⟨h1, h2⟩ | ⟨h1, h2⟩
+      · exact hfresh' ⟨h1, by omega⟩
+      · have := hinv.term_le n hne
+        exact hfresh' ⟨by omega, by omega⟩
+    obtain ⟨-, rfl, -, -⟩ := hinv.pub_unique _ _ _ _ _ _ _ _ hsent hC (hst.trans hCt.symm) (hsv.trans hCv.symm)
+    exact ⟨hsv.symm, hlpc⟩
+  have hwon : ∀ a t, Won P ((W.set n cs').send (.publishResponse n src r)) a t → Won P W a t := by
+    rintro a t ⟨he, hw | ⟨s', pt', pv', hs', hst'⟩⟩
+    · by_cases ha : a = n
+      · subst ha; rw [hnode_n, e_ew, e_ct] at hw; exact ⟨he, Or.inl hw⟩
+      · rw [hnode a ha] at hw; exact ⟨he, Or.inl hw⟩
+    · exact ⟨he, Or.inr ⟨s', pt', pv', hpr _ _ _ _ hs', hst'⟩⟩
+  refine
+    { localNode_eq := ?_, idle_of_not_won := ?_, won_started := ?_, votes_started := ?_, started_term_pos := ?_,
+      won_quorum := ?_, not_won_no_quorum := ?_, joinVotes_sent := ?_, publishVotes_sent := ?_, term_le := ?_,
+      accepted_realizes := ?_, join_wf := ?_, join_term_le := ?_, join_unique := ?_,
+      join_after_response := ?_, response_le := ?_, response_published := ?_, pub_wf := ?_, pub_parent := ?_,
+      pub_unique := ?_, pub_rooted := ?_, pub_same_term := ?_, pub_voters := ?_, pub_election := ?_,
+      commit_quorum := ?_, won_unique := ?_, pub_source_term := ?_, leader_pubs := ?_, leader_inflight := ?_,
+      leader_settled := ?_ }
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ln]; exact hinv.localNode_eq m
+    · rw [hnode m hm]; exact hinv.localNode_eq m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_lpv, e_pv]; exact hinv.idle_of_not_won m
+    · rw [hnode m hm]; exact hinv.idle_of_not_won m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_sj]; exact hinv.won_started m
+    · rw [hnode m hm]; exact hinv.won_started m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_jv, e_sj]; exact hinv.votes_started m
+    · rw [hnode m hm]; exact hinv.votes_started m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_sj, e_ct]; exact hinv.started_term_pos m
+    · rw [hnode m hm]; exact hinv.started_term_pos m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_jv, e_lcc, e_lac]
+      intro hw
+      obtain ⟨-, -, h3, h4⟩ := hinv.leader_pubs m hw src s pt pv hsent hst
+      exact ⟨h3, h4⟩
+    · rw [hnode m hm]; exact hinv.won_quorum m
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_jv, e_lcc, e_lac]
+      -- a voter common to the node's votes and the publisher's would have voted twice in the term
+      rintro hew ⟨-, hq⟩
+      have hne0 : (W.node m).joinVotes.nodes ≠ [] := ne_nil_of_hasQuorum _ _ hq
+      obtain ⟨J, hJ, -, hJq⟩ := hinv.pub_voters src s pt pv hsent
+      obtain ⟨x, -, hx1, hx2⟩ := quorum_intersect _ _ _ hq hJq
+      obtain ⟨hxe, j₁, hj₁, hs₁, ht₁, hterm₁, -⟩ := hinv.joinVotes_sent m x hx1
+      obtain ⟨-, j₂, hj₂, hs₂, ht₂, hterm₂⟩ := hJ x hx2
+      have hjj := hinv.join_unique j₁ j₂ hj₁ hj₂ (by rw [hs₁]; exact hxe) (hs₁.trans hs₂.symm)
+        (by rw [hterm₁, hterm₂, hst])
+      have hLn : src = m := by rw [← ht₂, ← hjj, ht₁]
+      subst hLn
+      rcases hinv.pub_source_term src s pt pv hsent with hlt | ⟨-, hw' | hsj'⟩
+      · omega
+      · rw [hw'] at hew; cases hew
+      · rw [hinv.votes_started src hne0] at hsj'; cases hsj'
+    · rw [hnode m hm]; exact hinv.not_won_no_quorum m
+  · intro m x
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_jv, e_ct, e_lat, e_lav]
+      intro hx
+      obtain ⟨he, j, hj, h1, h2, h3, hb⟩ := hinv.joinVotes_sent m x hx
+      refine ⟨he, j, hg _ hj, h1, h2, h3, ?_⟩
+      have := hinc (helig x hx)
+      unfold Below at hb ⊢
+      omega
+    · rw [hnode m hm]
+      intro hx
+      obtain ⟨he, j, hj, h1⟩ := hinv.joinVotes_sent m x hx
+      exact ⟨he, j, hg _ hj, h1⟩
+  · intro m x
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_pv, e_ct, e_lpv]
+      intro hx
+      obtain ⟨he, h1⟩ := hinv.publishVotes_sent m x hx
+      exact ⟨he, hg _ h1⟩
+    · rw [hnode m hm]
+      intro hx
+      obtain ⟨he, h1⟩ := hinv.publishVotes_sent m x hx
+      exact ⟨he, hg _ h1⟩
+  · intro m hme
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_lat, e_ct, hst]; exact Nat.le_refl _
+    · rw [hnode m hm]; exact hinv.term_le m hme
+  · intro m hme
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_lat, e_lav, e_lcc, e_lac]
+      exact Or.inr (Or.inr ⟨src, s, pt, pv, hg _ hsent, rfl, rfl, rfl, Or.inl rfl⟩)
+    · rw [hnode m hm]; exact (hinv.accepted_realizes m hme).imp id (realizes_mono hg)
+  · intro j hj; exact hinv.join_wf j (hjn j hj)
+  · intro j hj hje
+    by_cases hm : j.sourceNode.id = n
+    · rw [hm, hnode_n, e_ct]; have := hinv.join_term_le j (hjn j hj) hje; rw [hm] at this; exact this
+    · rw [hnode _ hm]; exact hinv.join_term_le j (hjn j hj) hje
+  · intro j j' hj hj'; exact hinv.join_unique j j' (hjn j hj) (hjn j' hj')
+  · intro j a d r' hj hr' hs ha hrt
+    rcases hrs a d r' hr' with hr0 | ⟨rfl, -, rfl⟩
+    · exact hinv.join_after_response j a d r' (hjn j hj) hr0 hs ha hrt
+    · -- the node's joins are for terms at most its current term, the response's term
+      have h1 := hinv.join_term_le j (hjn j hj) (by rw [hs]; exact ha)
+      rw [hs] at h1
+      rw [hr] at hrt
+      have h2 : s.term < j.term := hrt
+      omega
+  · intro a d r' hr' ha
+    rcases hrs a d r' hr' with hr0 | ⟨rfl, -, rfl⟩
+    · by_cases hm : a = n
+      · subst hm; rw [hnode_n, e_ct, e_lat, e_lav]
+        obtain ⟨h1, h2⟩ := hinv.response_le a d r' hr0 ha
+        refine ⟨h1, ?_⟩
+        have := hinc ha
+        unfold KeyLE at h2 ⊢
+        omega
+      · rw [hnode a hm]; exact hinv.response_le a d r' hr0 ha
+    · rw [hnode_n, e_ct, e_lat, e_lav, hr]
+      exact ⟨by dsimp only; omega, Or.inr ⟨rfl, Int.le_refl _⟩⟩
+  · intro a d r' hr'
+    rcases hrs a d r' hr' with hr0 | ⟨-, rfl, rfl⟩
+    · obtain ⟨s', pt', pv', hs', h1, h2⟩ := hinv.response_published a d r' hr0
+      exact ⟨s', pt', pv', hg _ hs', h1, h2⟩
+    · exact ⟨s, pt, pv, hg _ hsent, by rw [hr], by rw [hr]⟩
+  · intro src s pt pv hs; exact hinv.pub_wf src s pt pv (hpr _ _ _ _ hs)
+  · intro src s pt pv hs hpt
+    obtain ⟨src', s', pt', pv', hs', h1, h2, h3, h4⟩ := hinv.pub_parent src s pt pv (hpr _ _ _ _ hs) hpt
+    exact ⟨src', s', pt', pv', hg _ hs', h1, h2, h3.imp id (fun h => ⟨h.1, committed_mono hg h.2⟩), h4⟩
+  · intro src s pt pv src' s' pt' pv' hs hs'
+    exact hinv.pub_unique src s pt pv src' s' pt' pv' (hpr _ _ _ _ hs) (hpr _ _ _ _ hs')
+  · intro src s pt pv hs
+    obtain ⟨v₀, h⟩ := hinv.pub_rooted src s pt pv (hpr _ _ _ _ hs)
+    exact ⟨v₀, descends_mono hg h⟩
+  · intro src s pt pv src' s' pt' pv' hs hs' ht
+    exact (hinv.pub_same_term src s pt pv src' s' pt' pv' (hpr _ _ _ _ hs) (hpr _ _ _ _ hs') ht).imp
+      (descends_mono hg) (descends_mono hg)
+  · intro src s pt pv hs
+    obtain ⟨J, h1, h2, h3⟩ := hinv.pub_voters src s pt pv (hpr _ _ _ _ hs)
+    exact ⟨J, joinVoters_mono hg h1, h2, h3⟩
+  · intro src s pt pv hs hpt
+    obtain ⟨y, J, h1⟩ := hinv.pub_election src s pt pv (hpr _ _ _ _ hs) hpt
+    exact ⟨y, J, electionRecord_mono hg h1⟩
+  · intro c hc
+    obtain ⟨src, s, pt, pv, hs, h1, h2, A, hA, h3, h4⟩ := hinv.commit_quorum c (hac c hc)
+    refine ⟨src, s, pt, pv, hg _ hs, h1, h2, A, respVoters_mono hg hA, h3, ?_⟩
+    rcases h4 with h4 | ⟨h4, src', s', pt', pv', hs', h5, h6, h7⟩
+    · exact Or.inl h4
+    · exact Or.inr ⟨committed_mono hg h4, src', s', pt', pv', hg _ hs', h5, h6, h7⟩
+  · intro a b t ha hb
+    exact hinv.won_unique a b t (hwon a t ha) (hwon b t hb)
+  · intro src' s' pt' pv' hs'
+    have hs0 := hpr _ _ _ _ hs'
+    by_cases hm : src' = n
+    · subst hm; rw [hnode_n, e_ct, e_ew, e_sj]; exact hinv.pub_source_term src' s' pt' pv' hs0
+    · rw [hnode src' hm]; exact hinv.pub_source_term src' s' pt' pv' hs0
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_ct, e_lpv, e_jv]
+      intro hw src' s' pt' pv' hs' ht
+      obtain ⟨h1, h2, h3, h4⟩ := hinv.leader_pubs m hw src' s' pt' pv' (hpr _ _ _ _ hs') ht
+      exact ⟨h1, descends_mono hg h2, h3, h4⟩
+    · rw [hnode m hm]
+      intro hw src' s' pt' pv' hs' ht
+      obtain ⟨h1, h2, h3, h4⟩ := hinv.leader_pubs m hw src' s' pt' pv' (hpr _ _ _ _ hs') ht
+      exact ⟨h1, descends_mono hg h2, h3, h4⟩
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_lpv, e_lav]
+      intro hw hne'
+      exact absurd (hlead hw).1 hne'
+    · rw [hnode m hm]
+      intro hw hne'
+      obtain ⟨s', hs', h1, h2, h3, h4⟩ := hinv.leader_inflight m hw hne'
+      exact ⟨s', hg _ hs', h1, h2, h3, h4.imp id (fun h => ⟨h.1, committed_mono hg h.2.1, h.2.2⟩)⟩
+  · intro m
+    by_cases hm : m = n
+    · subst hm; rw [hnode_n, e_ew, e_lpv, e_lav, e_lat, e_ct, e_lpc, e_lac]
+      intro hw _
+      exact Or.inl ⟨hst, (hlead hw).2⟩
+    · rw [hnode m hm]
+      intro hw hv
+      rcases hinv.leader_settled m hw hv with h | ⟨h1, h2⟩
+      · exact Or.inl h
+      · exact Or.inr ⟨h1, fun src s pt pv hs => h2 src s pt pv (hpr _ _ _ _ hs)⟩
 
 /-- `respond` preserves the invariant. -/
 theorem OpenSearchSafety.inv_respond {V : Type} (P : Params) (_hP : P.InitCompatible)
