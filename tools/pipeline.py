@@ -80,7 +80,7 @@ def cmd_stubs(ns, solfiles):
         pre = f'import Definitions.Def_{ns}'
         # statements mentioning other namespaces' definitions need those imports in the preamble
         extra = []
-        for other in re.findall(r'\b(Bitcoin[A-Za-z]+)\.', body):
+        for other in re.findall(r'\b((?:Bitcoin|OpenSearch)[A-Za-z0-9]+)\.', body):
             if other != ns and (WS / 'Definitions' / f'Def_{other}.lean').exists() and f'import Definitions.Def_{other}' not in extra:
                 extra.append(f'import Definitions.Def_{other}')
         if extra: pre = pre + '\n' + '\n'.join(extra)
