@@ -1,0 +1,3 @@
+# Std-only definitions copied from ../Definitions at build time (see README.md)
+Definitions/Def_OpenSearchCoordination.lean
+Definitions/Def_OpenSearchPreVote.lean
