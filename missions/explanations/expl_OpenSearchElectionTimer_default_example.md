@@ -1,0 +1,1 @@
+Unfold `contestedBound`; both inequalities are then between explicit rational numbers, and `norm_num`, given `Nat.choose` to compute `C(3, 2) = 3`, evaluates them: `597 · 922337203685478 / 2^63` is below `6/100`, and its fifth power is below `1/1000000`.

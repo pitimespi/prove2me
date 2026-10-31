@@ -1,0 +1,1 @@
+Rewrite the count with `randomDelay_card` as `2 · ((2^63 − d) / M + 1)`, and the inner term as `(2^63 − d + M) / M` (`Nat.add_div_right`). Since `1 ≤ d ≤ M`, the numerator lies between `2^63` and `2^63 + M − 1`, and natural division is monotone in the numerator (`Nat.div_le_div_right`); multiplying by 2 (`Nat.mul_le_mul_left`) gives both bounds.
