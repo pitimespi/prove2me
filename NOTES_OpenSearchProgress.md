@@ -270,6 +270,13 @@ informal: the model has no time, and message delays are not bounded anywhere.
   sequences of steps the model allows, not runs of the `Coordinator`.
 - **Other progress.** Reconfiguration (the `Reconfigurator`, voting-configuration exclusions), the application of
   committed states at the nodes, the remote cluster-state store, plugin election strategies.
+- **Successful remote-store writes.** On a failed remote cluster-state write Java throws after the local effects (after
+  `setLastAcceptedState` in `handlePublishRequest`, CS:453-456; in `handlePreCommit`, after `publishVotes.addVote`, in
+  `handlePublishResponse`, CS:503-510), where the transcription returns the result. For safety this is message loss
+  (`NOTES_OpenSearchCoordination.md`, item 7); for progress it is not: in OpenSearch a node can accept `s` locally
+  without acknowledging it and then reject every re-delivery of `s`, and the acknowledgement that completes a quorum
+  can be counted without a commit being sent. The theorems describe OpenSearch only when remote writes succeed or no
+  remote cluster-state store is configured.
 - **Failed remote commit writes.** With a remote cluster-state store configured, `handlePublishResponse`, once the
   counted votes form a publish quorum, marks the published state as committed in the store before returning the commit
   (`handlePreCommit`, CS:503-510, 593-599; `RemotePersistedState.markLastAcceptedStateAsCommitted`,
