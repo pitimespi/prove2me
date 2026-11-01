@@ -4,3 +4,10 @@
 lake-manifest.json
 credentials.json
 __pycache__/
+
+# pipeline working files (canonical copies in missions/submissions/)
+tools/*_stmts.json
+tools/*_proposal.json
+tools/*_submissions.json
+tools/proposal.json
+tools/expl
