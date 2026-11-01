@@ -349,7 +349,8 @@ private theorem pv_started_quorum {V : Type} (es : ElectionStrategy) (D : Discov
   | close r _ ih => exact ih h
 
 /-- `nonNegative` maps the Java `long`s exactly two-to-one onto `[0, 2^63)`: the value `v > 0` comes from `v` and `-v`,
-the value `0` from `0` and `Long.MIN_VALUE`. With a uniformly random `long`, `nonNegative` is uniform on `[0, 2^63)`. -/
+the value `0` from `0` and `Long.MIN_VALUE`. So a uniformly random `long` gives a uniform `nonNegative` value on
+`[0, 2^63)` (a consequence; no probability is formalized). -/
 theorem solution (v : Nat) (hv : v < 2 ^ 63) (n : Int)
     (hn : -2 ^ 63 ≤ n ∧ n < 2 ^ 63) :
     nonNegative n = v ↔ n = v ∨ n = (if v = 0 then -2 ^ 63 else -(v : Int)) := by

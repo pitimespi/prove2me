@@ -356,8 +356,9 @@ theorem OpenSearchPreVote.round_entries {V : Type} (es : ElectionStrategy)
         · exact List.Nodup.sublist (List.filter_sublist.map Prod.fst) ih2
   | close r _ ih => exact ih
 
-/-- A round starts an election only once, only while open, and only when the votes it has recorded, including the
-new one, form an election quorum of the last committed and last accepted configurations of the state it started from. -/
+/-- A round starts an election only while it is open and has not started one, and only when its votes, once the new
+response is recorded, form an election quorum of the last committed and last accepted configurations of the round's
+cluster state; the resulting round has `electionStarted` set. -/
 theorem OpenSearchPreVote.round_start_quorum {V : Type} (es : ElectionStrategy) (lr resp : PreVoteResponse)
     (sender : DiscoveryNode) (r r' : PreVotingRound V) (m : Option Nat)
     (h : r.handlePreVoteResponse es lr resp sender = (r', true, m)) :
@@ -467,15 +468,18 @@ private theorem pv_started_quorum {V : Type} (es : ElectionStrategy) (D : Discov
       exact ⟨hq.1.1, hq.1.2⟩
   | close r _ ih => exact ih h
 
-/-! ## Pre-voting protects a stable leader -/
+/-! ## A pre-voting round that a quorum refuses never starts an election -/
 
-/-- **Pre-voting protects a stable leader.** Suppose a quorum `L` of the last committed or of the last accepted
-configuration of node `c`'s accepted state consists of nodes that are unhealthy or follow a leader other than `c`.
-Then no pre-voting round of `c` over that state ever starts an election, whatever responses it receives and in whatever
-order: every response it can record comes from a node that answered `c`'s request, such nodes are outside `L`, and a
-set disjoint from a quorum is not a quorum. A node cut off from a cluster whose majority follows a leader cannot
-disrupt it by starting elections when it reconnects. (Its requests still raise the term the leader has seen: a
-leader whose term is below the requester's moves to that term and re-runs its own election, CO:560-581.) -/
+/-- **A pre-voting round that a quorum refuses never starts an election.** Suppose a quorum `L` of the last committed
+or of the last accepted configuration of node `c`'s accepted state consists of nodes that are unhealthy or follow a
+leader other than `c`, every node's health and collector state staying fixed while the round runs. Then no pre-voting
+round of `c` over that state has started an election, and handling one more answer does not start one, whatever
+answers to `c`'s request it receives (each computed from those fixed states), in whatever order and number, and
+whatever the election strategy: every response it can record comes from a node that answered `c`'s request, such
+nodes are outside `L`, and a set disjoint from a quorum is not a quorum. A node cut off from a cluster whose majority
+follows a leader cannot disrupt it by starting elections when it reconnects. (Its requests still raise the term the
+leader has seen: a leader whose term is below the requester's moves to a higher term and re-runs its own election, at
+once or when its publication in progress ends, CO:560-581, CO:1784.) -/
 theorem OpenSearchPreVote.no_disruption {V : Type} (es : ElectionStrategy) (healthy : DiscoveryNode → Bool)
     (st : DiscoveryNode → CollectorState) (c : DiscoveryNode) (t : Nat) (s : ClusterState V) (L : List NodeId)
     (hL : s.lastCommittedConfiguration.hasQuorum L = true ∨ s.lastAcceptedConfiguration.hasQuorum L = true)
@@ -554,12 +558,14 @@ theorem OpenSearchPreVote.no_disruption {V : Type} (es : ElectionStrategy) (heal
 /-! ## A successful pre-vote predicts a successful election -/
 
 /-- **A successful pre-vote predicts a successful election.** Let node `c` (with the default election strategy) run a
-pre-voting round over its accepted state, every recorded response being the current response of its sender's
-coordination state (the senders have not changed state since answering), and let the round start an election. Let `T`
-be the election's term: one above `c`'s current term and every term `c` has seen, including the terms in the
-responses. Then `c` and every recorded sender accept the `StartJoinRequest` of `c` for `T`, and `c`, handling the
-resulting joins in any order — interleaved with any other joins of a term at most `T`, accepted or not — wins the
-election. -/
+pre-voting round over its accepted state, with itself as the round's local node, every recorded response from a node
+`n` being `preVoteResponseOf (node n)`, where `node n`, whose local node is `n`, is the coordination state in which `n`
+handles `c`'s `StartJoinRequest` (the senders have not changed state since answering), and let the round have started
+an election. Let `T` be the election's term: one above the larger of `c`'s current term and a `maxTermSeen` that is at
+least the current term of every recorded response. Let `c` handle its own `StartJoinRequest` for `T`. Then every
+recorded sender accepts that request, and if the joins they produce are among the joins `c` then handles, in any
+order — interleaved with any other joins of a term at most `T`, accepted or not, and nothing else — the resulting
+state of `c` has `electionWon = true`. -/
 theorem OpenSearchPreVote.preVote_then_election {V : Type} (csc : CoordinationState V)
     (node : DiscoveryNode → CoordinationState V) (r : PreVotingRound V)
     (hr : RoundReachable ElectionStrategy.DEFAULT_INSTANCE
@@ -657,8 +663,9 @@ theorem OpenSearchPreVote.attemptDelay_bounds (s : SchedulerSettings) (hs : s.Va
   · unfold attemptDelay toPositiveLongAtMost; omega
   · unfold attemptDelay toPositiveLongAtMost; omega
 
-/-- The bound grows with the attempt number, from the initial timeout, by the back-off time per attempt, until it
-reaches the maximum timeout, where it stays. -/
+/-- The bound starts at the initial timeout and never decreases; while it is below the maximum timeout, the next
+attempt's bound is the back-off time higher or the maximum timeout; from attempt number `maxTimeout` on it is the
+maximum timeout. -/
 theorem OpenSearchPreVote.maxDelay_schedule (s : SchedulerSettings) (hs : s.Valid) :
     maxDelay s 0 = s.initialTimeout ∧ (∀ k k', k ≤ k' → maxDelay s k ≤ maxDelay s k') ∧
     (∀ k, maxDelay s k < s.maxTimeout → maxDelay s (k + 1) = maxDelay s k + s.backoffTime ∨
@@ -678,7 +685,8 @@ theorem OpenSearchPreVote.maxDelay_schedule (s : SchedulerSettings) (hs : s.Vali
     unfold maxDelay; omega
 
 /-- `nonNegative` maps the Java `long`s exactly two-to-one onto `[0, 2^63)`: the value `v > 0` comes from `v` and `-v`,
-the value `0` from `0` and `Long.MIN_VALUE`. With a uniformly random `long`, `nonNegative` is uniform on `[0, 2^63)`. -/
+the value `0` from `0` and `Long.MIN_VALUE`. So a uniformly random `long` gives a uniform `nonNegative` value on
+`[0, 2^63)` (a consequence; no probability is formalized). -/
 theorem OpenSearchPreVote.nonNegative_two_to_one (v : Nat) (hv : v < 2 ^ 63) (n : Int)
     (hn : -2 ^ 63 ≤ n ∧ n < 2 ^ 63) :
     nonNegative n = v ↔ n = v ∨ n = (if v = 0 then -2 ^ 63 else -(v : Int)) := by

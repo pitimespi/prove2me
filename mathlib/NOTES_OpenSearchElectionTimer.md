@@ -8,13 +8,16 @@ theory: probabilities are counts.
 
 - Model: `Definitions/Def_OpenSearchElectionTimer.lean` (imports `Mathlib` and `Definitions.Def_OpenSearchPreVote`).
   `Definitions/Def_OpenSearchPreVote.lean` and `Definitions/Def_OpenSearchCoordination.lean` in this workspace are
-  copies of the main project's files (identical, checked with `diff`).
+  copies of the main project's files. `Def_OpenSearchCoordination.lean` is identical (checked with `diff`);
+  `Def_OpenSearchPreVote.lean` differs only in the docstring of `handleJoins` (lines 141-144 here, 141-145 in the main
+  project), which this mission does not use.
 - Proofs: `Solutions/Sol_OpenSearchElectionTimer_all.lean` (7 public theorems); the 7 split files
   `Solutions/Sol_OpenSearchElectionTimer_<name>.lean` and the statement stubs `Theorems/Thm_OpenSearchElectionTimer_<name>.lean`.
 - Prose: `../missions/items/ostimer_items.py`, `../missions/descriptions/ostimer_description.md`,
   `../missions/explanations/expl_OpenSearchElectionTimer_*.md` (one per theorem).
-- Goal theorem: `OpenSearchElectionTimer.all_contested_prob_le` (repeated contests are exponentially unlikely, even
-  against an adaptive scheduler); the items leave no milestone on it.
+- Goal theorem: `OpenSearchElectionTimer.all_contested_prob_le` (`K` rounds are all contested with probability at most
+  the `K`-th power of the per-round bound, even against an adaptive scheduler; exponentially small once that bound is
+  below 1); the items leave no milestone on it.
 
 Citations: `ESF` ElectionSchedulerFactory.java and `CO` Coordinator.java (same directory), `DiscoveryModule.java`
 (`server/src/main/java/org/opensearch/discovery/`), with line numbers at the pinned revision.
@@ -50,9 +53,13 @@ closing the previous one (CO:1578-1608). Defaults: `initial_timeout` 100 ms, `ba
 - A probability is a cardinality divided by `(2^64)^n` (one round, draws `Fin n → Fin (2^64)`) or `(2^64)^(n K)` (`K`
   rounds, draws `Fin K → Fin n → Fin (2^64)`): uniform, independent draws.
 
-Offsets are arbitrary integers and bounds arbitrary naturals between `Mmin` and `2^63`, so the theorems cover every
-attempt number, every grace period and every time at which a candidate's scheduler was started, and candidates at
-different attempt numbers in the same round. In `all_contested_prob_le` the offsets and bounds of round `k` are any
+Offsets are arbitrary integers and bounds arbitrary naturals between `Mmin` and `2^63`. So the theorems apply whatever
+the attempt numbers, grace periods and start times of the candidates' schedulers, including candidates at different
+attempt numbers in the same round, with `Mmin` at most the smallest competing `maxDelay`; the bound is at least 1, and
+says nothing, unless that minimum exceeds about `C(n, 2)(2δ − 1)`, and it is small only when the minimum is much larger
+(see Numbers). Reading `offset` as start time plus grace period and `bound` as `maxDelay` is informal: no definition or
+theorem statement of this mission mentions `maxDelay`, `SchedulerSettings`, `attemptDelay` or a grace period. In
+`all_contested_prob_le` the offsets and bounds of round `k` are any
 functions of the draws of the rounds before `k` (`hcausal`): an adversary scheduling the network may react to everything
 drawn so far, but not to the draws of round `k` or later.
 
@@ -87,7 +94,7 @@ Its powers bound `K` consecutive contested rounds:
 | bound | 5.97% | 3.56e-3 | 2.13e-4 | 1.27e-5 | 7.58e-7 | 5.75e-13 |
 
 Per round, for `δ = 100` ms and `Mmin = 10` s, the bound is `C(n,2) · 0.0199`: 1.99% for 2 candidates, 5.97% for 3,
-11.9% for 4, 19.9% for 5, 89.6% for 10, and above 1 (vacuous) from 11 candidates on. For 3 candidates and `Mmin = 10` s
+11.9% for 4, 19.9% for 5, 89.6% for 10, and above 1 (saying nothing) from 11 candidates on. For 3 candidates and `Mmin = 10` s
 it is above 1 from a margin of 1668 ms on.
 
 `Mmin = 10000` presumes that every competing attempt has reached `max_timeout`; with the default settings that is attempt
@@ -119,7 +126,8 @@ All in `Sol_OpenSearchElectionTimer_all.lean`; private lemmas:
 follower) and applies `Finset.card_biUnion_le`. `all_contested_prob_le` is an induction over the rounds: with `S j` the
 number of draws whose first `j` rounds are contested, `S (j+1) ≤ contestedBound · S j`, because, for fixed draws of the
 other rounds, round `j`'s offsets and bounds and the event on the earlier rounds do not depend on round `j`'s draws
-(`hcausal`), and `contested_prob_le` bounds round `j`. `default_example` is `norm_num`.
+(`hcausal`), and `contested_prob_le` bounds round `j`. `default_example` is `unfold contestedBound` followed by
+`norm_num [Nat.choose]`.
 
 ## Idealizations
 
@@ -132,11 +140,14 @@ other rounds, round `j`'s offsets and bounds and the event on the earlier rounds
   from `Randomness.get().nextLong()` (DiscoveryModule.java:213), about which nothing is modelled: correlated seeds would
   correlate the nodes' delays.
 - **Rounds.** Grouping competing timers into rounds, each with given offsets and bounds, abstracts the scheduler's
-  timeline. The model does not say which candidates compete in a round, what happens between rounds, or that a round
-  ends: the adversary of `all_contested_prob_le` chooses offsets and bounds, not message delays or which candidates take
-  part.
-- **The union bound.** `contestedBound` is a union bound over pairs and exceeds 1 for many candidates, a large margin
-  `δ`, or small bounds (above); there the theorems hold vacuously.
+  timeline. Every round has the same `n` candidates, each drawing afresh (a candidate that sits a round out can only be
+  represented by a very large offset); the rounds need not be ordered in time, and nothing ties a round to the
+  scheduler's attempt number. The model does not say what happens between rounds, or that a round ends. The adversary of
+  `all_contested_prob_le` is a deterministic function of the earlier rounds' draws: it chooses offsets and bounds, not
+  message delays or which candidates take part, and it cannot react to the current round's draws.
+- **The union bound.** `contestedBound` is a union bound over pairs and is at least 1 for many candidates, a large
+  margin `δ`, or small bounds (above); there the theorems hold trivially (a probability is at most 1), although their
+  hypotheses are satisfiable.
 - **Bounds up to `2^63`.** Every bound is at most `2^63`; the Java settings allow at most 300000 ms.
 
 ## How the missions connect
@@ -147,8 +158,9 @@ The chain is: timers, uncontested rounds, stable elections, publications.
   proves the deterministic facts: every delay lies in `[g + 1, g + maxDelay]` (`attemptDelay_bounds`), the bounds back off
   linearly to `max_timeout` (`maxDelay_schedule`), and `nonNegative` maps the longs two-to-one onto `[0, 2^63)`
   (`nonNegative_two_to_one`, the counting fact this mission reproves over `Fin (2^64)` as `card_filter_nonNegative`).
-- This mission adds the probability: a round of competing timers is uncontested with margin `δ` except with
-  probability `contestedBound n δ Mmin`, and `K` contested rounds in a row have probability at most its `K`-th power.
+- This mission adds the probability: a round of competing timers whose bounds all lie in `[Mmin, 2^63]` is
+  uncontested with margin `δ` except with probability at most `contestedBound n δ Mmin`, and `K` contested rounds have
+  probability at most its `K`-th power.
 - `OpenSearchProgress` proves that a stable election succeeds: with a quorum of voters no fresher than the candidate and
   in lower terms, in a period without competing start-join requests (of the candidate's term or higher), without new
   publications, without bootstraps or restarts of the candidate or the voters, and without publications fresher than
@@ -157,8 +169,10 @@ The chain is: timers, uncontested rounds, stable elections, publications.
   a stable election period" is informal: it needs the
   first candidate's pre-voting round and election to complete within `δ` (bounded message delays, healthy voters whose
   states are no fresher than the candidate's, no competing request from another source such as abdication), none of
-  which is modelled here; once a quorum follows the new cluster-manager, later candidates' pre-voting rounds start no
-  election (`OpenSearchPreVote.no_disruption`).
+  which is modelled here; once every node of a quorum of the last committed or of the last accepted configuration in a
+  candidate's cluster state is unhealthy or knows a leader other than that candidate, the candidate's pre-voting rounds
+  over that state start no election (`OpenSearchPreVote.no_disruption`, with the nodes' health and leader knowledge
+  fixed while the round runs).
 
 ## Checks
 

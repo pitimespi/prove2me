@@ -4,7 +4,8 @@ open OpenSearchCoordination
 
 /-! # OpenSearch `CoordinationState`: per-node properties
 
-Statements about the per-node consensus state machine. The cluster-level safety theorems are in the next mission. -/
+Statements about the per-node consensus state machine. The cluster-level safety theorems are in the `OpenSearchSafety`
+mission, which imports these definitions but none of these theorems. -/
 
 
 
@@ -109,9 +110,10 @@ theorem OpenSearchCoordination.handleStartJoin_spec {V : Type} (cs : Coordinatio
     subst h1 h2 h3 h4 h5 h6 h7 h8 h9
     rfl
 
-/-- `handlePublishRequest` accepts only a state of the current term, and (outside the Zen1 compatibility branch, which
-needs a term-0 state) only one that is strictly newer than the last accepted state in the lexicographic
-(term, version) order. The response names exactly the accepted state's term and version. -/
+/-- At a node whose last accepted term is at most its current term, `handlePublishRequest` accepts only a state of the
+current term, and only one that is strictly newer than the last accepted state in the lexicographic (term, version)
+order or has term 0 (the Zen1 compatibility branch, whose condition on the cluster-manager is not stated here). The
+response names exactly the accepted state's term and version. -/
 theorem OpenSearchCoordination.handlePublishRequest_spec {V : Type} (cs : CoordinationState V) (req : PublishRequest V) (cs' : CoordinationState V)
     (resp : PublishResponse) (hcs : cs.lastAcceptedTerm ≤ cs.currentTerm)
     (h : cs.handlePublishRequest req = .ok (cs', resp)) :
@@ -183,8 +185,9 @@ theorem OpenSearchCoordination.handleCommit_spec {V : Type} (cs : CoordinationSt
             CoordinationState.lastAcceptedTerm, CoordinationState.lastAcceptedVersion, ClusterState.markCommitted]
           split <;> split <;> simp_all
 
-/-- No handler decreases the current term, and only `handleStartJoin` changes it. The last accepted term never exceeds
-the current term, and every handler preserves this. -/
+/-- At a node whose last accepted term is at most its current term, one successful call of any handler (of
+`setInitialState`, with a term-0 state) preserves this inequality; `handleStartJoin` strictly raises the current term,
+and every other handler leaves it unchanged. -/
 theorem OpenSearchCoordination.lastAcceptedTerm_le_currentTerm {V : Type} (es : ElectionStrategy) (cs : CoordinationState V)
     (hcs : cs.lastAcceptedTerm ≤ cs.currentTerm) :
     (∀ s cs', cs.setInitialState s = .ok cs' → s.term = 0 → cs'.lastAcceptedTerm ≤ cs'.currentTerm ∧
@@ -346,9 +349,9 @@ theorem OpenSearchCoordination.handleJoin_stays_won {V : Type} (es : ElectionStr
 /-! ## Publication -/
 
 /-- `handleClientValue` publishes only as an elected leader that has accepted its own last publication, only in its
-current term, only with a version above the last published one, only with the current committed configuration
-(the caller's contract), only reconfiguring when the last accepted configuration is committed, and only to a
-configuration in which its join votes are a quorum. -/
+current term, only with a version above the last published one, only reconfiguring when the last accepted
+configuration is committed, and only to a configuration in which its join votes are a quorum. The caller's contract
+that the new state keeps the committed configuration (`clientValueContract`) is neither checked nor stated. -/
 theorem OpenSearchCoordination.handleClientValue_spec {V : Type} (cs : CoordinationState V) (s : ClusterState V) (cs' : CoordinationState V)
     (p : PublishRequest V) (h : cs.handleClientValue s = .ok (cs', p)) :
     cs.electionWon = true ∧ cs.lastPublishedVersion = cs.lastAcceptedVersion ∧ s.term = cs.currentTerm ∧
@@ -386,9 +389,9 @@ theorem OpenSearchCoordination.handleClientValue_spec {V : Type} (cs : Coordinat
   · exact Or.inl hx
   · exact Or.inr (Classical.not_not.mp (fun hy => h5 ⟨hx, hy⟩))
 
-/-- `handlePublishResponse` returns a commit only when the publish votes, including the new one, are a quorum of both
-the last committed configuration (read now) and the configuration being published; the commit is for the current term
-and the version being published, and is sent by this node. -/
+/-- `handlePublishResponse` returns a commit only when the publish votes, after `addVote` of the sender, are a quorum of
+both the last committed configuration (read now) and the configuration being published; the commit is for the current
+term and the version being published, and is sent by this node. (Only this direction is stated.) -/
 theorem OpenSearchCoordination.handlePublishResponse_spec {V : Type} (cs : CoordinationState V) (src : DiscoveryNode) (r : PublishResponse)
     (cs' : CoordinationState V) (o : Option ApplyCommitRequest) (h : cs.handlePublishResponse src r = .ok (cs', o)) :
     cs.electionWon = true ∧ r.term = cs.currentTerm ∧ r.version = cs.lastPublishedVersion ∧
@@ -462,7 +465,8 @@ theorem OpenSearchCoordination.handleStartJoin_javaInvariant {V : Type} (es : El
     rw [h7]
     rfl
 
-/-- `invariant()` is preserved by `handleJoin` (monotone strategy), `handleClientValue` and `handlePublishResponse`. -/
+/-- For a monotone election strategy, `invariant()` is preserved by `handleJoin`, `handleClientValue` and
+`handlePublishResponse`. -/
 theorem OpenSearchCoordination.javaInvariant_preserved {V : Type} (es : ElectionStrategy) (hes : es.Monotone) (cs : CoordinationState V)
     (hinv : cs.javaInvariant es) :
     (∀ j cs' b, cs.handleJoin es j = .ok (cs', b) → cs'.javaInvariant es) ∧
@@ -507,9 +511,11 @@ theorem OpenSearchCoordination.javaInvariant_preserved {V : Type} (es : Election
     obtain ⟨hw, -, -, rfl, -⟩ := handlePublishResponse_spec cs n r cs' o h
     exact ⟨i1, i2, i3, i4, Or.inr hw⟩
 
-/-- ... but not by `handlePublishRequest` in isolation: a node can satisfy `invariant()`, accept a publication, and
-violate it (its join votes become an election quorum of the new configurations without `electionWon` being set). That
-`invariant()` nevertheless holds at every node of every execution is a property of the cluster (next mission). -/
+/-- ... but not by `handlePublishRequest` in isolation: for the default strategy, a node can satisfy `invariant()`,
+accept a publication, and violate it (its join votes become an election quorum of the new configurations without
+`electionWon` being set). That `invariant()` nevertheless holds at every cluster-manager-eligible node of every
+execution is a property of the cluster: `OpenSearchSafety.javaInvariant_reachable` proves it for that mission's
+cluster model, assuming compatible bootstrap configurations and the default strategy. -/
 theorem OpenSearchCoordination.javaInvariant_not_local :
     ∃ (cs : CoordinationState Unit) (p : PublishRequest Unit) (cs' : CoordinationState Unit) (r : PublishResponse),
       cs.javaInvariant ElectionStrategy.DEFAULT_INSTANCE ∧ cs.handlePublishRequest p = .ok (cs', r) ∧

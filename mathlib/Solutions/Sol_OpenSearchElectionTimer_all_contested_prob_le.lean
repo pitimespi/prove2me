@@ -213,10 +213,12 @@ private theorem card_pair_close_le (n δ Mmin : ℕ) (hδ : 1 ≤ δ) (hM : 1 �
         congr 1
         simp
 
-/-- **Repeated contests become exponentially unlikely, even against an adaptive scheduler.** Over `K` rounds, let the
-offsets and bounds of round `k` be chosen as any function of the draws of the earlier rounds (an adversary scheduling
-the network may react to what happened so far, but not foresee future draws), with every bound between `Mmin ≥ 1` and
-`2^63`. The probability that all `K` rounds are contested with margin `δ ≥ 1` is at most `contestedBound n δ Mmin ^ K`. -/
+/-- **Repeated contests become exponentially unlikely once the per-round bound is below 1, even against an adaptive
+scheduler.** Over `K` rounds of the same `n ≥ 1` candidates, each drawing afresh in every round, let the offsets and
+bounds of round `k` be any deterministic function of the draws of the earlier rounds (an adversary scheduling the
+network may react to the draws of the earlier rounds, but not to those of round `k` or later ones), with every bound
+between `Mmin ≥ 1` and `2^63`. The probability that all `K` rounds are contested with margin `δ ≥ 1` is at most
+`contestedBound n δ Mmin ^ K`. -/
 theorem solution (n K δ Mmin : Nat) (hn : 1 ≤ n) (hδ : 1 ≤ δ) (hM : 1 ≤ Mmin)
     (offset : Fin K → (Fin K → Fin n → Fin (2 ^ 64)) → Fin n → Int)
     (bound : Fin K → (Fin K → Fin n → Fin (2 ^ 64)) → Fin n → Nat)

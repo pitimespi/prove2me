@@ -348,8 +348,9 @@ private theorem pv_started_quorum {V : Type} (es : ElectionStrategy) (D : Discov
       exact ⟨hq.1.1, hq.1.2⟩
   | close r _ ih => exact ih h
 
-/-- The bound grows with the attempt number, from the initial timeout, by the back-off time per attempt, until it
-reaches the maximum timeout, where it stays. -/
+/-- The bound starts at the initial timeout and never decreases; while it is below the maximum timeout, the next
+attempt's bound is the back-off time higher or the maximum timeout; from attempt number `maxTimeout` on it is the
+maximum timeout. -/
 theorem solution (s : SchedulerSettings) (hs : s.Valid) :
     maxDelay s 0 = s.initialTimeout ∧ (∀ k k', k ≤ k' → maxDelay s k ≤ maxDelay s k') ∧
     (∀ k, maxDelay s k < s.maxTimeout → maxDelay s (k + 1) = maxDelay s k + s.backoffTime ∨

@@ -64,17 +64,18 @@ cluster-manager and commits cluster-state updates, pinned at OpenSearch revision
 per-node state machine `CoordinationState.java` and the pre-voting and election-scheduling code are transcribed
 check by check; the cluster is a message soup (loss, duplication, reordering) with crash-recovery, covering every
 handler call the `Coordinator` makes. Elastic's TLA+ model `ZenWithTerms` of this algorithm was only model-checked;
-here safety is proved for every execution of the Java semantics (which differ from the TLA+ model: one of its
-invariants fails for the Java code — see `NOTES_OpenSearchSafety.md`), and liveness under stability and with
-randomized timers.
+here safety is proved for every execution of the cluster model with the Java semantics, for compatible bootstrap
+configurations and the default election strategy (the Java semantics differ from the TLA+ model: one of its invariants
+fails for them — see `NOTES_OpenSearchSafety.md`), and liveness under stability; for the randomized election timers,
+the probability of contested rounds is bounded.
 
 | Mission | Files | Goal theorem | Theorems |
 |---|---|---|---|
 | The per-node state machine (`CoordinationState`) | `Def_OpenSearchCoordination`, `NOTES_OpenSearchCoordination.md` | `OpenSearchCoordination.javaInvariant_preserved` | 18 |
 | Pre-voting and election scheduling | `Def_OpenSearchPreVote` | `OpenSearchPreVote.preVote_then_election` | 10 |
-| Cluster safety: one cluster-manager per term, one state per version, committed states never fork, election safety, `invariant()` never fails | `Def_OpenSearchSafety`, `NOTES_OpenSearchSafety.md` | `OpenSearchSafety.committed_linear` | 44 |
+| Cluster safety (compatible bootstrap configurations, default election strategy): one cluster-manager per term, one state per (term, version), committed states never fork, election safety, `invariant()` never fails at cluster-manager-eligible nodes | `Def_OpenSearchSafety`, `NOTES_OpenSearchSafety.md` | `OpenSearchSafety.committed_linear` | 44 |
 | Liveness under a stable period: elections are won and publications committed in any delivery order | `Def_OpenSearchProgress`, `NOTES_OpenSearchProgress.md` | `OpenSearchProgress.election_possible` | 6 |
-| Randomized election timers make uncontested elections overwhelmingly likely (Mathlib) | `mathlib/Definitions/Def_OpenSearchElectionTimer`, `mathlib/NOTES_OpenSearchElectionTimer.md` | `OpenSearchElectionTimer.all_contested_prob_le` | 7 |
+| Randomized election timers: bounds on the probability that rounds of competing timers are contested (about `C(n,2)(2δ−1)/Mmin` per round, its `K`-th power over `K` adaptively scheduled rounds) (Mathlib) | `mathlib/Definitions/Def_OpenSearchElectionTimer`, `mathlib/NOTES_OpenSearchElectionTimer.md` | `OpenSearchElectionTimer.all_contested_prob_le` | 7 |
 
 All 85 theorems are proved locally (axioms `propext`, `Classical.choice`, `Quot.sound` only; the safety and progress
 missions were also checked end to end in a single module without theorem stubs). The transcriptions replay

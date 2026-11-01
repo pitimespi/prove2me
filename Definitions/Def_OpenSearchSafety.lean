@@ -11,7 +11,8 @@ is addressed to, or never. Nodes may crash and restart at any time.
 Each step is a successful call of one `CoordinationState` method, its output, if any, being sent. The steps cover every
 call the `Coordinator` makes (`Coordinator.java`, cited `CO:<line>`; the `Coordinator`'s own guards only reject more):
 * `bootstrap`: `setInitialState` with a bootstrap configuration (`ClusterBootstrapService`, CO:1101-1161), under the
-  method's asserted preconditions; nodes may bootstrap with different configurations (see `BootstrapConfig`);
+  method's asserted preconditions; nodes may bootstrap with different configurations (`BootstrapConfig` describes
+  `ClusterBootstrapService`'s configurations; the model does not refer to it);
 * `startJoin`: `handleStartJoin` for a request from any cluster-manager-eligible node in any term (elections, abdication,
   and `ensureTermAtLeast` on receiving a message of a higher term, which joins that message's sender); the `Join` is
   sent to the requester;
@@ -24,17 +25,20 @@ call the `Coordinator` makes (`Coordinator.java`, cited `CO:<line>`; the `Coordi
 * `commit`: `handleCommit` of a sent `ApplyCommitRequest`;
 * `restart`: a new `CoordinationState` over the persisted state. A cluster-manager-eligible node persists its current
   term and accepted state synchronously (`GatewayMetaState.LucenePersistedState`) and rebuilds on startup the parts of
-  the accepted state that are not persisted (the node list, routing table, transient settings — the payload and the
-  cluster-manager node here; GatewayMetaState.java:164-197); a node that never joined a cluster may instead restore a
-  term-0 state with empty configurations from the remote store (GatewayMetaState.java:166-185). A node that is not
-  cluster-manager-eligible persists asynchronously or not at all, and may come back with any persisted state.
+  the accepted state that are not persisted (the node list, routing table, transient settings;
+  GatewayMetaState.java:164-197); the model leaves the metadata version, the cluster-manager node and the payload free,
+  which only adds behaviours. A node that never joined a cluster (term 0, empty configurations, unknown cluster UUID)
+  may instead come back with a term-0 state with empty configurations, as restored from the remote store
+  (GatewayMetaState.java:169-188). A node that is not cluster-manager-eligible persists asynchronously or not at all,
+  and may come back with any persisted state.
 
 A `PublishRequest` records, as ghost data that the real message does not carry, the term and version of the state its
 publisher had accepted when it published (its parent); this defines descent between published states.
 
-OpenSearch's randomized safety test `CoordinationStateTestCluster` (`test/framework/.../coordination/`) checks the
-first two safety properties on random executions of a similar model: messages are never removed, start-join requests
-carry arbitrary terms, any elected node publishes arbitrary values and configurations, and nodes reboot.
+OpenSearch's randomized safety test `CoordinationStateTestCluster` (`test/framework/.../coordination/`) runs random
+executions of a similar model (messages are never removed, start-join requests carry arbitrary terms, any elected node
+publishes arbitrary values and configurations, and nodes reboot) and checks the assertions of `invariant()` at every
+node and, at the end, one cluster-manager per term and one cluster state per (term, version).
 
 Assumptions (outside the model): the cluster-manager role of a node never changes (changing it and back can reset the
 persisted term, GatewayMetaState.java:232-255); no disk rollback; no offline tools (`opensearch-node` unsafe-bootstrap,
@@ -74,10 +78,13 @@ def Params.InitCompatible (P : Params) : Prop :=
     (∀ x ∈ q₁, P.eligible x = true) → (∀ x ∈ q₂, P.eligible x = true) →
     X.hasQuorum q₁ = true → Y.hasQuorum q₂ = true → ∃ x, x ∈ q₁ ∧ x ∈ q₂
 
-/-- The configuration `ClusterBootstrapService` bootstraps with (CBS:176-215, CBS:259-273, CBS:306-335): the bootstrap
-requirements (`cluster.initial_cluster_manager_nodes`, without duplicates) are numbered `0 … k-1`; requirement `i`, when
-the node has discovered the node it names, contributes that node's id `resolve i`, and otherwise a placeholder id
-`placeholder i` (`"{bootstrap-placeholder}-" + requirement`); more than half of the requirements must be matched. -/
+/-- The form of the configurations `ClusterBootstrapService` bootstraps with (CBS:176-215, CBS:259-273, CBS:306-335):
+the bootstrap requirements (`cluster.initial_cluster_manager_nodes`, without duplicates) are numbered `0 … k-1`;
+requirement `i`, when the node has discovered the node it names, contributes that node's id `resolve i`, and otherwise a
+placeholder id `placeholder i` (`"{bootstrap-placeholder}-" + requirement`); more than half of the requirements must be
+matched. The predicate does not require `resolve` or `placeholder` to be injective or their values to be distinct
+(`bootstrap_compatible` assumes this), nor the bootstrapping node to be eligible and matched (Java requires both,
+CBS:179, 202-209). No other definition refers to it: the `bootstrap` step uses `P.initConfs`. -/
 def BootstrapConfig (k : Nat) (resolve placeholder : Nat → NodeId) (matched : Nat → Bool)
     (X : VotingConfiguration) : Prop :=
   (∀ x, x ∈ X.nodeIds ↔ ∃ i, i < k ∧ x = if matched i then resolve i else placeholder i) ∧
@@ -104,8 +111,9 @@ end Cluster
 variable {V : Type}
 
 /-- A fresh cluster: every node is in term 0 with an accepted term-0 state with empty configurations (its version,
-metadata version and payload are arbitrary — a fresh node has version 0, a node restored from the remote store or
-upgraded from an older version may have others), and no message has been sent. -/
+metadata version, cluster-manager node, cluster-UUID flags and payload are arbitrary and may differ between nodes — a
+fresh node has version 0, a node restored from the remote store or upgraded from an older version may have others),
+and no message has been sent. -/
 def Initial (P : Params) (W : Cluster V) : Prop :=
   (∀ n, ∃ s : ClusterState V, s.term = 0 ∧ s.lastCommittedConfiguration = VotingConfiguration.EMPTY_CONFIG ∧
       s.lastAcceptedConfiguration = VotingConfiguration.EMPTY_CONFIG ∧
@@ -113,8 +121,10 @@ def Initial (P : Params) (W : Cluster V) : Prop :=
   (∀ m, ¬ W.sent m)
 
 /-- The accepted state a restarting cluster-manager-eligible node comes back with, given the one it had: the persisted
-term, version, configurations and cluster-UUID flags, with the rest rebuilt; or, if it never joined a cluster (term 0,
-empty configurations, unknown cluster UUID), a term-0 state with empty configurations restored from the remote store. -/
+term, version, configurations and cluster-UUID flags, with the rest (metadata version, cluster-manager node, payload)
+left free — Java rebuilds the cluster-manager node and the parts of the state outside the persisted metadata, and
+leaving the persisted metadata free only adds behaviours; or, if it never joined a cluster (term 0, empty
+configurations, unknown cluster UUID), a term-0 state with empty configurations, as restored from the remote store. -/
 def RestartState (s s' : ClusterState V) : Prop :=
   (s'.term = s.term ∧ s'.version = s.version ∧
     s'.lastCommittedConfiguration = s.lastCommittedConfiguration ∧
@@ -170,14 +180,16 @@ inductive Reachable (P : Params) : Cluster V → Prop where
   | init (W : Cluster V) : Initial P W → Reachable P W
   | step (W W' : Cluster V) : Reachable P W → Step P W W' → Reachable P W'
 
-/-- A published state (term, version) is committed when an `ApplyCommitRequest` for it has been sent. -/
+/-- A (term, version) is committed when an `ApplyCommitRequest` for it has been sent (that it is then the key of a sent
+publication follows from the invariant, `inv_committed_published`). -/
 def Committed (W : Cluster V) (t : Nat) (v : Int) : Prop := ∃ src, W.sent (.applyCommit ⟨src, t, v⟩)
 
 /-- `(t, v)` is the parent of `(t', v')`: a publication of `(t', v')` was made on top of an accepted `(t, v)`. -/
 def Parent (W : Cluster V) (t : Nat) (v : Int) (t' : Nat) (v' : Int) : Prop :=
   ∃ src s, W.sent (.publishRequest src s t v) ∧ s.term = t' ∧ s.version = v'
 
-/-- Descent between published (term, version) pairs: the reflexive-transitive closure of `Parent`. -/
+/-- Descent between (term, version) pairs: the reflexive-transitive closure of `Parent` (reflexive on every pair,
+published or not). -/
 inductive Descends (W : Cluster V) : Nat → Int → Nat → Int → Prop where
   | refl (t : Nat) (v : Int) : Descends W t v t v
   | step (t : Nat) (v : Int) (t' : Nat) (v' : Int) (t'' : Nat) (v'' : Int) :
@@ -189,7 +201,8 @@ Proof-side notions (none of them is used by the model above) and the invariant `
 follow. A publication is named by its *key*, its (term, version); its ghost parent is the key of the state its publisher
 had accepted. Publications thus form a forest: following parents, versions strictly decrease until a term-0 key, the
 *root*, which stands for a bootstrap state (several nodes may bootstrap, with different bootstrap configurations). All
-notions are relations over the messages sent, never functions computed from them; all sets of voters are lists of
+notions are relations, never functions computed from the messages sent: `KeyLE` and `Below` compare keys, `Won` also
+reads node states, and the others depend on the messages sent only. All sets of voters are lists of
 cluster-manager-eligible nodes, so that `Params.InitCompatible` applies to them. -/
 
 /-- The lexicographic order on (term, version) keys: `(t, v)` is at most `(t', v')`. -/
@@ -256,7 +269,7 @@ structure Inv (P : Params) (W : Cluster V) : Prop where
   -- Every node.
   /-- Every node's `localNode` is its own `DiscoveryNode` `P.dn n`. -/
   localNode_eq : ∀ n, (W.node n).localNode = P.dn n
-  /-- (N4) A node that has not won its election has published nothing in its term and holds no publish votes. -/
+  /-- (N4) A node that has not won its election has last published version 0 and holds no publish votes. -/
   idle_of_not_won : ∀ n, (W.node n).electionWon = false →
     (W.node n).lastPublishedVersion = 0 ∧ (W.node n).publishVotes = VoteCollection.empty
   /-- (N2) A node that has won its election has started a join since its last restart. -/
@@ -270,8 +283,9 @@ structure Inv (P : Params) (W : Cluster V) : Prop where
   won_quorum : ∀ n, (W.node n).electionWon = true →
     (W.node n).joinVotes.isQuorum (W.node n).lastCommittedConfiguration = true ∧
     (W.node n).joinVotes.isQuorum (W.node n).lastAcceptedConfiguration = true
-  /-- (N3r, the reverse half of `invariant()`) The join votes of a node that has not won are not a quorum of both its
-  last committed and its last accepted configuration. -/
+  /-- (N3r: for the default election strategy, the reverse half of `invariant()`'s second assertion; it omits the
+  strategy's additional constraint) The join votes of a node that has not won are not a quorum of both its last
+  committed and its last accepted configuration. -/
   not_won_no_quorum : ∀ n, (W.node n).electionWon = false →
     ¬ ((W.node n).joinVotes.isQuorum (W.node n).lastCommittedConfiguration = true ∧
       (W.node n).joinVotes.isQuorum (W.node n).lastAcceptedConfiguration = true)
@@ -331,8 +345,8 @@ structure Inv (P : Params) (W : Cluster V) : Prop where
     (pt = 0 → P.initConfs s.lastCommittedConfiguration)
   /-- (P1, P5) The parent of a publication, if not a bootstrap state, is a publication (of key `(pt, pv)`), and the
   configurations follow the reconfiguration discipline: the last committed configuration is the parent's, or, if the
-  parent is committed, the parent's last accepted one (R1); and the last accepted configuration changes only if the
-  last committed configuration is the parent's last accepted one (R2). -/
+  parent is committed, the parent's last accepted one (reconfiguration rule R1); and the last accepted configuration
+  changes only if the last committed configuration is the parent's last accepted one (reconfiguration rule R2). -/
   pub_parent : ∀ src s pt pv, W.sent (.publishRequest src s pt pv) → 1 ≤ pt →
     ∃ src' s' pt' pv', W.sent (.publishRequest src' s' pt' pv') ∧ s'.term = pt ∧ s'.version = pv ∧
       (s.lastCommittedConfiguration = s'.lastCommittedConfiguration ∨
@@ -370,7 +384,7 @@ structure Inv (P : Params) (W : Cluster V) : Prop where
           (Committed W pt pv ∧ ∃ src' s' pt' pv', W.sent (.publishRequest src' s' pt' pv') ∧ s'.term = pt ∧
             s'.version = pv ∧ s'.lastAcceptedConfiguration = s.lastAcceptedConfiguration))
   -- Leaders.
-  /-- (L1) At most one node wins each term. -/
+  /-- (L1) For each term `t`, at most one node `b` has `Won P W b t`. -/
   won_unique : ∀ a b t, Won P W a t → Won P W b t → a = b
   /-- (L2) A node that published in a term is past that term, or still in it and either still elected or restarted
   since (so it cannot win that term again). -/
@@ -378,8 +392,9 @@ structure Inv (P : Params) (W : Cluster V) : Prop where
     s.term < (W.node src).currentTerm ∨
     (s.term = (W.node src).currentTerm ∧
       ((W.node src).electionWon = true ∨ (W.node src).startedJoinSinceLastReboot = false))
-  /-- (L3) An elected node's publications of its term have versions at most its last published version, from which
-  they descend, and its join votes are a quorum of both of their configurations. -/
+  /-- (L3) Every publication of an elected node's current term, whoever sent it, has a version at most the node's last
+  published version, (current term, last published version) descends from it, and the node's join votes are a quorum
+  of both of its configurations. -/
   leader_pubs : ∀ n, (W.node n).electionWon = true → ∀ src s pt pv, W.sent (.publishRequest src s pt pv) →
     s.term = (W.node n).currentTerm →
     s.version ≤ (W.node n).lastPublishedVersion ∧

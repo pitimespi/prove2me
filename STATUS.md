@@ -118,18 +118,25 @@ no submissions).
 | Randomized election timers (Mathlib) | `OpenSearchElectionTimer` | `all_contested_prob_le` | 7 | 7 |
 
 What the theorems say, in short:
-- **Safety** (every execution): one cluster-manager per term; one cluster state per (term, version); leader
-  completeness (every publication of a later term descends from every committed publication); committed states form a
-  single history, a committed version is committed once, committed versions increase with the term; election safety;
-  the assertions of `CoordinationState.invariant()` hold at every cluster-manager-eligible node (although no handler
-  preserves them on its own); committed configurations are committed; bootstrapping with different partial views is
-  safe. Assumes the default election strategy (a non-monotone plugin strategy breaks safety) and compatible bootstrap
-  configurations (proved for `ClusterBootstrapService`'s construction).
+- **Safety** (every execution of the cluster model): one cluster-manager per term; one cluster state per (term,
+  version); leader completeness (every publication of a later term than a committed publication descends from it);
+  committed states form a single history, a version is committed in at most one term, committed versions increase with
+  the term; election safety (at any moment, at most one node holds a won election in a given term); the assertions of
+  `CoordinationState.invariant()` hold at every cluster-manager-eligible node (although not every handler preserves them
+  on its own: `handlePublishRequest` can break them); an eligible node's last committed configuration is empty, a
+  bootstrap configuration or the accepted configuration of a committed publication; configurations of
+  `ClusterBootstrapService`'s form built from different partial views meet the compatibility condition. Assumes the
+  default election strategy (a non-monotone plugin strategy can break one state per (term, version) when assertions are
+  disabled) and compatible bootstrap configurations (the condition is proved for configurations of
+  `ClusterBootstrapService`'s form; that the model's bootstrap configurations have this form is not formalized).
 - **Liveness**: pre-voting protects a stable leader; a successful pre-vote over unchanged voters predicts a successful
   election; in a stable period votes and acknowledgements keep counting in any delivery order, elections are won and
-  publications committed, and such executions exist; competing randomized timers produce an uncontested round with
-  high probability, even against a scheduler adapting to earlier draws (3 candidates, default 10 s maximum timeout,
-  100 ms margin: below 6% per round, below 10⁻⁶ over five rounds; draws idealized as uniform 64-bit longs).
+  publications committed, and such executions exist; a round of competing randomized timers is contested (no candidate
+  fires a margin `δ` before all others) with probability at most about `C(n,2)(2δ−1)/Mmin`, `Mmin` the smallest
+  competing bound, and `K` rounds with at most its `K`-th power, even against a scheduler adapting to earlier draws (3
+  candidates, every bound at the default 10 s maximum timeout, reached from attempt 99 on, and an illustrative 100 ms
+  margin: below 6% per round, below 10⁻⁶ over five rounds; draws idealized as uniform 64-bit longs; that an uncontested
+  round leads to a successful election is not proved).
 - **Findings**: Elastic's TLA+ invariant `CommitHasQuorumVsPreviousCommittedConfiguration` fails for the Java
   semantics (`handleCommit` lacks the TLA+ guard; 17-step trace), although safety holds; a leader's last committed
   configuration can move backwards; changing a node's cluster-manager role and back can reset its persisted term

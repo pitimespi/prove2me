@@ -1,4 +1,6 @@
 import Definitions.Def_OpenSearchElectionTimer
+import Theorems.Thm_OpenSearchElectionTimer_all_contested_prob_le
+import Theorems.Thm_OpenSearchElectionTimer_contested_prob_le
 import Theorems.Thm_OpenSearchElectionTimer_randomDelay_near_uniform
 import Theorems.Thm_OpenSearchElectionTimer_randomDelay_range
 
@@ -212,9 +214,13 @@ private theorem card_pair_close_le (n δ Mmin : ℕ) (hδ : 1 ≤ δ) (hM : 1 �
         congr 1
         simp
 
-/-- With OpenSearch's default `cluster.election.max_timeout` of 10 seconds, three competing candidates and a margin of
-100 ms (ample for a pre-voting round and an election on a local network), a round is contested with probability below
-6%, and five consecutive rounds with probability below one in a million. -/
+/-- `contestedBound 3 100 10000`, the bound for three competing candidates, a margin of 100 ms (an illustrative choice:
+nothing here shows that it suffices for a pre-voting round and an election) and every bound at least OpenSearch's
+default `cluster.election.max_timeout` of 10 seconds (`Mmin = 10000`; with the default settings, every attempt from
+attempt 99 on), is below 6%, and its fifth power is below one in a million. By `contested_prob_le` and
+`all_contested_prob_le` these bound the probability that a round is contested and that five rounds are all contested.
+The theorem itself is arithmetic on these literals. -/
+
 theorem solution :
     contestedBound 3 100 10000 < 6 / 100 ∧ contestedBound 3 100 10000 ^ 5 < 1 / 1000000 := by
   unfold contestedBound

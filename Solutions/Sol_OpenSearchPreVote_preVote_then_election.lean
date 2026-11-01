@@ -350,12 +350,14 @@ private theorem pv_started_quorum {V : Type} (es : ElectionStrategy) (D : Discov
   | close r _ ih => exact ih h
 
 /-- **A successful pre-vote predicts a successful election.** Let node `c` (with the default election strategy) run a
-pre-voting round over its accepted state, every recorded response being the current response of its sender's
-coordination state (the senders have not changed state since answering), and let the round start an election. Let `T`
-be the election's term: one above `c`'s current term and every term `c` has seen, including the terms in the
-responses. Then `c` and every recorded sender accept the `StartJoinRequest` of `c` for `T`, and `c`, handling the
-resulting joins in any order — interleaved with any other joins of a term at most `T`, accepted or not — wins the
-election. -/
+pre-voting round over its accepted state, with itself as the round's local node, every recorded response from a node
+`n` being `preVoteResponseOf (node n)`, where `node n`, whose local node is `n`, is the coordination state in which `n`
+handles `c`'s `StartJoinRequest` (the senders have not changed state since answering), and let the round have started
+an election. Let `T` be the election's term: one above the larger of `c`'s current term and a `maxTermSeen` that is at
+least the current term of every recorded response. Let `c` handle its own `StartJoinRequest` for `T`. Then every
+recorded sender accepts that request, and if the joins they produce are among the joins `c` then handles, in any
+order — interleaved with any other joins of a term at most `T`, accepted or not, and nothing else — the resulting
+state of `c` has `electionWon = true`. -/
 theorem solution {V : Type} (csc : CoordinationState V)
     (node : DiscoveryNode → CoordinationState V) (r : PreVotingRound V)
     (hr : RoundReachable ElectionStrategy.DEFAULT_INSTANCE

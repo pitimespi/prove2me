@@ -25,8 +25,9 @@ private theorem filter_length_mono {α : Type} (L : List α) (p q : α → Bool)
     rw [hq] at this
     exact absurd this (by decide)
 
-/-- No handler decreases the current term, and only `handleStartJoin` changes it. The last accepted term never exceeds
-the current term, and every handler preserves this. -/
+/-- At a node whose last accepted term is at most its current term, one successful call of any handler (of
+`setInitialState`, with a term-0 state) preserves this inequality; `handleStartJoin` strictly raises the current term,
+and every other handler leaves it unchanged. -/
 theorem solution {V : Type} (es : ElectionStrategy) (cs : CoordinationState V)
     (hcs : cs.lastAcceptedTerm ≤ cs.currentTerm) :
     (∀ s cs', cs.setInitialState s = .ok cs' → s.term = 0 → cs'.lastAcceptedTerm ≤ cs'.currentTerm ∧

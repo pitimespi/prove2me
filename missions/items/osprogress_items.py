@@ -1,7 +1,7 @@
 SRC = ("OpenSearch b2a54ba5c0defba3d1d20423e911d4bf920bab19: Coordinator (handlePublishRequest lines 454-526 with ensureTermAtLeast "
        "at 512, startElection 583-602, ensureTermAtLeast 635-641, joinLeaderInTerm 643-657, handleJoin 1267-1287 with "
        "handleJoinIgnoringExceptions 1289-1299, publish 1350 with "
-       "the handleClientValue call at 1404, CoordinatorPublication.handlePublishResponse 1871-1876): "
+       "the handleClientValue call at 1404, CoordinatorPublication.handlePublishResponse 1871-1875): "
        "https://github.com/opensearch-project/OpenSearch/blob/b2a54ba5c0defba3d1d20423e911d4bf920bab19/server/src/main/java/org/opensearch/cluster/coordination/Coordinator.java; "
        "CoordinationState (isPublishQuorum lines 156-158, handleStartJoin 213-255, handleJoin 264-339, handleClientValue 348-407, "
        "handlePublishRequest 416-460, handlePublishResponse 471-515, handleCommit 523-573) as transcribed by the OpenSearchCoordination mission: "
@@ -15,7 +15,7 @@ TAGS = ["opensearch", "elasticsearch", "consensus", "cluster-coordination", "zen
 DEFINITION = {
     "definition_name": "OpenSearchProgress",
     "definition_title": "OpenSearch cluster coordination in a stable period: the steps and executions of a stable election and of a stable publication",
-    "natural_language_statement": r"""Stable periods of the cluster model of the `OpenSearchSafety` mission (OpenSearch revision `b2a54ba5c0defba3d1d20423e911d4bf920bab19`), whose `Params`, `Cluster`, `Message`, `Step`, `RestartState`, `Reachable` and `Committed` are used as they are, over the per-node `CoordinationState` of the `OpenSearchCoordination` mission. A stable period is a window in which one node runs for election (or publishes) and nothing disrupts it, while every other step of the cluster remains possible. Each stable step is one of the nine kinds of `Step` (`bootstrap`, `startJoin`, `join`, `clientValue`, `publish`, `respond`, `commit`, `restart`, `restartAny`), with the same hypotheses and the same effect, and possibly an extra hypothesis.
+    "natural_language_statement": r"""Stable periods of the cluster model of the `OpenSearchSafety` mission (OpenSearch revision `b2a54ba5c0defba3d1d20423e911d4bf920bab19`), whose `Params`, `Cluster`, `Message`, `Step`, `RestartState`, `Reachable` and `Committed` are used as they are, over the per-node `CoordinationState` of the `OpenSearchCoordination` mission. A stable period is a window in which one node runs for election (or publishes) and the steps excluded below do not occur, while every other step of the cluster remains possible. Each stable step is one of the nine kinds of `Step` (`bootstrap`, `startJoin`, `join`, `clientValue`, `publish`, `respond`, `commit`, `restart`, `restartAny`), with the same hypotheses and the same effect, and possibly an extra hypothesis.
 
 **`ElectionStep P c t Q kt kv W W'`** — a step of a stable election period for the candidate `c` in term `t` with voters `Q` (a list of node ids), where `(kt, kv)` stands for the term and version of `c`'s accepted state when the period starts:
 - `bootstrap` at a node `n` only if `n ≠ c` and `n ∉ Q`;
@@ -35,22 +35,22 @@ DEFINITION = {
 
 **`PublicationExec P c t Q W W'`** — `W'` is reached from `W` by finitely many, possibly zero, `PublicationStep`s.
 
-**Formalization Note.** Every stable step is a `Step` of the safety model, so a stable execution from a reachable cluster stays reachable and the safety theorems apply along it. Messages are still never removed: within a stable period a sent message may be handled any number of times, in any order, or never, and the theorems hold for every finite stable execution, that is, every prefix of a longer one; there is no fairness assumption. A stable period is a hypothesis of the theorems, not a property of the Java system: nothing here says that a real cluster reaches such a period, for how long it lasts, or how long its steps take. The parameters `(kt, kv)` of the election period are instantiated in the theorems with `c`'s last accepted term and version at the start. A voter may be the candidate itself, and `Q` may contain `c` in a publication period. Only the `OpenSearchSafety` definitions are imported (Lean core).""",
+**Formalization Note.** Every stable step is a `Step` of the safety model, so a stable execution from a reachable cluster stays reachable and the safety theorems apply along it. Messages are still never removed: within a stable period a sent message may be handled any number of times, in any order, or never; the four universal theorems (`election_vote_accepted`, `election_won`, `publication_acks_accepted`, `publication_committed`) hold for every finite stable execution, that is, every prefix of a longer one, and the two existence theorems (`election_possible`, `publication_possible`) exhibit one; there is no fairness assumption. A stable period is a hypothesis of the theorems, not a property of the Java system: nothing here says that a real cluster reaches such a period, for how long it lasts, or how long its steps take. The parameters `(kt, kv)` of the election period are instantiated in the theorems with `c`'s last accepted term and version at the start. A voter may be the candidate itself, and `Q` may contain `c` in a publication period. Only the `OpenSearchSafety` definitions are imported (Lean core).""",
 }
 
 THEOREMS = {
 "OpenSearchProgress.election_vote_accepted": dict(
-    title="Votes keep counting during a stable election: the candidate accepts every voter's join whenever it arrives",
+    title="Votes keep counting during a stable election: once in the election term, the candidate accepts every voter's join for that term whenever it arrives",
     nl=r"""For every payload type `V`, cluster parameters `P` with `P.InitCompatible` and `P.strategy = ElectionStrategy.DEFAULT_INSTANCE`, every cluster `W` with `Reachable P W`, every node `c`, term `t` and list of node ids `Q` such that
 
 - `c` and every member of `Q` are cluster-manager-eligible: `P.eligible c = true` and `P.eligible q = true` for every `q ∈ Q`;
 - `c` and every member of `Q` are in a term below `t`: `(W.node q).currentTerm < t` for `q = c` and for every `q ∈ Q`;
 - every member of `Q` has an accepted state no fresher than `c`'s, compared as `handleJoin` compares a join with the node's state: `(W.node q).lastAcceptedTerm < (W.node c).lastAcceptedTerm`, or the two terms are equal and `(W.node q).lastAcceptedVersionOrMetadataVersion ≤ (W.node c).lastAcceptedVersionOrMetadataVersion`;
-- `c` has been bootstrapped: `(W.node c).lastAcceptedConfiguration.isEmpty = false`;
+- `c` has a nonempty last accepted configuration (as after a bootstrap or after accepting a publication): `(W.node c).lastAcceptedConfiguration.isEmpty = false`;
 
 and every cluster `W'` with `ElectionExec P c t Q (W.node c).lastAcceptedTerm (W.node c).lastAcceptedVersion W W'` (a stable election period for `c`, `t` and `Q` starting at `W`) in which `c` is in term `t`, `(W'.node c).currentTerm = t`: for every join `j` with `W'.sent (.join j)`, `j.sourceNode.id ∈ Q`, `j.targetNode.id = c` and `j.term = t`, there are a state `cs'` and a flag `b` with `(W'.node c).handleJoin P.strategy j = .ok (cs', b)` and `j.sourceNode.id ∈ cs'.joinVotes.nodes`.
 
-Whatever has happened since the period started (deliveries in any order, duplicates, the other nodes' steps, commits at `c` and at the voters), each voter's join for `t` is accepted by `c` whenever it is delivered, and the vote is counted.""",
+Whatever has happened since the period started (deliveries in any order, duplicates, the steps the period allows the other nodes, commits at `c` and at the voters), once `c` is in term `t` each voter's join for `t` is accepted by `c` whenever it is delivered, and the vote is counted. A join delivered while `c` is still below `t` is not covered, and is rejected (the terms differ): in the model a voter may handle `c`'s start-join request for `t` before `c` does.""",
     ms=("Votes keep counting", "Along a stable election the candidate's accepted state keeps its term, version and accepted configuration, and every voter's state and join for t stay no fresher than it; so once the candidate is in term t every check of handleJoin passes.")),
 "OpenSearchProgress.election_won": dict(
     title="A stable election is won once the votes of a quorum are counted",
@@ -75,7 +75,7 @@ No hypothesis on the voters' accepted states is needed: the votes are already co
 
 there is a cluster `W'` with `ElectionExec P c t Q (W.node c).lastAcceptedTerm (W.node c).lastAcceptedVersion W W'`, `(W'.node c).currentTerm = t` and `(W'.node c).electionWon = true`.
 
-In the witness, `c` handles its own start-join request for `t`, every voter not yet in term `t` handles it and sends its join, and `c` handles every voter's join. The restrictions of the stable period leave enabled every step an election needs, so the premises of `election_won` are reached.""",
+The theorem asserts only that such an execution exists. In the proof's witness, `c` handles its own start-join request for `t`, every voter not yet in term `t` handles it and sends its join, and `c` handles every voter's join; the stable period allows each of these steps, so the premises of `election_won` are reached.""",
     ms=None),
 "OpenSearchProgress.publication_acks_accepted": dict(
     title="Acknowledgements keep counting during a stable publication",
@@ -84,7 +84,7 @@ In the witness, `c` handles its own start-join request for `t`, every voter not 
 1. every `q ∈ Q` with `(W'.node q).currentTerm = t` has already acknowledged `(t, s.version)` to `c` (`W'.sent (.publishResponse q c ⟨t, s.version⟩)`) or accepts `s` now: `(W'.node q).handlePublishRequest ⟨s⟩ = .ok (cs', r)` for some `cs'` and `r`;
 2. for every `q ∈ Q` with `W'.sent (.publishResponse q c ⟨t, s.version⟩)`, `c` accepts that acknowledgement and counts it: `(W'.node c).handlePublishResponse (P.dn q) ⟨t, s.version⟩ = .ok (cs', o)` for some `cs'` and `o` with `q ∈ cs'.publishVotes.nodes`.
 
-A node of `Q` that has not reached term `t` can do so in the period by handling a start-join from `c` for `t`, as `Coordinator.ensureTermAtLeast` does when a node receives a publication of a higher term.""",
+Item 1 covers only the nodes of `Q` that are in term `t` at `W'`. The period allows a node of `Q` below term `t` to reach it by handling a start-join from `c` for `t`, as `Coordinator.ensureTermAtLeast` does when a node receives a publication of a higher term, after which item 1 applies to it; the witness of `publication_possible` uses this step, but this theorem does not state that it is enabled. A node of `Q` above term `t` stays above it, so item 1 never applies to it.""",
     ms=("Acknowledgements keep counting", "Along a stable publication the cluster-manager stays elected in term t with the same last published version; a node of term t that rejects the publication already holds it and has acknowledged it, since the only publication of term t at that version is the cluster-manager's.")),
 "OpenSearchProgress.publication_committed": dict(
     title="A stable publication is committed once a quorum's acknowledgements are counted",
@@ -106,7 +106,7 @@ and every cluster `W'` with `PublicationExec P c t Q W W'` in which every member
 
 there is a cluster `W'` with `PublicationExec P c t Q W W'` and `Committed W' t s.version`. Unlike `publication_committed`, `c` may already have counted acknowledgements at `W`.
 
-In the witness, each node of `Q` below term `t` handles a start-join from `c` for `t`, each node of `Q` accepts `s` and acknowledges it unless it already has, and `c` counts the acknowledgements; the restrictions of the stable period leave every such step enabled.""",
+The theorem asserts only that such an execution exists; if the publication is already committed at `W`, the empty execution is one. In the proof's witness, each node of `Q` below term `t` handles a start-join from `c` for `t`, each node of `Q` accepts `s` and acknowledges it unless it already has, and `c` counts the acknowledgements, handling one of them a second time at the end; the stable period allows each such step.""",
     ms=("Stable publications are committed", "An explicit stable execution: each node of Q moves to term t and accepts, the cluster-manager counts every acknowledgement, and one more acknowledgement finds a publish quorum.")),
 }
 ORDER = ["OpenSearchProgress." + k for k in ["election_vote_accepted", "election_won", "election_possible",

@@ -26,10 +26,12 @@ private theorem filter_length_add_le {α : Type} (L : List α) (p q : α → Boo
   | cons y ys ih =>
     cases hp : p y <;> cases hq : q y <;> simp [hp, hq] <;> omega
 
-/-- **Bootstrapping is safe even with different partial views.** The configurations `ClusterBootstrapService` builds
-are compatible, whatever subset of the required nodes each bootstrapping node has discovered, provided each requirement
-names the same node everywhere (`resolve` injective on the requirements), placeholders are distinct from each other
-and from the named nodes, and placeholders are not cluster-manager-eligible node ids. -/
+/-- **Bootstrapping with different partial views gives compatible configurations.** Two configurations of the form
+`ClusterBootstrapService` builds (`BootstrapConfig`, with the same requirements, `resolve` and `placeholder`) meet the
+condition of `Params.InitCompatible`, whatever subset of the required nodes each bootstrapping node has discovered,
+provided each requirement names its own node, the same everywhere (`resolve` injective on the requirements),
+placeholders are distinct from each other and from the named nodes, and placeholders are not cluster-manager-eligible
+node ids. `Params` is not mentioned: that the model's bootstrap configurations have this form is not formalized. -/
 theorem solution (eligible : NodeId → Bool) (k : Nat) (resolve placeholder : Nat → NodeId)
     (hres : ∀ i j, i < k → j < k → resolve i = resolve j → i = j)
     (hph : ∀ i j, i < k → j < k → placeholder i = placeholder j → i = j)

@@ -1496,9 +1496,10 @@ private theorem pub_possible_core {V : Type} (P : Params) (hP : P.InitCompatible
   exact ⟨_, .step _ _ _ hX2 (.respond X2 c q0 ⟨t, s.version⟩ cs' _ hr h), ⟨_, Or.inr rfl⟩⟩
 
 /-- **Stable publications are committed.** Under the hypotheses of `publication_committed` (except that `c` may already
-have counted acknowledgements), with the nodes of `Q` in terms at most `t`, there is a stable publication execution — each node of `Q` moves to term `t` if needed, accepts the
-publication and acknowledges it, and `c` counts the acknowledgements — at the end of which the publication is
-committed. -/
+have counted acknowledgements), with the nodes of `Q` in terms at most `t`, there is a stable publication execution at
+the end of which the publication is committed. Only the existence is stated; in the witness, each node of `Q` moves to
+term `t` if needed and accepts and acknowledges the publication unless it already has, and `c` counts the
+acknowledgements. -/
 theorem solution {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hQ : ∀ q ∈ Q, P.eligible q = true)

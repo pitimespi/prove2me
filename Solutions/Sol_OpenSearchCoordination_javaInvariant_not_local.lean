@@ -22,9 +22,11 @@ private theorem filter_length_mono {α : Type} (L : List α) (p q : α → Bool)
     rw [hq] at this
     exact absurd this (by decide)
 
-/-- ... but not by `handlePublishRequest` in isolation: a node can satisfy `invariant()`, accept a publication, and
-violate it (its join votes become an election quorum of the new configurations without `electionWon` being set). That
-`invariant()` nevertheless holds at every node of every execution is a property of the cluster (next mission). -/
+/-- ... but not by `handlePublishRequest` in isolation: for the default strategy, a node can satisfy `invariant()`,
+accept a publication, and violate it (its join votes become an election quorum of the new configurations without
+`electionWon` being set). That `invariant()` nevertheless holds at every cluster-manager-eligible node of every
+execution is a property of the cluster: `OpenSearchSafety.javaInvariant_reachable` proves it for that mission's
+cluster model, assuming compatible bootstrap configurations and the default strategy. -/
 theorem solution :
     ∃ (cs : CoordinationState Unit) (p : PublishRequest Unit) (cs' : CoordinationState Unit) (r : PublishResponse),
       cs.javaInvariant ElectionStrategy.DEFAULT_INSTANCE ∧ cs.handlePublishRequest p = .ok (cs', r) ∧

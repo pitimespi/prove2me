@@ -23,9 +23,9 @@ private theorem filter_length_mono {α : Type} (L : List α) (p q : α → Bool)
     exact absurd this (by decide)
 
 /-- `handleClientValue` publishes only as an elected leader that has accepted its own last publication, only in its
-current term, only with a version above the last published one, only with the current committed configuration
-(the caller's contract), only reconfiguring when the last accepted configuration is committed, and only to a
-configuration in which its join votes are a quorum. -/
+current term, only with a version above the last published one, only reconfiguring when the last accepted
+configuration is committed, and only to a configuration in which its join votes are a quorum. The caller's contract
+that the new state keeps the committed configuration (`clientValueContract`) is neither checked nor stated. -/
 theorem solution {V : Type} (cs : CoordinationState V) (s : ClusterState V) (cs' : CoordinationState V)
     (p : PublishRequest V) (h : cs.handleClientValue s = .ok (cs', p)) :
     cs.electionWon = true ∧ cs.lastPublishedVersion = cs.lastAcceptedVersion ∧ s.term = cs.currentTerm ∧

@@ -19,8 +19,8 @@ import Theorems.Thm_OpenSearchSafety_reachable_inv
 
 open OpenSearchCoordination OpenSearchSafety
 
-/-- **Election safety.** Two nodes that have both won the election of their current term, in the same term, are the
-same node. -/
+/-- **Election safety.** Two nodes that hold a won election at the same moment (in the same cluster), in the same
+current term, are the same node. -/
 theorem solution {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (a b : NodeId) (ha : (W.node a).electionWon = true) (hb : (W.node b).electionWon = true)

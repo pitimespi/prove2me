@@ -177,9 +177,9 @@ private theorem card_close_le (t : ℤ) (Mb Mmin δ : ℕ) (hM : 1 ≤ Mmin)
             rw [this, Finset.card_empty]
             exact Nat.zero_le _
 
-/-- **Two timers rarely fire close together.** Whatever their offsets and the first timer's bound, for a second bound
-between `Mmin ≥ 1` and `2^63`, the probability that the two candidates fire less than `δ ≥ 1` apart is at most
-`(2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`. -/
+/-- **Two timers fire less than `δ` apart with probability at most about `(2δ - 1) / Mmin`.** Whatever their offsets
+and the first timer's bound, for a second bound between `Mmin ≥ 1` and `2^63`, the probability that the two candidates
+fire less than `δ ≥ 1` apart is at most `(2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`. -/
 theorem OpenSearchElectionTimer.close_pair_prob (a b : Int) (Ma Mb Mmin δ : Nat) (hM : 1 ≤ Mmin)
     (hMb : Mmin ≤ Mb ∧ Mb ≤ 2 ^ 63) (hδ : 1 ≤ δ) :
     ((Finset.univ.filter (fun p : Fin (2 ^ 64) × Fin (2 ^ 64) =>
@@ -281,9 +281,10 @@ private theorem card_pair_close_le (n δ Mmin : ℕ) (hδ : 1 ≤ δ) (hM : 1 �
         congr 1
         simp
 
-/-- **A round of competing timers is uncontested with high probability.** For `n ≥ 1` candidates with arbitrary
-offsets and with bounds between `Mmin ≥ 1` and `2^63`, the probability that no candidate fires at least `δ ≥ 1` before
-all others is at most `contestedBound n δ Mmin = C(n,2) · (2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`. -/
+/-- **A round of competing timers is contested with probability at most `contestedBound n δ Mmin`.** For `n ≥ 1`
+candidates with arbitrary offsets and with bounds between `Mmin ≥ 1` and `2^63`, the probability that no candidate fires
+at least `δ ≥ 1` before all others is at most `contestedBound n δ Mmin = C(n,2) · (2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`,
+which is small only when `Mmin` is much larger than `C(n,2) · (2δ - 1)`. -/
 theorem OpenSearchElectionTimer.contested_prob_le (n δ Mmin : Nat) (hn : 1 ≤ n) (hδ : 1 ≤ δ) (hM : 1 ≤ Mmin)
     (offset : Fin n → Int) (bound : Fin n → Nat) (hbound : ∀ i, Mmin ≤ bound i ∧ bound i ≤ 2 ^ 63) :
     ((Finset.univ.filter (fun x => ¬ Uncontested offset bound δ x)).card : ℚ) / (2 ^ 64) ^ n ≤
@@ -328,10 +329,12 @@ theorem OpenSearchElectionTimer.contested_prob_le (n δ Mmin : Nat) (hn : 1 ≤ 
         mul_le_mul_of_nonneg_right hq (by positivity)
     _ = _ := by ring
 
-/-- **Repeated contests become exponentially unlikely, even against an adaptive scheduler.** Over `K` rounds, let the
-offsets and bounds of round `k` be chosen as any function of the draws of the earlier rounds (an adversary scheduling
-the network may react to what happened so far, but not foresee future draws), with every bound between `Mmin ≥ 1` and
-`2^63`. The probability that all `K` rounds are contested with margin `δ ≥ 1` is at most `contestedBound n δ Mmin ^ K`. -/
+/-- **Repeated contests become exponentially unlikely once the per-round bound is below 1, even against an adaptive
+scheduler.** Over `K` rounds of the same `n ≥ 1` candidates, each drawing afresh in every round, let the offsets and
+bounds of round `k` be any deterministic function of the draws of the earlier rounds (an adversary scheduling the
+network may react to the draws of the earlier rounds, but not to those of round `k` or later ones), with every bound
+between `Mmin ≥ 1` and `2^63`. The probability that all `K` rounds are contested with margin `δ ≥ 1` is at most
+`contestedBound n δ Mmin ^ K`. -/
 theorem OpenSearchElectionTimer.all_contested_prob_le (n K δ Mmin : Nat) (hn : 1 ≤ n) (hδ : 1 ≤ δ) (hM : 1 ≤ Mmin)
     (offset : Fin K → (Fin K → Fin n → Fin (2 ^ 64)) → Fin n → Int)
     (bound : Fin K → (Fin K → Fin n → Fin (2 ^ 64)) → Fin n → Nat)
@@ -452,9 +455,12 @@ theorem OpenSearchElectionTimer.all_contested_prob_le (n K δ Mmin : Nat) (hn : 
   rw [div_le_iff₀ (by positivity), hSK_eq]
   exact hfinal
 
-/-- With OpenSearch's default `cluster.election.max_timeout` of 10 seconds, three competing candidates and a margin of
-100 ms (ample for a pre-voting round and an election on a local network), a round is contested with probability below
-6%, and five consecutive rounds with probability below one in a million. -/
+/-- `contestedBound 3 100 10000`, the bound for three competing candidates, a margin of 100 ms (an illustrative choice:
+nothing here shows that it suffices for a pre-voting round and an election) and every bound at least OpenSearch's
+default `cluster.election.max_timeout` of 10 seconds (`Mmin = 10000`; with the default settings, every attempt from
+attempt 99 on), is below 6%, and its fifth power is below one in a million. By `contested_prob_le` and
+`all_contested_prob_le` these bound the probability that a round is contested and that five rounds are all contested.
+The theorem itself is arithmetic on these literals. -/
 theorem OpenSearchElectionTimer.default_example :
     contestedBound 3 100 10000 < 6 / 100 ∧ contestedBound 3 100 10000 ^ 5 < 1 / 1000000 := by
   unfold contestedBound

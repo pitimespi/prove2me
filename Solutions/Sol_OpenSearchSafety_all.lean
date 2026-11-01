@@ -69,8 +69,9 @@ theorem OpenSearchSafety.one_state_per_version {V : Type} (P : Params) (hP : P.I
     (ht : s.term = s'.term) (hv : s.version = s'.version) : a = b ∧ s = s' ∧ pt = pt' ∧ pv = pv' := by
   exact (reachable_inv P hP hes W hW).pub_unique _ _ _ _ _ _ _ _ h₁ h₂ ht hv
 
-/-- **Leader completeness.** Every publication of a later term descends from every committed publication: a
-cluster-manager elected after a commit always builds on the committed state. -/
+/-- **Leader completeness.** Every publication of a later term than a committed publication descends from it: a
+cluster-manager of a later term always builds on the committed state (publications of the committed key's own term or of
+older terms are not covered). -/
 theorem OpenSearchSafety.leader_completeness {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (t : Nat) (v : Int) (hc : Committed W t v) (src : NodeId) (s : ClusterState V) (pt : Nat) (pv : Int)
@@ -118,8 +119,8 @@ theorem OpenSearchSafety.committed_published {V : Type} (P : Params) (hP : P.Ini
     ∃ src s pt pv, W.sent (.publishRequest src s pt pv) ∧ s.term = t ∧ s.version = v := by
   exact (inv_committed_published P W (reachable_inv P hP hes W hW) t v h).2
 
-/-- **Election safety.** Two nodes that have both won the election of their current term, in the same term, are the
-same node. -/
+/-- **Election safety.** Two nodes that hold a won election at the same moment (in the same cluster), in the same
+current term, are the same node. -/
 theorem OpenSearchSafety.election_safety {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (a b : NodeId) (ha : (W.node a).electionWon = true) (hb : (W.node b).electionWon = true)
@@ -129,9 +130,9 @@ theorem OpenSearchSafety.election_safety {V : Type} (P : Params) (hP : P.InitCom
   rw [← ht] at hb'
   exact hinv.won_unique a b _ (inv_won_of_electionWon P W hinv a ha) hb'
 
-/-- **The assertions of `CoordinationState.invariant()` never fail.** At every cluster-manager-eligible node of every
-reachable cluster, `invariant()` holds — although no handler preserves it on its own
-(`OpenSearchCoordination.javaInvariant_not_local`). -/
+/-- **The assertions of `CoordinationState.invariant()` never fail at a cluster-manager-eligible node.** At every
+cluster-manager-eligible node of every reachable cluster, `invariant()` holds, although not every handler preserves it
+on its own: `handlePublishRequest` can break it (`OpenSearchCoordination.javaInvariant_not_local`). -/
 theorem OpenSearchSafety.javaInvariant_reachable {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (n : NodeId) (hn : P.eligible n = true) : (W.node n).javaInvariant P.strategy := by
@@ -187,10 +188,12 @@ private theorem filter_length_add_le {α : Type} (L : List α) (p q : α → Boo
   | cons y ys ih =>
     cases hp : p y <;> cases hq : q y <;> simp [hp, hq] <;> omega
 
-/-- **Bootstrapping is safe even with different partial views.** The configurations `ClusterBootstrapService` builds
-are compatible, whatever subset of the required nodes each bootstrapping node has discovered, provided each requirement
-names the same node everywhere (`resolve` injective on the requirements), placeholders are distinct from each other
-and from the named nodes, and placeholders are not cluster-manager-eligible node ids. -/
+/-- **Bootstrapping with different partial views gives compatible configurations.** Two configurations of the form
+`ClusterBootstrapService` builds (`BootstrapConfig`, with the same requirements, `resolve` and `placeholder`) meet the
+condition of `Params.InitCompatible`, whatever subset of the required nodes each bootstrapping node has discovered,
+provided each requirement names its own node, the same everywhere (`resolve` injective on the requirements),
+placeholders are distinct from each other and from the named nodes, and placeholders are not cluster-manager-eligible
+node ids. `Params` is not mentioned: that the model's bootstrap configurations have this form is not formalized. -/
 theorem OpenSearchSafety.bootstrap_compatible (eligible : NodeId → Bool) (k : Nat) (resolve placeholder : Nat → NodeId)
     (hres : ∀ i j, i < k → j < k → resolve i = resolve j → i = j)
     (hph : ∀ i j, i < k → j < k → placeholder i = placeholder j → i = j)
@@ -258,7 +261,9 @@ theorem OpenSearchSafety.bootstrap_compatible (eligible : NodeId → Bool) (k : 
   exact ⟨resolve i, hi.2.1.2, hi.2.2.2⟩
 
 /-- **Commits happen.** Some cluster with a compatible bootstrap configuration and the default strategy reaches a
-commit of term 1, version 1: the hypotheses of the safety theorems are satisfiable, and they are not vacuous. -/
+commit of term 1, version 1: the hypotheses common to the safety theorems can be met together with a commit. Only this
+one committed key is exhibited, not two distinct committed keys or a publication of a later term than a committed
+key. -/
 theorem OpenSearchSafety.commit_reachable : ∃ (P : Params) (W : Cluster Unit), P.InitCompatible ∧
     P.strategy = ElectionStrategy.DEFAULT_INSTANCE ∧ Reachable P W ∧ Committed W 1 1 := by
   -- one cluster-manager-eligible node, 0, bootstrapping alone

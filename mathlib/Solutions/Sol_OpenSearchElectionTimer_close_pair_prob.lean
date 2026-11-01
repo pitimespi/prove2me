@@ -146,9 +146,9 @@ private theorem card_close_le (t : ℤ) (Mb Mmin δ : ℕ) (hM : 1 ≤ Mmin)
             rw [this, Finset.card_empty]
             exact Nat.zero_le _
 
-/-- **Two timers rarely fire close together.** Whatever their offsets and the first timer's bound, for a second bound
-between `Mmin ≥ 1` and `2^63`, the probability that the two candidates fire less than `δ ≥ 1` apart is at most
-`(2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`. -/
+/-- **Two timers fire less than `δ` apart with probability at most about `(2δ - 1) / Mmin`.** Whatever their offsets
+and the first timer's bound, for a second bound between `Mmin ≥ 1` and `2^63`, the probability that the two candidates
+fire less than `δ ≥ 1` apart is at most `(2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`. -/
 theorem solution (a b : Int) (Ma Mb Mmin δ : Nat) (hM : 1 ≤ Mmin)
     (hMb : Mmin ≤ Mb ∧ Mb ≤ 2 ^ 63) (hδ : 1 ≤ δ) :
     ((Finset.univ.filter (fun p : Fin (2 ^ 64) × Fin (2 ^ 64) =>

@@ -26,7 +26,8 @@ private theorem filter_length_mono {α : Type} (L : List α) (p q : α → Bool)
     rw [hq] at this
     exact absurd this (by decide)
 
-/-- `invariant()` is preserved by `handleJoin` (monotone strategy), `handleClientValue` and `handlePublishResponse`. -/
+/-- For a monotone election strategy, `invariant()` is preserved by `handleJoin`, `handleClientValue` and
+`handlePublishResponse`. -/
 theorem solution {V : Type} (es : ElectionStrategy) (hes : es.Monotone) (cs : CoordinationState V)
     (hinv : cs.javaInvariant es) :
     (∀ j cs' b, cs.handleJoin es j = .ok (cs', b) → cs'.javaInvariant es) ∧

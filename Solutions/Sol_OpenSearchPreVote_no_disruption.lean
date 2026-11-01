@@ -350,13 +350,16 @@ private theorem pv_started_quorum {V : Type} (es : ElectionStrategy) (D : Discov
       exact ⟨hq.1.1, hq.1.2⟩
   | close r _ ih => exact ih h
 
-/-- **Pre-voting protects a stable leader.** Suppose a quorum `L` of the last committed or of the last accepted
-configuration of node `c`'s accepted state consists of nodes that are unhealthy or follow a leader other than `c`.
-Then no pre-voting round of `c` over that state ever starts an election, whatever responses it receives and in whatever
-order: every response it can record comes from a node that answered `c`'s request, such nodes are outside `L`, and a
-set disjoint from a quorum is not a quorum. A node cut off from a cluster whose majority follows a leader cannot
-disrupt it by starting elections when it reconnects. (Its requests still raise the term the leader has seen: a
-leader whose term is below the requester's moves to that term and re-runs its own election, CO:560-581.) -/
+/-- **A pre-voting round that a quorum refuses never starts an election.** Suppose a quorum `L` of the last committed
+or of the last accepted configuration of node `c`'s accepted state consists of nodes that are unhealthy or follow a
+leader other than `c`, every node's health and collector state staying fixed while the round runs. Then no pre-voting
+round of `c` over that state has started an election, and handling one more answer does not start one, whatever
+answers to `c`'s request it receives (each computed from those fixed states), in whatever order and number, and
+whatever the election strategy: every response it can record comes from a node that answered `c`'s request, such
+nodes are outside `L`, and a set disjoint from a quorum is not a quorum. A node cut off from a cluster whose majority
+follows a leader cannot disrupt it by starting elections when it reconnects. (Its requests still raise the term the
+leader has seen: a leader whose term is below the requester's moves to a higher term and re-runs its own election, at
+once or when its publication in progress ends, CO:560-581, CO:1784.) -/
 theorem solution {V : Type} (es : ElectionStrategy) (healthy : DiscoveryNode → Bool)
     (st : DiscoveryNode → CollectorState) (c : DiscoveryNode) (t : Nat) (s : ClusterState V) (L : List NodeId)
     (hL : s.lastCommittedConfiguration.hasQuorum L = true ∨ s.lastAcceptedConfiguration.hasQuorum L = true)

@@ -965,9 +965,10 @@ private theorem possible_core {V : Type} (P : Params) (hP : P.InitCompatible)
     elect_join_phase P hP hes W hW c t Q hc hQ hterm hfresh hconf Q X1 hX1 (fun q hq => hq) hct1 hJ1
   exact ⟨X2, hX2, hct2, won_core P hP hes W hW c t Q hc hQ hquorum (hterm c (Or.inl rfl)) X2 hX2 hct2 hV2⟩
 
-/-- **Stable elections succeed.** Under the hypotheses of `election_vote_accepted` and `election_won`, there is a
-stable election execution — `c` and each voter accept `c`'s start-join request for `t`, and `c` counts the voters'
-joins — at the end of which `c` has won the election of term `t`. -/
+/-- **Stable elections succeed.** Under the hypotheses of `election_vote_accepted` and `election_won` (the nonempty last
+accepted configuration of `c` following from the quorum), there is a stable election execution at the end of which `c`
+is in term `t` and has won the election. Only the existence is stated; in the witness, `c` and each voter not yet in
+term `t` accept `c`'s start-join request for `t`, and `c` counts the voters' joins. -/
 theorem solution {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hc : P.eligible c = true) (hQ : ∀ q ∈ Q, P.eligible q = true)

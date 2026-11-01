@@ -963,10 +963,11 @@ private theorem possible_core {V : Type} (P : Params) (hP : P.InitCompatible)
     elect_join_phase P hP hes W hW c t Q hc hQ hterm hfresh hconf Q X1 hX1 (fun q hq => hq) hct1 hJ1
   exact ⟨X2, hX2, hct2, won_core P hP hes W hW c t Q hc hQ hquorum (hterm c (Or.inl rfl)) X2 hX2 hct2 hV2⟩
 
-/-- **Votes keep counting during a stable election.** Let `c` be a cluster-manager-eligible node of a reachable cluster,
-`t` a term above the current terms of `c` and of the voters `Q` (cluster-manager-eligible nodes whose last accepted
-state is no fresher than `c`'s, compared as `handleJoin` does). In every stable election execution, once `c` is in
-term `t`, `c` accepts the join for `t` of every voter, whenever it arrives, and counts the vote. -/
+/-- **Votes keep counting during a stable election.** Let `c` be a cluster-manager-eligible node of a reachable cluster
+whose last accepted configuration is nonempty, `t` a term above the current terms of `c` and of the voters `Q`
+(cluster-manager-eligible nodes whose last accepted state is no fresher than `c`'s, compared as `handleJoin` does). In
+every stable election execution, once `c` is in term `t`, `c` accepts the join for `t` of every voter, whenever it
+arrives, and counts the vote. -/
 theorem solution {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hc : P.eligible c = true) (hQ : ∀ q ∈ Q, P.eligible q = true)

@@ -10,17 +10,27 @@ with the parts of `CoordinationMetadata.VotingConfiguration` (`CM:<line>`), `Ele
 
 Abstractions:
 * Node ids are `Nat` (Java: `String`); only equality is used.
-* Terms are `Nat`: the persisted term starts at `0` and only `handleStartJoin` changes it, to a strictly larger value.
+* Terms are `Nat` (Java `long`s that are never negative: a fresh node's persisted term is `0`, and among the handlers
+  only `handleStartJoin` changes it, to a strictly larger value); `init` takes the persisted term as a parameter.
 * Versions are `Int` (Java `long`).
 * A `ClusterState` is reduced to the fields that `CoordinationState` reads or writes; everything else is an opaque
   payload `value : V`.
 * `VotingConfiguration` stores its node ids strictly sorted, so that `=` is Java's `Set.equals`.
 * The REMOTE persisted state (remote cluster-state store) is omitted. The handlers read it only to decide whether to
-  write it (CS:616-642), and every value they compute is read from the LOCAL persisted state. A failed remote write
-  makes the Java method throw after its local effects (for example after `publishVotes.addVote` in
-  `handlePublishResponse`, CS:503-510); the transcription returns the result instead, which only adds behaviours.
-* Java `assert`s are not checked in production; they are caller contracts. The handlers below do not check them; the
-  cluster model states them as preconditions of the corresponding steps.
+  write it (CS:616-642; the write in `handlePublishResponse`, `handlePreCommit` at CS:510 and CS:593-599, is gated by
+  the `isRemoteStateEnabled` setting), and every value they compute is read from the LOCAL persisted state. A failed
+  remote write makes the Java method throw after its local effects (for example after `publishVotes.addVote` in
+  `handlePublishResponse`, CS:503-510); the transcription returns the result instead, so the Java run is the
+  transcription's run with that output lost, which a cluster model whose messages may be lost includes.
+* Java `assert`s are not checked in production; they are caller contracts. The handlers below do not check them. The
+  asserted preconditions of `setInitialState` and `handleClientValue` are the predicates `initialStateContract` and
+  `clientValueContract`, which nothing in this file uses (the cluster model of the `OpenSearchSafety` mission imposes
+  them at its `bootstrap` and `clientValue` steps, and delivers a join only to its target). The asserted
+  postconditions (CS:240, CS:323-324, CS:457, CS:572) and the assertions of `invariant()` (`javaInvariant` below) are
+  the subject of the mission's theorems. Not represented: `join.targetMatches(localNode)` (CS:265), the assertion of
+  `markLastAcceptedStateAsCommitted` that a state with an unknown cluster UUID is committed only in term 0
+  (CS:708-710), and the assertions of the `Join` and `PublishResponse` constructors that their versions are
+  non-negative (Join.java:62, PublishResponse.java:53; their terms are `Nat`).
 -/
 
 namespace OpenSearchCoordination
@@ -29,7 +39,8 @@ namespace OpenSearchCoordination
 abbrev NodeId := Nat
 
 /-- `DiscoveryNode`, as far as coordination reads it: the node id and whether the node has the cluster-manager
-(master-eligible) role (`DiscoveryNode.isClusterManagerNode()`). -/
+(master-eligible) role (`DiscoveryNode.isClusterManagerNode()`). The derived equality compares the id and the role;
+Java's `equals` compares ephemeral ids. No handler compares nodes. -/
 structure DiscoveryNode where
   id : NodeId
   isClusterManagerNode : Bool
@@ -67,8 +78,9 @@ end VotingConfiguration
 
 /-- `CoordinationState.VoteCollection` (CS:750-814): the ids of the nodes whose votes were added, most recent first.
 (Java keys a `Map<String, DiscoveryNode>` by node id and also records the `Join`s in a set that only tests read. Java's
-`equals`, used only by tests, compares that map and the set of joins, CS:798-806; no handler compares vote
-collections, and the handlers read them only through membership.) -/
+`equals`, used only by tests, compares that map and the set of joins, CS:798-806, whereas the derived `=` here compares
+the lists, including the order and any repetitions of the ids; no handler compares vote collections, and the handlers
+read them only through membership.) -/
 structure VoteCollection where
   nodes : List NodeId
   deriving DecidableEq, Repr
@@ -109,7 +121,8 @@ structure ClusterState (V : Type) where
   /-- `getLastAcceptedConfiguration()`. -/
   lastAcceptedConfiguration : VotingConfiguration
   /-- `nodes().getClusterManagerNode()`, identified by its ephemeral id (`DiscoveryNode.equals` compares ephemeral
-  ids); `none` is Java `null`. Read only by the Zen1 compatibility branch of `handlePublishRequest`. -/
+  ids), a number unrelated to the `NodeId`s; `none` is Java `null`. Read only by the Zen1 compatibility branch of
+  `handlePublishRequest`. -/
   clusterManagerNode : Option Nat
   /-- `metadata().clusterUUID()` differs from `Metadata.UNKNOWN_CLUSTER_UUID`. -/
   clusterUUIDKnown : Bool
@@ -171,7 +184,9 @@ structure ApplyCommitRequest where
 /-- `ElectionStrategy` (ES): `isElectionQuorum` is final; plugins override only
 `satisfiesAdditionalQuorumConstraints(localNode, currentTerm, acceptedTerm, acceptedVersion, lastCommitted,
 lastAccepted, joinVotes)`. A Java strategy also sees the voters' `DiscoveryNode`s and the recorded joins; here it sees
-the voters' ids. `DEFAULT_INSTANCE`, the only strategy in OpenSearch itself, uses none of them. -/
+the voters' ids. `DEFAULT_INSTANCE`, the only strategy in OpenSearch itself, uses none of them. Java's
+`CoordinationState` keeps its strategy in a `final` field; here the strategy is an argument of `isElectionQuorum`,
+`handleJoin` and `javaInvariant`. -/
 structure ElectionStrategy where
   satisfiesAdditionalQuorumConstraints :
     DiscoveryNode → Nat → Nat → Int → VotingConfiguration → VotingConfiguration → VoteCollection → Bool

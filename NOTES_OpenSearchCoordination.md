@@ -6,7 +6,7 @@ Two missions over OpenSearch `b2a54ba5c0defba3d1d20423e911d4bf920bab19`,
 - `OpenSearchCoordination` (18 theorems): `Definitions/Def_OpenSearchCoordination.lean`,
   `Solutions/Sol_OpenSearchCoordination_all.lean`, `tests/OpenSearchCoordinationVectors.lean`.
 - `OpenSearchPreVote` (10 theorems): `Definitions/Def_OpenSearchPreVote.lean` (imports the first),
-  `Solutions/Sol_OpenSearchPreVote_all.lean`.
+  `Solutions/Sol_OpenSearchPreVote_all.lean`, `tests/OpenSearchPreVoteVectors.lean`.
 
 Prose: `missions/items/oscoord_items.py`, `missions/items/osprevote_items.py`,
 `missions/descriptions/oscoord_description.md`, `missions/descriptions/osprevote_description.md`,
@@ -51,7 +51,9 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
 
 2. **Terms are `Nat`, versions are `Int`.** Both are Java `long`s. `CoordinationState` does no
    arithmetic on them, only comparisons and copies. A term is written only by `handleStartJoin`, with
-   a strictly larger value, and starts at 0, so it is never negative. `Int` contains every `long`
+   a strictly larger value, and starts at 0, so it is never negative (this is Java: the transcription's
+   `init` takes the persisted term as a parameter, and the cluster model of `OpenSearchSafety` starts
+   every node in term 0). `Int` contains every `long`
    version, including `ClusterState.UNKNOWN_VERSION = -1`. What is lost is overflow: `Coordinator`
    builds election terms as `max(currentTerm, maxTermSeen) + 1` (CO:593), which wraps at `2^63 - 1` in
    Java and not here; `startElectionTerm` is computed in `Nat`.
@@ -78,19 +80,28 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
    `containsJoin` (test-only, CS:164-167) and by `equals`/`hashCode`. Java's `put` replaces the stored
    node of an id that is already present; the transcription leaves the list unchanged, the same set of
    ids. Lost: Java's `equals` compares the maps and the joins, while `=` here is list equality and
-   depends on the order of the votes (the discrepancy in the vectors below); and the strategy cannot
+   depends on the order of the votes (the discrepancy in the vectors below) and, for lists not built by
+   `addVote`, on repeated ids; and the strategy cannot
    read the voters' `DiscoveryNode`s or joins (item 10).
 
 6. **Java `assert`s are caller contracts.** Assertions are off unless the JVM runs with `-ea`, as
    OpenSearch's tests do, so production behaviour is the code without them, and that is what the
    handlers transcribe. Asserted preconditions are kept as separate predicates for the cluster model to
    impose at the steps that call the methods (`initialStateContract`, `clientValueContract`). Asserted
-   postconditions are theorems (CS:572 in `handleCommit_spec`, CS:323-324 as `handleJoin_stays_won`,
-   CS:240 and CS:457 in `handleStartJoin_spec` and `handlePublishRequest_spec`), and the assertions of
-   `invariant()` are the predicate `javaInvariant`, proved to hold after the constructor and four
-   handlers and shown not to be preserved by one. Not represented: `join.targetMatches(localNode)` (CS:265; the cluster model
-   delivers a join only to its target), and the assertion in `markLastAcceptedStateAsCommitted` that a
-   state with an unknown cluster UUID is committed only in term 0 (CS:708-710). In the pre-vote file,
+   postconditions are theorems (CS:572 in `handleCommit_spec`; CS:323-324 as `handleJoin_stays_won`,
+   for a monotone strategy at a node whose `electionWon` agrees with its votes; CS:240 in
+   `handleStartJoin_spec`; CS:457 in `handlePublishRequest_spec`, at a node whose accepted term is at
+   most its current term), and the assertions of `invariant()` are the predicate `javaInvariant`,
+   proved to hold after the constructor (when the persisted accepted term is at most the persisted
+   current term) and after `handleStartJoin` (when the accepted term is at most the current term), to
+   be preserved by `handleJoin`, `handleClientValue` and `handlePublishResponse` (for a monotone
+   strategy), and shown not to be preserved by `handlePublishRequest` (for the default strategy). Not
+   represented: `join.targetMatches(localNode)` (CS:265; the cluster model delivers a join only to its
+   target), the assertion in `markLastAcceptedStateAsCommitted` that a state with an unknown cluster
+   UUID is committed only in term 0 (CS:708-710), and the assertions of the `Join` and
+   `PublishResponse` constructors that their versions are non-negative (Join.java:62,
+   PublishResponse.java:53; versions are unbounded integers here, while the assertions on their terms,
+   Join.java:60-61 and PublishResponse.java:52, hold because terms are naturals). In the pre-vote file,
    Java's `assert state != null` (PVC:137, a node answers only after the first `update`) holds by
    construction, and `toPositiveLongAtMost`'s `assert 0 < upperBound` (ESF:170) is proved
    (`attemptDelay_bounds`).
@@ -122,13 +133,15 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
    matter here: `leader.equals(request.getSourceNode())` in `handlePreVoteRequest` (PVC:153) and the
    keys of a round's `preVotesReceived` map (PVC:176, 240); `CoordinationState` compares nodes only in
    a log message (CS:231) and compares cluster-managers by ephemeral id, kept as such (CS:430). The two
-   equalities differ only between two incarnations of one node. A follower of `c`'s previous
-   incarnation refuses `c`'s pre-vote request in Java and answers it here, so Java's answers are a
-   subset of the transcription's. In a round, two incarnations of one sender are two entries in Java
-   and one here, but both count one vote per id, so a Java round and the model's round fed with the
-   same answers have the same votes and make the same decisions. `no_disruption` therefore applies to
-   Java's rounds whenever its hypothesis holds; that hypothesis does not count a node following `c`'s
-   previous incarnation as following another leader.
+   equalities differ only between two incarnations of one node with the same role. A follower of `c`'s
+   previous incarnation with the same role refuses `c`'s pre-vote request in Java and answers it here,
+   so Java's answers are a subset of the transcription's. In a round, two incarnations of one sender
+   with the same role are two entries in Java and one here (with different roles, two in both), but
+   both count one vote per id, so a Java round and the model's round fed with the same answers have
+   the same votes and make the same decisions. As far as node equality is concerned, `no_disruption`
+   therefore carries over to Java's rounds whenever its hypothesis holds (its other abstractions, such
+   as states fixed during the round, remain); that hypothesis does not count a node following `c`'s
+   previous incarnation with the same role as following another leader.
 
 10. **An `ElectionStrategy` sees voter ids only.** Java passes the `VoteCollection` to
     `satisfiesAdditionalQuorumConstraints`, so a plugin strategy could read the voters' `DiscoveryNode`s
@@ -136,8 +149,13 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
     the responses (PVC:247-257). Here the strategy is any function of the local node, the terms and
     version, the two configurations and the voter ids. `DEFAULT_INSTANCE`, the only strategy in
     OpenSearch itself, is constant `true` and transcribed exactly. The per-node theorems are stated for
-    every strategy, with `Monotone` where a won election must stay won; `no_disruption` holds for
-    every strategy, `preVote_then_election` for the default one.
+    every strategy, with `Monotone` where a won election must stay won (`handleJoin_stays_won`, and all
+    three clauses of `javaInvariant_preserved`), except `default_monotone` and the counterexample
+    `javaInvariant_not_local`, which concern the default one; the strategy is passed to
+    `isElectionQuorum`, `handleJoin` and `javaInvariant` rather than stored in the state as in Java,
+    and each theorem uses a single strategy (the cluster model of `OpenSearchSafety` gives every node
+    the same one); `no_disruption` holds for every strategy, `preVote_then_election` for the default
+    one.
 
 11. **The pre-vote `updateMaxTermSeen` side effect is not modelled.** `handlePreVoteRequest` first calls
     `updateMaxTermSeen(request.getCurrentTerm())` (PVC:134), and `handlePreVoteResponse` calls it with
@@ -146,8 +164,8 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
     closed); `handlePreVoteRequest` returns nothing, its argument being always the request's term. The
     effect on the `Coordinator` — raising `maxTermSeen`, and making a leader whose current term is below
     it move to that term and start an election, at once or when its publication in progress ends
-    (CO:560-581, CO:1784) — is outside the functions. `no_disruption` therefore says the requester never
-    starts an election, not that the leader keeps its term; `preVote_then_election` takes `maxTermSeen`
+    (CO:560-581, CO:1784) — is outside the functions. `no_disruption` therefore says that the requester's
+    pre-voting round never calls `startElection`, not that the leader keeps its term; `preVote_then_election` takes `maxTermSeen`
     as a parameter bounded below by the recorded responses' terms (`hseen`).
 
 12. **`Coordinator.handleJoin`'s term bump is excluded by hypothesis.** `Coordinator.handleJoin`
@@ -167,7 +185,9 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
     first write, so a rejected call leaves the state unchanged in both.
 
 14. **Scheduler: milliseconds as `Nat`, the random long as any integer.** The settings' ranges and the
-    constructor check (ESF:85-143) are `SchedulerSettings.Valid`. `maxDelay` computes
+    constructor check (ESF:85-143) are `SchedulerSettings.Valid`; the scheduler reads the settings only
+    through `millis()` (ESF:133, 203-204), and a value Java accepts in a setting's range has its
+    `millis()` within `Valid`'s bounds, because those bounds are whole milliseconds. `maxDelay` computes
     `initialTimeout + k · backoffTime` in `Nat`; Java's `long` product could overflow after about
     `2^63 / 60000` attempts, which the Java comment at ESF:202 dismisses. `nonNegative` is exact on the
     `long` range, including `Long.MIN_VALUE`, for which `Math.abs` is negative in Java. The theorems
@@ -176,7 +196,8 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
     of attempt `k + 1` when attempt `k` fires, ESF:195-241).
 
 15. **Health is a Boolean; the requester's own response is free at each step.** `getHealth()` becomes
-    `healthy : Bool`. Java reads the requester's current response when each answer arrives (PVC:245);
+    `healthy : Bool`, true when the status is not `UNHEALTHY`, the only status `handlePreVoteRequest`
+    tests (PVC:143). Java reads the requester's current response when each answer arrives (PVC:245);
     the model takes an arbitrary `lr` at each step of `RoundReachable`, which includes every value Java
     can read. `preVote_then_election` also assumes `r.localNode = csc.localNode`, which its proof does
     not use.
@@ -198,8 +219,8 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
 - `handleCommit_spec`: the commit matches the current term and the accepted term and version; only
   `markCommitted` is applied; committed = accepted configuration afterwards.
 - `lastAcceptedTerm_le_currentTerm`: from `lastAcceptedTerm ≤ currentTerm`, every successful handler
-  call preserves the inequality; `handleStartJoin` raises the current term, and the other handlers
-  (`setInitialState` with a term-0 state) leave it unchanged.
+  call (of `setInitialState`, with a term-0 state) preserves the inequality; `handleStartJoin` raises
+  the current term, and the other handlers leave it unchanged.
 - `handleJoin_spec`: the five checks passed, the vote added, `electionWon` recomputed with `cs`'s
   configurations, `lastPublishedVersion` set to the accepted version exactly when the election is
   just won, all else unchanged.
@@ -209,8 +230,8 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
   conditions for publishing a value, respectively for emitting a commit — and the resulting state.
 - `init_javaInvariant` (`s.term ≤ t`), `handleStartJoin_javaInvariant` (`lastAcceptedTerm ≤
   currentTerm`), `javaInvariant_preserved` (monotone strategy; `handleJoin`, `handleClientValue`,
-  `handlePublishResponse`), `javaInvariant_not_local` (an explicit node violating `invariant()` after
-  `handlePublishRequest`).
+  `handlePublishResponse`), `javaInvariant_not_local` (for the default strategy, an explicit node
+  violating `invariant()` after `handlePublishRequest`).
 
 `OpenSearchPreVote` (every one in `Sol_OpenSearchPreVote_all.lean`):
 
@@ -220,13 +241,19 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
 - `round_entries` (any reachable round): entries no fresher than the round's state, delivered, one per
   sender.
 - `round_start_quorum`, `round_starts_once`: `startElection` is called only from an open, not yet
-  started round whose votes, including the new one, are an election quorum; never again afterwards.
-- `no_disruption`: if a quorum `L` of one of the configurations of `s` is unhealthy or follows a
-  leader other than `c`, no round of `c` over `s`, fed with the nodes' answers to `c`'s request,
-  starts an election.
-- `preVote_then_election`: default strategy, senders unchanged since answering, joins of term at
-  most `T`: every recorded sender accepts `c`'s start-join for `T`, and if their joins are among the
-  joins `c` handles, `c` wins.
+  started round whose votes, once the new response is recorded, are an election quorum; once a round
+  has started an election or been closed, handling a response never calls it again.
+- `no_disruption` (any strategy; every node's health and collector state fixed while the round runs):
+  if every node of a quorum `L` of one of the configurations of `s` is unhealthy or follows a leader
+  other than `c`, no round of `c` over `s`, fed with the nodes' answers to `c`'s request, has started
+  an election, and handling one more such answer does not start one.
+- `preVote_then_election`: default strategy; a round over `c`'s last accepted state, with `c` as local
+  node, that has started an election; senders unchanged since answering (a response from `n` is
+  `preVoteResponseOf (node n)`, where `node n` has local node `n`); `maxTermSeen` at least the current
+  term of every recorded response and `T = max(currentTerm, maxTermSeen) + 1`; after its own
+  start-join for `T`, `c` handles only joins, all of term at most `T`: every recorded sender accepts
+  `c`'s start-join for `T`, and if their joins are among the joins `c` handles, `c` wins
+  (`electionWon = true`).
 - `attemptDelay_bounds`, `maxDelay_schedule` (valid settings), `nonNegative_two_to_one` (Java `long`
   range).
 
@@ -253,7 +280,9 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
   of `CoordinationMetadataTests.java`. **179 checks**, each an `example` proved by `decide` under a
   comment quoting the Java line it replays. `lake env lean tests/OpenSearchCoordinationVectors.lean`
   succeeds in about 6 seconds with no message.
-- Not replayed: `testSafety` (a randomized cluster run; its properties are the next mission's) and the
+- Not replayed: `testSafety` (a randomized cluster run; its properties are proved for the cluster model
+  of `OpenSearchSafety`: `one_master_per_term`, `one_state_per_version`, and `javaInvariant_reachable`,
+  every node being cluster-manager-eligible in the test) and the
   six tests of the REMOTE state and remote publication
   (`testHandlePrePublishAndCommitWhenRemoteState{Disabled,Enabled}`,
   `testHandlePublishRequestOnFollowerWhenRemotePublicationEnabled`,
@@ -281,8 +310,10 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
 - The Java assertions reached by the passing tests are checked separately: `initialStateContract` at
   the three bootstraps, `clientValueContract` at the calls of `handleClientValue` that pass its checks,
   and CS:572 after the commit of `testHandleCommit`.
-- No vectors for the pre-vote mission: `PreVoteCollectorTests.java` and
-  `ElectionSchedulerFactoryTests.java` are not replayed.
+- The pre-vote mission's vectors are in `tests/OpenSearchPreVoteVectors.lean`: the 14 tests of
+  `PreVoteCollectorTests.java` and the 3 of `ElectionSchedulerFactoryTests.java`, 39 checks, each an
+  `example` proved by `decide`; `lake env lean tests/OpenSearchPreVoteVectors.lean` succeeds with no
+  message.
 
 ## Checks
 
@@ -298,13 +329,21 @@ used by the theorems); the scheduler settings, `Valid`, `maxDelay`, `nonNegative
 
 ## What is not proved
 
-- **Cluster-level properties.** At most one leader per term, one accepted state per term and version,
-  committed states never fork, the assertions of `invariant()` at every node of every execution: the
-  next mission, whose cluster model is in `Definitions/Def_OpenSearchSafety.lean` (every node runs the
-  transcribed `CoordinationState`; messages may be lost, duplicated and reordered; nodes restart).
+- **Cluster-level properties.** At most one leader per term, one published state per term and version,
+  committed states never fork, the assertions of `invariant()` at every cluster-manager-eligible node
+  of every execution: the `OpenSearchSafety` mission (`one_master_per_term`, `election_safety`,
+  `one_state_per_version`, `committed_linear`, `javaInvariant_reachable`, all assuming compatible
+  bootstrap configurations and the default election strategy), whose cluster model is in
+  `Definitions/Def_OpenSearchSafety.lean` (every node runs the transcribed `CoordinationState`;
+  messages may be lost, duplicated and reordered; nodes restart, and a node that is not
+  cluster-manager-eligible may come back with any term and state, so `invariant()` can fail there).
   `javaInvariant_not_local` shows that the last of these cannot be proved node by node.
-- **`invariant()` under `handleCommit` and `setInitialState`.** Neither is covered by
-  `javaInvariant_preserved`; both change the configurations the second assertion reads.
+- **`invariant()` under `handleCommit` and `setInitialState`.** Neither is covered by any theorem;
+  both change the configurations the second assertion reads. `handleCommit` does not preserve
+  `javaInvariant` in isolation either (checked by evaluation, not stated as a theorem): for the default
+  strategy, a node satisfying it with join votes `[4]`, `electionWon` false, committed configuration
+  {1, 2, 3} and accepted configuration {4} applies a valid commit and then has an election quorum
+  while `electionWon` is still false.
 - **Liveness.** Nothing says an election eventually succeeds, that the random delays separate competing
   candidates, or how long anything takes. `preVote_then_election` is a one-round prediction under the
   hypothesis that nothing changes.

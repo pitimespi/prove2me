@@ -987,10 +987,11 @@ private theorem possible_core {V : Type} (P : Params) (hP : P.InitCompatible)
     elect_join_phase P hP hes W hW c t Q hc hQ hterm hfresh hconf Q X1 hX1 (fun q hq => hq) hct1 hJ1
   exact ⟨X2, hX2, hct2, won_core P hP hes W hW c t Q hc hQ hquorum (hterm c (Or.inl rfl)) X2 hX2 hct2 hV2⟩
 
-/-- **Votes keep counting during a stable election.** Let `c` be a cluster-manager-eligible node of a reachable cluster,
-`t` a term above the current terms of `c` and of the voters `Q` (cluster-manager-eligible nodes whose last accepted
-state is no fresher than `c`'s, compared as `handleJoin` does). In every stable election execution, once `c` is in
-term `t`, `c` accepts the join for `t` of every voter, whenever it arrives, and counts the vote. -/
+/-- **Votes keep counting during a stable election.** Let `c` be a cluster-manager-eligible node of a reachable cluster
+whose last accepted configuration is nonempty, `t` a term above the current terms of `c` and of the voters `Q`
+(cluster-manager-eligible nodes whose last accepted state is no fresher than `c`'s, compared as `handleJoin` does). In
+every stable election execution, once `c` is in term `t`, `c` accepts the join for `t` of every voter, whenever it
+arrives, and counts the vote. -/
 theorem OpenSearchProgress.election_vote_accepted {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hc : P.eligible c = true) (hQ : ∀ q ∈ Q, P.eligible q = true)
@@ -1006,9 +1007,10 @@ theorem OpenSearchProgress.election_vote_accepted {V : Type} (P : Params) (hP : 
     ∃ cs' b, (W'.node c).handleJoin P.strategy j = .ok (cs', b) ∧ j.sourceNode.id ∈ cs'.joinVotes.nodes := by
   exact vote_core P hP hes W hW c t Q hc hQ hterm hfresh hconf W' hE hct j hj hsrc htgt hjt
 
-/-- **A stable election is won once the votes are in.** Under the same hypotheses, with `Q` an election quorum of `c`'s
-last committed and last accepted configurations: in every stable election execution, as soon as `c` is in term `t` and
-has counted the votes of all of `Q`, it has won the election. -/
+/-- **A stable election is won once the votes are in.** Let `c` and the voters `Q` be cluster-manager-eligible nodes of
+a reachable cluster, in terms below `t`, with `Q` a quorum of `c`'s last committed and last accepted configurations (no
+hypothesis on the voters' accepted states). In every stable election execution, as soon as `c` is in term `t` and has
+counted the votes of all of `Q`, it has won the election. -/
 theorem OpenSearchProgress.election_won {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hc : P.eligible c = true) (hQ : ∀ q ∈ Q, P.eligible q = true)
@@ -1021,9 +1023,10 @@ theorem OpenSearchProgress.election_won {V : Type} (P : Params) (hP : P.InitComp
     (W'.node c).electionWon = true := by
   exact won_core P hP hes W hW c t Q hc hQ hquorum (hterm c (Or.inl rfl)) W' hE hct hvotes
 
-/-- **Stable elections succeed.** Under the hypotheses of `election_vote_accepted` and `election_won`, there is a
-stable election execution — `c` and each voter accept `c`'s start-join request for `t`, and `c` counts the voters'
-joins — at the end of which `c` has won the election of term `t`. -/
+/-- **Stable elections succeed.** Under the hypotheses of `election_vote_accepted` and `election_won` (the nonempty last
+accepted configuration of `c` following from the quorum), there is a stable election execution at the end of which `c`
+is in term `t` and has won the election. Only the existence is stated; in the witness, `c` and each voter not yet in
+term `t` accept `c`'s start-join request for `t`, and `c` counts the voters' joins. -/
 theorem OpenSearchProgress.election_possible {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hc : P.eligible c = true) (hQ : ∀ q ∈ Q, P.eligible q = true)
@@ -1623,9 +1626,10 @@ theorem OpenSearchProgress.publication_committed {V : Type} (P : Params) (hP : P
   · exact absurd (hacks q hq) hqn
 
 /-- **Stable publications are committed.** Under the hypotheses of `publication_committed` (except that `c` may already
-have counted acknowledgements), with the nodes of `Q` in terms at most `t`, there is a stable publication execution — each node of `Q` moves to term `t` if needed, accepts the
-publication and acknowledges it, and `c` counts the acknowledgements — at the end of which the publication is
-committed. -/
+have counted acknowledgements), with the nodes of `Q` in terms at most `t`, there is a stable publication execution at
+the end of which the publication is committed. Only the existence is stated; in the witness, each node of `Q` moves to
+term `t` if needed and accepts and acknowledges the publication unless it already has, and `c` counts the
+acknowledgements. -/
 theorem OpenSearchProgress.publication_possible {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hQ : ∀ q ∈ Q, P.eligible q = true)

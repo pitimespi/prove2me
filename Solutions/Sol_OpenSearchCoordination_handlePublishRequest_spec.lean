@@ -22,9 +22,10 @@ private theorem filter_length_mono {α : Type} (L : List α) (p q : α → Bool)
     rw [hq] at this
     exact absurd this (by decide)
 
-/-- `handlePublishRequest` accepts only a state of the current term, and (outside the Zen1 compatibility branch, which
-needs a term-0 state) only one that is strictly newer than the last accepted state in the lexicographic
-(term, version) order. The response names exactly the accepted state's term and version. -/
+/-- At a node whose last accepted term is at most its current term, `handlePublishRequest` accepts only a state of the
+current term, and only one that is strictly newer than the last accepted state in the lexicographic (term, version)
+order or has term 0 (the Zen1 compatibility branch, whose condition on the cluster-manager is not stated here). The
+response names exactly the accepted state's term and version. -/
 theorem solution {V : Type} (cs : CoordinationState V) (req : PublishRequest V) (cs' : CoordinationState V)
     (resp : PublishResponse) (hcs : cs.lastAcceptedTerm ≤ cs.currentTerm)
     (h : cs.handlePublishRequest req = .ok (cs', resp)) :

@@ -963,9 +963,10 @@ private theorem possible_core {V : Type} (P : Params) (hP : P.InitCompatible)
     elect_join_phase P hP hes W hW c t Q hc hQ hterm hfresh hconf Q X1 hX1 (fun q hq => hq) hct1 hJ1
   exact ⟨X2, hX2, hct2, won_core P hP hes W hW c t Q hc hQ hquorum (hterm c (Or.inl rfl)) X2 hX2 hct2 hV2⟩
 
-/-- **A stable election is won once the votes are in.** Under the same hypotheses, with `Q` an election quorum of `c`'s
-last committed and last accepted configurations: in every stable election execution, as soon as `c` is in term `t` and
-has counted the votes of all of `Q`, it has won the election. -/
+/-- **A stable election is won once the votes are in.** Let `c` and the voters `Q` be cluster-manager-eligible nodes of
+a reachable cluster, in terms below `t`, with `Q` a quorum of `c`'s last committed and last accepted configurations (no
+hypothesis on the voters' accepted states). In every stable election execution, as soon as `c` is in term `t` and has
+counted the votes of all of `Q`, it has won the election. -/
 theorem solution {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (c : NodeId) (t : Nat) (Q : List NodeId) (hc : P.eligible c = true) (hQ : ∀ q ∈ Q, P.eligible q = true)

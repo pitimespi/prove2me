@@ -212,9 +212,10 @@ private theorem card_pair_close_le (n δ Mmin : ℕ) (hδ : 1 ≤ δ) (hM : 1 �
         congr 1
         simp
 
-/-- **A round of competing timers is uncontested with high probability.** For `n ≥ 1` candidates with arbitrary
-offsets and with bounds between `Mmin ≥ 1` and `2^63`, the probability that no candidate fires at least `δ ≥ 1` before
-all others is at most `contestedBound n δ Mmin = C(n,2) · (2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`. -/
+/-- **A round of competing timers is contested with probability at most `contestedBound n δ Mmin`.** For `n ≥ 1`
+candidates with arbitrary offsets and with bounds between `Mmin ≥ 1` and `2^63`, the probability that no candidate fires
+at least `δ ≥ 1` before all others is at most `contestedBound n δ Mmin = C(n,2) · (2δ - 1) · ⌈2^63 / Mmin⌉ / 2^63`,
+which is small only when `Mmin` is much larger than `C(n,2) · (2δ - 1)`. -/
 theorem solution (n δ Mmin : Nat) (hn : 1 ≤ n) (hδ : 1 ≤ δ) (hM : 1 ≤ Mmin)
     (offset : Fin n → Int) (bound : Fin n → Nat) (hbound : ∀ i, Mmin ≤ bound i ∧ bound i ≤ 2 ^ 63) :
     ((Finset.univ.filter (fun x => ¬ Uncontested offset bound δ x)).card : ℚ) / (2 ^ 64) ^ n ≤

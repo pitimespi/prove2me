@@ -22,9 +22,9 @@ private theorem filter_length_mono {α : Type} (L : List α) (p q : α → Bool)
     rw [hq] at this
     exact absurd this (by decide)
 
-/-- `handlePublishResponse` returns a commit only when the publish votes, including the new one, are a quorum of both
-the last committed configuration (read now) and the configuration being published; the commit is for the current term
-and the version being published, and is sent by this node. -/
+/-- `handlePublishResponse` returns a commit only when the publish votes, after `addVote` of the sender, are a quorum of
+both the last committed configuration (read now) and the configuration being published; the commit is for the current
+term and the version being published, and is sent by this node. (Only this direction is stated.) -/
 theorem solution {V : Type} (cs : CoordinationState V) (src : DiscoveryNode) (r : PublishResponse)
     (cs' : CoordinationState V) (o : Option ApplyCommitRequest) (h : cs.handlePublishResponse src r = .ok (cs', o)) :
     cs.electionWon = true ∧ r.term = cs.currentTerm ∧ r.version = cs.lastPublishedVersion ∧

@@ -19,8 +19,9 @@ import Theorems.Thm_OpenSearchSafety_reachable_inv
 
 open OpenSearchCoordination OpenSearchSafety
 
-/-- **Leader completeness.** Every publication of a later term descends from every committed publication: a
-cluster-manager elected after a commit always builds on the committed state. -/
+/-- **Leader completeness.** Every publication of a later term than a committed publication descends from it: a
+cluster-manager of a later term always builds on the committed state (publications of the committed key's own term or of
+older terms are not covered). -/
 theorem solution {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (t : Nat) (v : Int) (hc : Committed W t v) (src : NodeId) (s : ClusterState V) (pt : Nat) (pv : Int)

@@ -27,8 +27,14 @@ term before. FLP shows that no deterministic consensus protocol guarantees termi
 one crash failure; Paxos- and Raft-like protocols are safe always and live under partial synchrony (DLS), when the
 network behaves well for long enough. OpenSearch makes such periods likely with pre-voting and randomized election
 timers. The theorems therefore quantify over the executions of a *stable period*, defined by the steps it excludes, and
-make three kinds of statement about them: the steps the protocol needs stay enabled in every such execution; once they
-have happened, the election is won (the publication committed), whatever else happened; and such executions exist.
+make three kinds of statement about them, under the hypotheses tabulated below: in every such execution, three handler
+calls the protocol needs succeed (the candidate's `handleJoin` of a voter's join for `t`, once the candidate is in term
+`t`, counting the vote; `handlePublishRequest` of the publication at a node of `Q` in term `t` that has not already
+acknowledged it; the cluster-manager's `handlePublishResponse` of an acknowledgement sent to it by a node of `Q`,
+counting it); once all of a quorum's votes (acknowledgements) are counted, the election is won (the publication
+committed), whatever else happened; and such executions exist. No theorem states that the start-joins an election or a
+publication needs stay enabled (the periods allow them, and `handleStartJoin` checks only the term), and the
+publication statement does not cover nodes of `Q` outside term `t`.
 
 ## The model
 
@@ -37,8 +43,11 @@ have happened, the election is won (the publication committed), whatever else ha
 `ElectionStep P c t Q kt kv` and `PublicationStep P c t Q` restate the nine constructors of the safety model's
 `Step P` with the same hypotheses and effects, adding a condition to some of them (and dropping `clientValue` from the
 election period). `(kt, kv)` stands for the term and version of the candidate's accepted state when the election period
-starts; the theorems instantiate them with `(W.node c).lastAcceptedTerm` and `(W.node c).lastAcceptedVersion`. "Any"
-means: as in `Step`.
+starts; the theorems instantiate them with `(W.node c).lastAcceptedTerm` and `(W.node c).lastAcceptedVersion`. The
+bound compares a publication's version, while `hfresh` and `handleJoin` compare versions-or-metadata-versions; the two
+agree wherever the bound matters, because every publication has term at least 1 (`pub_wf`): if `kt = 0` the bound
+admits no publication, and otherwise the candidate's accepted state and every publication a voter accepts have term at
+least 1, where the version-or-metadata-version is the version (`vomv_pos`). "Any" means: as in `Step`.
 
 | step of `Step` | stable election for `c`, `t`, `Q`, `(kt, kv)` | stable publication for `c`, `t`, `Q` |
 |---|---|---|
@@ -87,9 +96,9 @@ proofs.
 - **Publication: no restart of `c`.** A restart clears `electionWon` and the publish votes.
 
 Notably allowed: commits at `c` in both periods (in the publication period this is the D1 behaviour, below); restarts of
-the nodes of `Q` during a publication (an eligible node keeps its current term and its accepted state's term and version,
-`RestartState`, and acknowledgements already sent stay sent); duplicate deliveries, which the witness of
-`publication_possible` uses.
+the nodes of `Q` during a publication (an eligible node keeps its current term, its accepted state's term and, unless it
+never joined a cluster, its version, `RestartState`; acknowledgements already sent stay sent); duplicate deliveries,
+which the witness of `publication_possible` uses.
 
 ## Hypotheses
 
@@ -179,8 +188,10 @@ All in `Sol_OpenSearchProgress_all.lean`, private unless stated.
 - Publications: `pub_init` (at the start, `c`'s last published configuration is `s`'s accepted one, and every other
   publication of term `t` is at most `c`'s accepted key, from `leader_settled`, `leader_inflight`, `leader_pubs`,
   `pub_unique`, `inv_descends_parent`, `inv_descends_key`), `pub_c` (`c` stays elected in term `t` with the same last
-  published version and configuration; its configurations stay among the four; it can accept no publication of term
-  `t` but `s`), `pub_q_ready` (a node of `Q` in term `t` that rejects `s` has already acknowledged it to `c`, from
+  published version and configuration, a join at `c` keeping its votes an election quorum by `won_quorum`,
+  `quorum_mono` and the default strategy, so that in the model Java's assertion that a join never ends a won election,
+  CS:323, holds for `c`; its configurations stay among the four; it can accept no publication of term `t` but `s`),
+  `pub_q_ready` (a node of `Q` in term `t` that rejects `s` has already acknowledged it to `c`, from
   `reach_responded`, `response_published`, `won_unique`, `leader_pubs`), `pub_quorum`, `commit_track` (committed, or
   some member of `Q` not yet counted; gives `publication_committed`), `pub_accept_phase`, `pub_count_phase` and
   `pub_possible_core` (= `publication_possible`; the final step re-delivers one acknowledgement).
@@ -259,3 +270,14 @@ informal: the model has no time, and message delays are not bounded anywhere.
   sequences of steps the model allows, not runs of the `Coordinator`.
 - **Other progress.** Reconfiguration (the `Reconfigurator`, voting-configuration exclusions), the application of
   committed states at the nodes, the remote cluster-state store, plugin election strategies.
+- **Failed remote commit writes.** With a remote cluster-state store configured, `handlePublishResponse`, once the
+  counted votes form a publish quorum, marks the published state as committed in the store before returning the commit
+  (`handlePreCommit`, CS:503-510, 593-599; `RemotePersistedState.markLastAcceptedStateAsCommitted`,
+  GatewayMetaState.java:830-864, remote write at 848-853); if that write fails, the method throws after counting the
+  vote (GatewayMetaState.java:861-862, 875-877) and no commit is sent, where the transcription returns the commit. For
+  safety this is message loss (`NOTES_OpenSearchCoordination.md`, item 7); for progress it is not: in OpenSearch the
+  acknowledgement that completes a quorum can be counted without a commit being sent. Read for OpenSearch, the
+  publication theorems therefore presuppose that this write succeeds or that no remote cluster-state store is
+  configured. The remote update in `handlePublishRequest` (CS:454-456, 617-632), which item 7 also lists, cannot fail
+  after the local acceptance (CS:453): it is made only at a node that is not the cluster-manager of the incoming state,
+  where `RemotePersistedState.setLastAcceptedState` only records the state in memory (GatewayMetaState.java:748-753).

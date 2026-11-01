@@ -292,8 +292,9 @@ private theorem pv_handle_shape {V : Type} (es : ElectionStrategy) (lr resp : Pr
         · exact ⟨rfl, rfl, Or.inr ⟨hnf, rfl⟩, fun _ => Or.inr hq', fun _ => hq'⟩
         · exact ⟨rfl, rfl, Or.inr ⟨hnf, rfl⟩, fun _ => Or.inr hq', fun _ => hq'⟩
 
-/-- A round starts an election only once, only while open, and only when the votes it has recorded, including the
-new one, form an election quorum of the last committed and last accepted configurations of the state it started from. -/
+/-- A round starts an election only while it is open and has not started one, and only when its votes, once the new
+response is recorded, form an election quorum of the last committed and last accepted configurations of the round's
+cluster state; the resulting round has `electionStarted` set. -/
 theorem solution {V : Type} (es : ElectionStrategy) (lr resp : PreVoteResponse)
     (sender : DiscoveryNode) (r r' : PreVotingRound V) (m : Option Nat)
     (h : r.handlePreVoteResponse es lr resp sender = (r', true, m)) :

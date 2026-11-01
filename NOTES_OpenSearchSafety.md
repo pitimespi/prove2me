@@ -49,9 +49,11 @@ Publication.java:80-84, 290-304; the model allows more).
 Start-join requests are not messages. A `startJoin` step lets any node handle, at any time, a request from any
 cluster-manager-eligible node for any term. Every start-join request the `Coordinator` builds has an eligible
 requester: the candidate itself in `startElection` (CO:593; the election scheduler runs only on eligible nodes,
-CO:1567-1571), the node abdicated to (asserted eligible, CO:604-609), the publisher of a state of a higher term
-(`ensureTermAtLeast` in `handlePublishRequest`, CO:512, 635-641), and the node itself when it receives a join of a
-higher term (CO:1269; only eligible nodes receive joins, CO:661).
+CO:1567-1571), the node abdicated to (asserted eligible, CO:604-609), and the requester that each caller passes to
+`ensureTermAtLeast` (CO:635-641): the cluster-manager sending a follower check of a higher term (CO:391), the
+publisher of a state of a higher term (`handlePublishRequest`, CO:512), the node itself as leader after seeing a higher
+term (CO:572), the node itself when it receives a join of a higher term (CO:1269; only eligible nodes receive joins,
+CO:661), and a discovered active cluster-manager (CO:1521).
 
 ### Steps
 
@@ -91,12 +93,19 @@ A cluster-manager-eligible node persists its current term and accepted state syn
 GatewayMetaState.java:199-200). On startup it rebuilds the parts of the accepted state that are not persisted: the
 cluster state is rebuilt from the persisted version and metadata (GatewayMetaState.java:164-167, 190-197), so its node
 list, routing table and transient settings are new. `RestartState s s'` therefore keeps the term, the version, both
-configurations and both cluster-UUID flags and lets the metadata version, the cluster-manager node and the payload
-change. With the remote cluster-state store enabled, a node whose persisted cluster UUID is unknown restores index
-metadata and settings from the store into an empty metadata (GatewayMetaState.java:169-188, 287-300), so its state
-keeps term 0 and empty configurations; accordingly the model lets a node that never joined a cluster (term 0, empty
-configurations, unknown UUID) come back with any term-0 state with empty configurations. The current term is kept. The
-transient state is the constructor's: no votes, no started join, no election won, last published version 0.
+configurations and both cluster-UUID flags; it also lets the metadata version, the cluster-manager node and the payload
+change, which over-approximates Java (the metadata, metadata version included, is persisted and reloaded) and only adds
+behaviours. With the remote cluster-state store enabled, an eligible node whose persisted cluster UUID is unknown, and
+for which the store knows a cluster UUID, restores index metadata and settings from the store into an empty metadata
+(GatewayMetaState.java:169-188, 287-300), so its state then has term 0 and empty configurations. The model's trigger is
+narrower: a node may come back with any term-0 state with empty configurations only if its state has term 0, empty
+configurations and an unknown UUID. No Java behaviour is lost: Java generates the cluster UUID when it bootstraps
+(`setInitialConfiguration`, CO:1151), and a state of term ≥ 1 is published by an elected node and carries its cluster
+UUID (CS:708-710 asserts a known UUID when such a state is committed), so a Java node with an unknown UUID has term 0
+and empty configurations. The model's `bootstrap` and `clientValue` steps leave the UUID flags free, so a model state of
+term ≥ 1 or with non-empty configurations may have an unknown UUID; such a state has no remote restore in the model,
+and Java has no such state. The current term is kept. The transient state is the constructor's: no votes, no started
+join, no election won, last published version 0.
 
 A node that is not cluster-manager-eligible persists asynchronously (`AsyncLucenePersistedState`,
 GatewayMetaState.java:201-206), or, without the data role, not at all (GatewayMetaState.java:232-255), so
@@ -111,9 +120,12 @@ contains the matched nodes and a placeholder `"{bootstrap-placeholder}-" + requi
 bootstrap with different configurations, so `initConfs` is a set of configurations, and the theorems assume
 `P.InitCompatible`: for any two bootstrap configurations, a list of eligible nodes forming a quorum of one and a list
 of eligible nodes forming a quorum of the other share a node. `BootstrapConfig k resolve placeholder matched X`
-describes `ClusterBootstrapService`'s configurations, and `bootstrap_compatible` proves them compatible, provided
-`resolve` is injective on the requirements (each requirement names its own node, the same at every node),
+describes the form of `ClusterBootstrapService`'s configurations, and `bootstrap_compatible` proves them compatible,
+provided `resolve` is injective on the requirements (each requirement names its own node, the same at every node),
 placeholders are pairwise distinct and distinct from resolved ids, and placeholders are not eligible node ids. The
+theorem is stated for a standalone eligibility function and does not mention `Params`, and no definition of the model
+refers to `BootstrapConfig` (the `bootstrap` step uses `P.initConfs`): that `P.initConfs` consists of such
+configurations is part of the modelling, and the safety theorems keep `P.InitCompatible` as a hypothesis. The
 "best-effort" bootstrap that runs only when no discovery setting is configured (CBS:217-250) uses whatever nodes were
 discovered and is not covered.
 
@@ -130,13 +142,14 @@ publication is named by its *key* (term, version).
 ### Initial clusters
 
 `Initial P W`: every node `n` is `CoordinationState.init (P.dn n) 0 s` for a term-0 state `s` with empty
-configurations, and nothing has been sent. The version, metadata version and payload of `s` are arbitrary: a fresh
-node has version 0, but a node upgraded from an older version or restored from the remote store may have others.
+configurations, and nothing has been sent. The version, metadata version, cluster-manager node, cluster-UUID flags and
+payload of `s` are arbitrary and may differ between nodes: a fresh node has version 0, but a node upgraded from an older
+version or restored from the remote store may have others.
 
 ## The safety statements
 
-Hypotheses common to all: `P.InitCompatible` and `P.strategy = ElectionStrategy.DEFAULT_INSTANCE`, and
-`Reachable P W` (`W` is reached from an initial cluster by steps).
+Hypotheses common to all but `bootstrap_compatible` and `commit_reachable`: `P.InitCompatible` and
+`P.strategy = ElectionStrategy.DEFAULT_INSTANCE`, and `Reachable P W` (`W` is reached from an initial cluster by steps).
 
 | theorem | statement | TLA+ counterpart |
 |---|---|---|
@@ -147,28 +160,30 @@ Hypotheses common to all: `P.InitCompatible` and `P.strategy = ElectionStrategy.
 | `committed_linear` (goal) | two committed keys are related by descent | `CommittedValuesDescendantsFromCommittedValues` ("main invariant") |
 | `committed_versions` | equal committed versions have equal terms; committed versions increase with the term | `P2bInvariant` (for committed publications) |
 | `committed_published` | every commit is of a publication | — |
-| `election_safety` | two nodes that have won the election of the same current term are the same node | — |
+| `election_safety` | two nodes that hold a won election at the same moment, in the same current term, are the same node | — |
 | `javaInvariant_reachable` | at every eligible node, the five assertions of `CoordinationState.invariant()` (CS:601-611) | `SingleNodeInvariant` |
 | `lastCommitted_committed` | an eligible node's last committed configuration is empty, a bootstrap configuration, or the last accepted configuration of a committed publication | — |
-| `bootstrap_compatible` | `ClusterBootstrapService`'s configurations satisfy `InitCompatible` (own hypotheses, above) | — |
+| `bootstrap_compatible` | two configurations of `ClusterBootstrapService`'s form (`BootstrapConfig`, same requirements and resolution) meet the condition of `InitCompatible` (own hypotheses, above; `Params` is not mentioned) | — |
 | `commit_reachable` | some `P`, `W` satisfy `InitCompatible`, the default strategy, `Reachable` and `Committed W 1 1` | — |
 
 `NewerOpsBasedOnOlderCommittedOps` also covers publications of the committed key's own term with a larger version;
-that case follows from `pub_same_term` and `inv_descends_key`. `P2bInvariant` (a publication of a later term than a
+that case follows from `inv_committed_published`, `pub_same_term` and `inv_descends_key`. `P2bInvariant` (a publication of a later term than a
 commit has a larger version) follows from `leader_completeness` and `inv_descends_key`. TLA+'s
 `DescendantRelationIsStrictlyOrdered` is `pub_wf` (and `inv_descends_key`).
 
 `javaInvariant_reachable` is restricted to eligible nodes because a node that is not eligible may restart with an
-accepted term above its current term. No handler preserves `invariant()` on its own
-(`OpenSearchCoordination.javaInvariant_not_local`); it holds because of what the rest of the cluster did.
+accepted term above its current term. Not every handler preserves `invariant()` on its own: `handlePublishRequest` can
+break it (`OpenSearchCoordination.javaInvariant_not_local`); it holds because of what the rest of the cluster did.
 
 ## The invariant
 
 ### Proof-side notions
 
-Defined after the model in `Def_OpenSearchSafety.lean`; the model does not use them. They are relations over the
-sent messages, never functions computed from them, so they only grow when messages are sent. Every list of voters
-consists of eligible nodes, so that `InitCompatible` applies to it.
+Defined after the model in `Def_OpenSearchSafety.lean`; the model does not use them. They are relations, never
+functions computed from the sent messages: `KeyLE` and `Below` compare keys, `Won` also reads node states (it becomes
+false when a node that has not published loses its election), and the others depend on the sent messages only, so they
+only grow when messages are sent. Every list of voters consists of eligible nodes, so that `InitCompatible` applies to
+it.
 
 - `KeyLE t v t' v'`: the lexicographic order on keys.
 - `Below lt lv bt bv`: `lt < bt ∨ (lt = bt ∧ (bt = 0 ∨ lv ≤ bv))`. This is `handleJoin`'s freshness test with
@@ -252,8 +267,10 @@ configuration `lpc`.
 - `votes_started` (N6): a node that holds join votes has handled a start-join since its last restart.
 - `started_term_pos` (N10): such a node is in a term ≥ 1.
 - `won_quorum` (N3): the join votes of a node that has won are a quorum of its `lcc` and of its `lac`.
-- `not_won_no_quorum` (N3r, the reverse half of `invariant()`'s second assertion; optional in design 1, needed here
-  for `javaInvariant_reachable`): the join votes of a node that has not won are not a quorum of both.
+- `not_won_no_quorum` (N3r: for the default strategy, the reverse half of `invariant()`'s second assertion; it omits
+  the strategy's additional constraint, so for other strategies it is stronger than that half, and `Inv` never
+  mentions the strategy; optional in design 1, needed here for `javaInvariant_reachable`): the join votes of a node
+  that has not won are not a quorum of both.
 - `joinVotes_sent` (N8): every join vote a node holds is of an eligible node that sent it a join for its current term,
   with a last accepted (term, version) `Below` the node's.
 - `publishVotes_sent` (N9): every publish vote a node holds is of an eligible node that sent it a publish response for
@@ -292,7 +309,11 @@ configuration `lpc`.
 - P7 is stated as an `ElectionRecord`, the same shape as the record of a node that has just won, so that election
   leader completeness and election-quorum intersection are proved once for both (design 2's election situations).
 - `pub_rooted` replaces strong induction on versions (versions are integers).
-- All theorems assume the default election strategy; only `inv_join` and `javaInvariant_reachable` use it.
+- The nine step theorems, `reachable_inv` and the nine public statements about reachable clusters assume the default
+  election strategy, and `commit_reachable` exhibits it; the 22 static lemmas, `inv_init` and `bootstrap_compatible`
+  do not mention it, and neither does `Inv`. Only `inv_join` and `javaInvariant_reachable` use it: the other step
+  theorems leave it unused, `reachable_inv` passes it to the step theorems, and the other public statements pass it on
+  to `reachable_inv`.
 
 ## Proof architecture
 
@@ -413,7 +434,8 @@ were added to the model afterwards and are covered by the proof only.
 
 Bounded checking is evidence, not proof (bit-state hashing may omit states; the spot-checks mutate worlds near reached
 ones). The Lean invariant follows design 1's conjuncts, uses design 2's lineage lemma and election situations, and is
-proved inductive for every cluster size and every execution.
+proved inductive (for compatible bootstrap configurations and the default election strategy) for every cluster size and
+every execution.
 
 ## Findings
 
@@ -492,8 +514,11 @@ proved inductive for every cluster size and every execution.
    versions and configurations, and random deliveries from a message list that is never emptied. It checks the
    assertions of `invariant()` at every node after each iteration, and at the end the first two properties: one
    cluster-manager per term and one cluster state per term and version (CoordinationStateTestCluster.java:331-370).
-   `one_master_per_term`, `one_state_per_version` and `javaInvariant_reachable` prove them for every execution of the
-   model. Two observations on the test:
+   For every execution of the model with compatible bootstrap configurations and the default strategy (the test uses a
+   single bootstrap configuration and the default strategy), `one_master_per_term` and `one_state_per_version` prove the
+   two properties checked at the end, and `javaInvariant_reachable` the assertions of `invariant()` at every
+   cluster-manager-eligible node; the test checks these assertions at every node, and in the model a node that is not
+   eligible may restart with any persisted state, which can break the first assertion. Two observations on the test:
    - The branch of `reboot()` that makes a node that is not cluster-manager-eligible lose its persisted state
      (CoordinationStateTestCluster.java:157-169) has had no effect since the introduction of `PersistedStateRegistry`:
      it assigns a new `InMemoryPersistedState` to the node's `persistedState` field, but the rebooted
@@ -518,8 +543,8 @@ Outside the model, as listed in the docstring of `Def_OpenSearchSafety.lean`:
   `remove-customs`) rewrite the persisted state and are not modelled.
 - **Bootstrap requirements resolve consistently.** Each requirement names the same node at every node, as
   `bootstrap_compatible` requires; the theorems themselves assume `P.InitCompatible`.
-- **One election strategy, the default.** The theorems assume `P.strategy = ElectionStrategy.DEFAULT_INSTANCE` for every
-  node (finding 3).
+- **One election strategy, the default.** The statements about reachable clusters, `reachable_inv` and the step theorems
+  assume `P.strategy = ElectionStrategy.DEFAULT_INSTANCE` for every node (finding 3).
 - **Remote publication is exact.** A publication delivered through the remote cluster-state store reconstructs exactly
   the published state. The REMOTE persisted state is omitted, as in the per-node mission.
 - **The per-node abstractions** of `OpenSearchCoordination` (terms are naturals, versions integers without overflow,

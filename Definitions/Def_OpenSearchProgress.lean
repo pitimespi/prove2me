@@ -6,10 +6,14 @@ import Definitions.Def_OpenSearchSafety
 Safety holds in every execution. Progress cannot: in an asynchronous network a message may never be delivered, and
 competing candidates can keep raising terms (this is what pre-voting and the randomized election scheduler mitigate).
 The theorems of this mission state progress for the executions of a *stable period*: a window in which one node runs
-for election (or publishes) and nothing disrupts it, while every other step of the cluster remains possible —
-deliveries in any order, duplicates, other nodes' joins, acceptances and commits, restarts of other nodes. They show
-that, in every such execution, the steps the protocol needs stay enabled, and that once they have happened the
-election is won (the publication committed); and that such executions exist.
+for election (or publishes) and none of the steps that the relations below exclude occurs, while every other step of
+the cluster remains possible — deliveries in any order, duplicates, other nodes' joins, acceptances and commits,
+restarts of other nodes. Under their hypotheses, they show that in every such execution the candidate, once in the
+election term, accepts and counts every voter's join for that term, and every acknowledging node in the
+cluster-manager's term has acknowledged its publication or accepts it, while the cluster-manager accepts and counts
+every acknowledgement of it sent by an acknowledging node; that once all of a quorum's votes (acknowledgements) are
+counted, the election is won (the publication committed); and that such executions exist. No theorem states that the
+start-joins an election or a publication needs stay enabled.
 -/
 
 namespace OpenSearchProgress
@@ -20,9 +24,10 @@ variable {V : Type}
 
 /-- A step of a stable election period for candidate `c` in term `t` with voters `Q`, `(kt, kv)` being the term and
 version of `c`'s accepted state when the period starts: any step of the cluster except a start-join in a term at least
-`t` other than `c`'s own request for `t`, any new publication, a bootstrap or restart of `c` or of a voter, and the
-acceptance by `c` or a voter of a publication fresher than `(kt, kv)` (a stale publication of a former cluster-manager
-arriving during the election). -/
+`t` other than `c`'s own request for `t`, any new publication, a bootstrap of `c` or of a voter, a restart of `c` or of
+a voter that is cluster-manager-eligible (`restartAny`, the restart of a node that is not eligible, is not restricted),
+and the acceptance by `c` or a voter of a publication fresher than `(kt, kv)` (a stale publication of a former
+cluster-manager arriving during the election). -/
 inductive ElectionStep (P : Params) (c : NodeId) (t : Nat) (Q : List NodeId) (kt : Nat) (kv : Int) :
     Cluster V → Cluster V → Prop where
   | bootstrap (W : Cluster V) (n : NodeId) (X : VotingConfiguration) (s : ClusterState V)
@@ -76,7 +81,8 @@ inductive ElectionExec (P : Params) (c : NodeId) (t : Nat) (Q : List NodeId) (kt
 
 /-- A step of a stable publication period for the cluster-manager `c` of term `t` with acknowledging nodes `Q`: any step
 of the cluster except a start-join in a term above `t` at `c` or at a node of `Q`, a further publication by `c`, and a
-restart of `c`. -/
+restart of `c` if it is cluster-manager-eligible (`restartAny`, the restart of a node that is not eligible, is not
+restricted). -/
 inductive PublicationStep (P : Params) (c : NodeId) (t : Nat) (Q : List NodeId) : Cluster V → Cluster V → Prop where
   | bootstrap (W : Cluster V) (n : NodeId) (X : VotingConfiguration) (s : ClusterState V)
       (cs' : CoordinationState V) (hX : P.initConfs X)

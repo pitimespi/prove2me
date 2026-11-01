@@ -19,9 +19,9 @@ import Theorems.Thm_OpenSearchSafety_reachable_inv
 
 open OpenSearchCoordination OpenSearchSafety
 
-/-- **The assertions of `CoordinationState.invariant()` never fail.** At every cluster-manager-eligible node of every
-reachable cluster, `invariant()` holds — although no handler preserves it on its own
-(`OpenSearchCoordination.javaInvariant_not_local`). -/
+/-- **The assertions of `CoordinationState.invariant()` never fail at a cluster-manager-eligible node.** At every
+cluster-manager-eligible node of every reachable cluster, `invariant()` holds, although not every handler preserves it
+on its own: `handlePublishRequest` can break it (`OpenSearchCoordination.javaInvariant_not_local`). -/
 theorem solution {V : Type} (P : Params) (hP : P.InitCompatible)
     (hes : P.strategy = ElectionStrategy.DEFAULT_INSTANCE) (W : Cluster V) (hW : Reachable P W)
     (n : NodeId) (hn : P.eligible n = true) : (W.node n).javaInvariant P.strategy := by

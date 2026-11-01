@@ -13,15 +13,18 @@ requester starts an election (`Coordinator.startElection`, Coordinator.java, cit
 `StartJoinRequest` in a term above every term it has seen. Pre-voting rounds are started by an **election scheduler**
 (`ElectionSchedulerFactory`, cited `ESF:<line>`) at randomized, backed-off intervals.
 
-The pre-vote messages and handlers are transcribed below as functions. Both handlers first raise the Coordinator's
-`maxTermSeen` (`updateMaxTermSeen`, CO:560-581): `handlePreVoteResponse` returns the term it passes; for
-`handlePreVoteRequest` it is always the request's term. When `maxTermSeen` exceeds the current term of a leader, the
-leader moves to that term and starts an election itself (CO:565-577); that effect is outside these functions.
+The pre-vote messages and handlers are transcribed below as functions. Both handlers raise the Coordinator's
+`maxTermSeen` (`updateMaxTermSeen`, CO:560-581): `handlePreVoteRequest` first of all, with the request's term (PVC:134);
+`handlePreVoteResponse` once it has found the round open, with the response's current term, before the freshness test
+(PVC:226-231). `handlePreVoteResponse` returns the term it passes (`none` when the round is closed);
+`handlePreVoteRequest` returns nothing, its argument being always the request's term. When `maxTermSeen` exceeds the
+current term of a leader, the leader moves to that term and starts an election itself, at once or, while a publication
+is in progress, when that publication ends (CO:564-578, CO:1784); that effect is outside these functions.
 
 Node equality: Java's `DiscoveryNode.equals` compares ephemeral ids, which change when a node restarts; here nodes are
-compared by id and role. The two agree except between two incarnations of the same node, which Java treats as
-different nodes (so a follower of a node's previous incarnation refuses that node's pre-vote request in Java, and
-accepts it here).
+compared by id and role. The two can differ only between two incarnations of the same node with the same role, which
+Java treats as different nodes (so a follower of a node's previous incarnation with the same role refuses that node's
+pre-vote request in Java, and accepts it here).
 -/
 
 namespace OpenSearchPreVote
@@ -68,8 +71,10 @@ def handlePreVoteRequest (healthy : Bool) (st : CollectorState) (req : PreVoteRe
     | some l => if l = req.sourceNode then .ok st.response else .error "rejecting as there is already a leader"
 
 /-- A pre-voting round (`PreVoteCollector.PreVotingRound`, PVC:175-300): the last accepted cluster state of the
-requester when the round started, the requester, the pre-votes received so far (Java: a map keyed by sender; the
-most recent first here, at most one entry per sender), whether it has started an election, and whether it was closed.
+requester when the round started, the requester, the pre-votes received so far (Java: a map keyed by sender; here a
+list, most recent first, which in every reachable round has at most one entry per sender, a sender being a node value,
+id and role, as `round_entries` proves; the type itself allows repeats), whether it has started an election, and
+whether it was closed.
 Java takes the requester from the round's cluster state (`clusterState.nodes().getLocalNode()`, PVC:244); the request's
 term (PVC:112) is not needed here. -/
 structure PreVotingRound (V : Type) where
@@ -122,14 +127,15 @@ def PreVotingRound.handlePreVoteResponse (es : ElectionStrategy) (localResponse 
 def PreVotingRound.close (r : PreVotingRound V) : PreVotingRound V := { r with isClosed := true }
 
 /-- A pre-vote response is no fresher than the accepted state `s`: its accepted (term, version) is lexicographically at
-most `s`'s (term, version-or-metadata-version) — the responses a round counts (PVC:232-238). -/
+most `s`'s (term, version-or-metadata-version) — the responses a round counts (PVC:233-238). -/
 def NoFresher (resp : PreVoteResponse) (s : ClusterState V) : Prop :=
   resp.lastAcceptedTerm < s.term ∨
     (resp.lastAcceptedTerm = s.term ∧ resp.lastAcceptedVersion ≤ s.versionOrMetadataVersion)
 
-/-- The rounds a node can be in: started over its accepted state, then any sequence of responses handled — each
-response from a sender and with a content allowed by `Delivered` — and possibly closed. `localResponse` (the requester's
-own current response) is arbitrary at each step. -/
+/-- The rounds a node can be in: started over any cluster state for any requester (in Java, over the requester's last
+accepted state; the theorems that need this link assume it), then any sequence of responses handled — each response
+from a sender and with a content allowed by `Delivered` — and possibly closed. `localResponse` (the requester's own
+current response) is arbitrary at each step. -/
 inductive RoundReachable (es : ElectionStrategy) (Delivered : DiscoveryNode → PreVoteResponse → Prop) :
     PreVotingRound V → Prop where
   | start (s : ClusterState V) (n : DiscoveryNode) : RoundReachable es Delivered (PreVotingRound.start s n)
@@ -139,10 +145,11 @@ inductive RoundReachable (es : ElectionStrategy) (Delivered : DiscoveryNode → 
   | close (r : PreVotingRound V) : RoundReachable es Delivered r → RoundReachable es Delivered r.close
 
 /-- The joins a node handles, in the order given, as `Coordinator.handleJoin` (CO:1267-1287, with
-`handleJoinIgnoringExceptions`, CO:1289-1299) does for joins whose term is not above the node's current term (for a
-higher term it first moves the node to that term, CO:1269). A rejected join leaves the state unchanged: `handleJoin`
-throws before changing anything, and `Coordinator.handleJoin` either propagates the exception to the joining node or
-ignores it. -/
+`handleJoinIgnoringExceptions`, CO:1289-1299) does for joins whose term is not above the node's current term. A join
+of a higher term is rejected here (term mismatch), whereas the `Coordinator` first moves the node to that term
+(CO:1269). A rejected join leaves the state unchanged: `handleJoin` throws before changing anything, and
+`Coordinator.handleJoin` either propagates the exception to the joining node or ignores it. The joins' target node is
+not checked (Java asserts it, CoordinationState.java:265). -/
 def handleJoins (es : ElectionStrategy) (cs : CoordinationState V) (js : List Join) : CoordinationState V :=
   js.foldl (fun cs j => match cs.handleJoin es j with
     | .ok (cs', _) => cs'
@@ -180,15 +187,18 @@ def SchedulerSettings.default : SchedulerSettings := ⟨100, 100, 10000, 500⟩
 /-- The bound on the delay of attempt `k` (ESF:203): `min(maxTimeout, initialTimeout + k * backoffTime)`. -/
 def maxDelay (s : SchedulerSettings) (k : Nat) : Nat := min s.maxTimeout (s.initialTimeout + k * s.backoffTime)
 
-/-- `nonNegative(n)` (ESF:159-161) on a Java `long` `n ∈ [-2^63, 2^63)`: `Long.MIN_VALUE` maps to 0, others to `|n|`. -/
+/-- `nonNegative(n)` (ESF:159-161), defined on every integer: `-2^63` (`Long.MIN_VALUE`) maps to 0, every other `n` to
+`|n|`. On a Java `long`, `n ∈ [-2^63, 2^63)`, this is Java's value. -/
 def nonNegative (n : Int) : Nat := if n = -2 ^ 63 then 0 else n.natAbs
 
-/-- `toPositiveLongAtMost(randomNumber, upperBound)` (ESF:169-172): `nonNegative(randomNumber) % upperBound + 1`. -/
+/-- `toPositiveLongAtMost(randomNumber, upperBound)` (ESF:169-172): `nonNegative(randomNumber) % upperBound + 1`, with
+the natural-number remainder (for `upperBound = 0`, which Java's assertion `0 < upperBound` excludes, this is
+`nonNegative(randomNumber) + 1`). -/
 def toPositiveLongAtMost (randomNumber : Int) (upperBound : Nat) : Nat := nonNegative randomNumber % upperBound + 1
 
-/-- The delay before attempt `k` fires, given the random long drawn for it and the grace period (ESF:195-204):
-the grace period is 0 for the first attempt (`Coordinator.startElectionScheduler`, CO:1574) and `duration` for every later
-one (ESF:218). -/
+/-- The delay before attempt `k` fires, given the random long drawn for it and the grace period (ESF:195-204). The grace
+period is a parameter: Java passes 0 for the first attempt (`Coordinator.startElectionScheduler`, CO:1574) and
+`duration` for every later one (ESF:218); `SchedulerSettings.duration` is read only by `Valid`. -/
 def attemptDelay (s : SchedulerSettings) (k : Nat) (randomNumber : Int) (gracePeriod : Nat) : Nat :=
   toPositiveLongAtMost randomNumber (maxDelay s k) + gracePeriod
 

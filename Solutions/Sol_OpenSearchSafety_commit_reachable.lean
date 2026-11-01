@@ -27,7 +27,9 @@ private theorem filter_length_add_le {α : Type} (L : List α) (p q : α → Boo
     cases hp : p y <;> cases hq : q y <;> simp [hp, hq] <;> omega
 
 /-- **Commits happen.** Some cluster with a compatible bootstrap configuration and the default strategy reaches a
-commit of term 1, version 1: the hypotheses of the safety theorems are satisfiable, and they are not vacuous. -/
+commit of term 1, version 1: the hypotheses common to the safety theorems can be met together with a commit. Only this
+one committed key is exhibited, not two distinct committed keys or a publication of a later term than a committed
+key. -/
 theorem solution : ∃ (P : Params) (W : Cluster Unit), P.InitCompatible ∧
     P.strategy = ElectionStrategy.DEFAULT_INSTANCE ∧ Reachable P W ∧ Committed W 1 1 := by
   -- one cluster-manager-eligible node, 0, bootstrapping alone
