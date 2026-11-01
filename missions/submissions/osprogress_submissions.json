@@ -1,0 +1,8 @@
+{
+ "OpenSearchProgress.election_vote_accepted": "ACCEPTED",
+ "OpenSearchProgress.election_won": "ACCEPTED",
+ "OpenSearchProgress.election_possible": "ACCEPTED",
+ "OpenSearchProgress.publication_acks_accepted": "ACCEPTED",
+ "OpenSearchProgress.publication_committed": "ACCEPTED",
+ "OpenSearchProgress.publication_possible": "ACCEPTED"
+}

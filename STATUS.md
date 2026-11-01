@@ -106,7 +106,8 @@ Mission 19 was returned by the moderator (closed collision propositions) and rev
 ## OpenSearch cluster coordination (2026-10-31)
 
 OpenSearch `b2a54ba5c0defba3d1d20423e911d4bf920bab19`, `org.opensearch.cluster.coordination`. All proofs complete
-locally (axioms `propext`, `Classical.choice`, `Quot.sound` only). Proposals and submission records:
+locally (axioms `propext`, `Classical.choice`, `Quot.sound` only). All five missions are submitted on Prove2me
+(In review) and **all 85 theorems are Proved** on the platform. Proposals and submission records:
 `missions/submissions/os*_proposal.json`, `os*_submissions.json`.
 
 | Mission | Namespace | Proposal | Status | Goal theorem | Theorems | Proofs |
@@ -114,8 +115,8 @@ locally (axioms `propext`, `Classical.choice`, `Quot.sound` only). Proposals and
 | Per-node state machine (`CoordinationState.java`) | `OpenSearchCoordination` | `bf48e57f-7745-46ca-b98c-60765a43ee77` | Submitted (In review); **all 18 Proved** (accepted on first submission) | `javaInvariant_preserved` | 18 | 18 |
 | Pre-voting (`PreVoteCollector`) and election scheduling | `OpenSearchPreVote` | `5b111ae5-5348-4d48-bd34-5ee50548b22f` | Submitted (In review); **all 10 Proved** (accepted on first submission) | `preVote_then_election` | 10 | 10 |
 | Cluster safety (message soup, crash-recovery, bootstrap configurations) | `OpenSearchSafety` | `15b469cf-7c16-426e-9284-16d46b4bc449` | Submitted (In review); **all 44 Proved** (41 accepted, 3 accepted as reductions that resolved to Proved) | `committed_linear` | 44 | 44 |
-| Liveness under a stable period | `OpenSearchProgress` | `0e004264-d81a-46c7-b709-e0f7b9805548` | Draft, with read-backs; awaiting submission | `election_possible` | 6 | 6 |
-| Randomized election timers (Mathlib) | `OpenSearchElectionTimer` | `d72b2b03-89d5-4e77-adf2-930d42c56b19` | Draft, with read-backs; awaiting submission | `all_contested_prob_le` | 7 | 7 |
+| Liveness under a stable period | `OpenSearchProgress` | `0e004264-d81a-46c7-b709-e0f7b9805548` | Submitted (In review); **all 6 Proved** (accepted on first submission) | `election_possible` | 6 | 6 |
+| Randomized election timers (Mathlib) | `OpenSearchElectionTimer` | `d72b2b03-89d5-4e77-adf2-930d42c56b19` | Submitted (In review); **all 7 Proved** (accepted on first submission) | `all_contested_prob_le` | 7 | 7 |
 
 What the theorems say, in short:
 - **Safety** (every execution of the cluster model): one cluster-manager per term; one cluster state per (term,

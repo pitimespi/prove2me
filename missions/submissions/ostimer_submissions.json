@@ -1,0 +1,9 @@
+{
+ "OpenSearchElectionTimer.randomDelay_range": "ACCEPTED",
+ "OpenSearchElectionTimer.randomDelay_card": "ACCEPTED",
+ "OpenSearchElectionTimer.randomDelay_near_uniform": "ACCEPTED",
+ "OpenSearchElectionTimer.close_pair_prob": "ACCEPTED",
+ "OpenSearchElectionTimer.contested_prob_le": "ACCEPTED",
+ "OpenSearchElectionTimer.all_contested_prob_le": "ACCEPTED",
+ "OpenSearchElectionTimer.default_example": "ACCEPTED"
+}

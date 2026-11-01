@@ -77,7 +77,7 @@ the probability of contested rounds is bounded.
 | Liveness under a stable period: elections are won and publications committed in any delivery order | `Def_OpenSearchProgress`, `NOTES_OpenSearchProgress.md` | `OpenSearchProgress.election_possible` | 6 |
 | Randomized election timers: bounds on the probability that rounds of competing timers are contested (about `C(n,2)(2δ−1)/Mmin` per round, its `K`-th power over `K` adaptively scheduled rounds) (Mathlib) | `mathlib/Definitions/Def_OpenSearchElectionTimer`, `mathlib/NOTES_OpenSearchElectionTimer.md` | `OpenSearchElectionTimer.all_contested_prob_le` | 7 |
 
-All 85 theorems are proved locally (axioms `propext`, `Classical.choice`, `Quot.sound` only; the safety and progress
+All 85 theorems are proved on the platform and locally (axioms `propext`, `Classical.choice`, `Quot.sound` only; the safety and progress
 missions were also checked end to end in a single module without theorem stubs). The transcriptions replay
 OpenSearch's own unit tests: `tests/OpenSearchCoordinationVectors.lean` (41 tests of `CoordinationStateTests` and
 `CoordinationMetadataTests`, 179 checks) and `tests/OpenSearchPreVoteVectors.lean` (all 17 tests of
