@@ -1,0 +1,13 @@
+{
+ "proposal_id": "d72b2b03-89d5-4e77-adf2-930d42c56b19",
+ "items": {
+  "OpenSearchElectionTimer": "78cd5919-4a8f-4d0b-b419-ba727c990a5f",
+  "OpenSearchElectionTimer.randomDelay_range": "67ad63ba-4a08-4e39-b71d-c798ec1b2679",
+  "OpenSearchElectionTimer.randomDelay_card": "932bfe9c-dfc0-4a59-8fab-9760e7ec8588",
+  "OpenSearchElectionTimer.randomDelay_near_uniform": "6443785f-4c4e-48f8-90e2-fa5560ef2e84",
+  "OpenSearchElectionTimer.close_pair_prob": "f5cae64a-6f14-428f-aa3b-1d289cba2254",
+  "OpenSearchElectionTimer.contested_prob_le": "bfc0c415-4c71-4c4a-965d-692a4e1e8ca8",
+  "OpenSearchElectionTimer.all_contested_prob_le": "6397f34b-8fac-4278-8b81-ca6013f1a929",
+  "OpenSearchElectionTimer.default_example": "87a60dba-a0e5-4d88-84d7-91b9a8b97d06"
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "proposal_id": "bf48e57f-7745-46ca-b98c-60765a43ee77",
+ "items": {
+  "OpenSearchCoordination": "090a6b64-ac5d-4e08-9793-7f068f417437",
+  "OpenSearchCoordination.quorum_intersect": "98fd85ac-8c2d-4ae3-94ed-3b7dd691a35a",
+  "OpenSearchCoordination.quorum_mono": "f7351be3-f441-4028-afa7-ea917eb1859b",
+  "OpenSearchCoordination.empty_no_quorum": "0ac565af-5995-459c-a7d9-8f5f00e0e911",
+  "OpenSearchCoordination.no_votes_no_quorum": "0db6a28f-9c4e-474a-ac7b-adfbc5cfef5d",
+  "OpenSearchCoordination.addVote_eligible": "d1981425-ce20-4d2a-a165-6f82bf8114ae",
+  "OpenSearchCoordination.handleStartJoin_spec": "b05181d3-4511-442a-97ac-aa1694d001f2",
+  "OpenSearchCoordination.handlePublishRequest_spec": "0dc7b8c7-b76e-49f7-b38d-358dc12ce6c2",
+  "OpenSearchCoordination.handleCommit_spec": "e793eaca-3b93-4944-84d9-4877de562bff",
+  "OpenSearchCoordination.lastAcceptedTerm_le_currentTerm": "74497c46-e71d-4910-9f0a-b274732fe6f4",
+  "OpenSearchCoordination.handleJoin_spec": "177f6ddb-459a-4dbe-ac8f-6988a426311b",
+  "OpenSearchCoordination.default_monotone": "7f48cb9c-31f1-40c2-b38b-706780e839c5",
+  "OpenSearchCoordination.handleJoin_stays_won": "206b5120-bc8b-42ac-8d97-338e38110d87",
+  "OpenSearchCoordination.handleClientValue_spec": "78e1d788-076e-4a28-9b4d-23a06de25b43",
+  "OpenSearchCoordination.handlePublishResponse_spec": "d688a724-b2d2-4d6d-ad06-54a6fabc8525",
+  "OpenSearchCoordination.init_javaInvariant": "1c644afa-605f-4e28-bf8b-3e4da366790c",
+  "OpenSearchCoordination.handleStartJoin_javaInvariant": "be413a37-9bb2-4eed-9517-54c7ca669964",
+  "OpenSearchCoordination.javaInvariant_preserved": "031ee253-c997-41c0-8ad6-f2562aab8c59",
+  "OpenSearchCoordination.javaInvariant_not_local": "76a8a1a1-2af4-406b-9da6-5da18058cf22"
+ }
+}

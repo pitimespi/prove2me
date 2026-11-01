@@ -1,0 +1,12 @@
+{
+ "proposal_id": "0e004264-d81a-46c7-b709-e0f7b9805548",
+ "items": {
+  "OpenSearchProgress": "a973aa6b-b42f-4d95-aacc-da1bfb21e576",
+  "OpenSearchProgress.election_vote_accepted": "8ce61981-4787-4c51-8b77-cc443ef19115",
+  "OpenSearchProgress.election_won": "f7285581-5c9d-4b2e-80a9-6ab9fc4916cf",
+  "OpenSearchProgress.election_possible": "0f8eae12-d680-4f1a-b63b-cc68e35a4e34",
+  "OpenSearchProgress.publication_acks_accepted": "48f55532-3da8-4e12-b00a-80d7ceba0f7d",
+  "OpenSearchProgress.publication_committed": "9e4810a2-d988-402e-b5f2-735048f4d6b9",
+  "OpenSearchProgress.publication_possible": "4a43001d-3b02-4c48-99aa-3979b5368745"
+ }
+}

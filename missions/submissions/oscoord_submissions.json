@@ -1,0 +1,20 @@
+{
+ "OpenSearchCoordination.quorum_intersect": "ACCEPTED",
+ "OpenSearchCoordination.quorum_mono": "ACCEPTED",
+ "OpenSearchCoordination.empty_no_quorum": "ACCEPTED",
+ "OpenSearchCoordination.no_votes_no_quorum": "ACCEPTED",
+ "OpenSearchCoordination.addVote_eligible": "ACCEPTED",
+ "OpenSearchCoordination.handleStartJoin_spec": "ACCEPTED",
+ "OpenSearchCoordination.handlePublishRequest_spec": "ACCEPTED",
+ "OpenSearchCoordination.handleCommit_spec": "ACCEPTED",
+ "OpenSearchCoordination.lastAcceptedTerm_le_currentTerm": "ACCEPTED",
+ "OpenSearchCoordination.handleJoin_spec": "ACCEPTED",
+ "OpenSearchCoordination.default_monotone": "ACCEPTED",
+ "OpenSearchCoordination.handleJoin_stays_won": "ACCEPTED",
+ "OpenSearchCoordination.handleClientValue_spec": "ACCEPTED",
+ "OpenSearchCoordination.handlePublishResponse_spec": "ACCEPTED",
+ "OpenSearchCoordination.init_javaInvariant": "ACCEPTED",
+ "OpenSearchCoordination.handleStartJoin_javaInvariant": "ACCEPTED",
+ "OpenSearchCoordination.javaInvariant_preserved": "ACCEPTED",
+ "OpenSearchCoordination.javaInvariant_not_local": "ACCEPTED"
+}

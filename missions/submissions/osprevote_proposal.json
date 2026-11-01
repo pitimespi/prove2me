@@ -1,0 +1,16 @@
+{
+ "proposal_id": "5b111ae5-5348-4d48-bd34-5ee50548b22f",
+ "items": {
+  "OpenSearchPreVote": "f7345a1b-1f12-49af-8b8a-bd9570e6eb03",
+  "OpenSearchPreVote.handlePreVoteRequest_spec": "10fab580-db0a-4513-af87-87752cd0a63e",
+  "OpenSearchPreVote.votes_mem": "e4f03f85-e590-4e9c-8c9e-9e5ec80be7a7",
+  "OpenSearchPreVote.round_entries": "1d57d138-4ef1-40b2-83d0-8d0b058cd1cb",
+  "OpenSearchPreVote.round_start_quorum": "4e4c9046-3d7d-4a79-b64a-a03299863979",
+  "OpenSearchPreVote.round_starts_once": "c35389c4-1889-473e-8f21-e4d729fe385f",
+  "OpenSearchPreVote.no_disruption": "d71bf223-a5e5-4b1c-ae69-073e640bafe6",
+  "OpenSearchPreVote.preVote_then_election": "e183b014-9db6-4b18-939f-fea6b6d4c7c4",
+  "OpenSearchPreVote.attemptDelay_bounds": "81f21b44-1a87-4d65-9793-38dafece05e0",
+  "OpenSearchPreVote.maxDelay_schedule": "d280b915-d261-436d-a6c3-7141d5a57e1c",
+  "OpenSearchPreVote.nonNegative_two_to_one": "db64a645-28ff-4113-9a49-37fd2a01fb9e"
+ }
+}

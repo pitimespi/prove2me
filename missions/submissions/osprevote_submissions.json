@@ -1,0 +1,12 @@
+{
+ "OpenSearchPreVote.handlePreVoteRequest_spec": "ACCEPTED",
+ "OpenSearchPreVote.votes_mem": "ACCEPTED",
+ "OpenSearchPreVote.round_entries": "ACCEPTED",
+ "OpenSearchPreVote.round_start_quorum": "ACCEPTED",
+ "OpenSearchPreVote.round_starts_once": "ACCEPTED",
+ "OpenSearchPreVote.no_disruption": "ACCEPTED",
+ "OpenSearchPreVote.preVote_then_election": "ACCEPTED",
+ "OpenSearchPreVote.attemptDelay_bounds": "ACCEPTED",
+ "OpenSearchPreVote.maxDelay_schedule": "ACCEPTED",
+ "OpenSearchPreVote.nonNegative_two_to_one": "ACCEPTED"
+}

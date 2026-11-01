@@ -173,7 +173,7 @@ def cmd_propose(ns, items_mod, descfile, name, goal, outjson):
 
 def cmd_attach(ns, propjson, auditdir):
     tok = token()
-    MODEL = "claude-fable-5-1 (independent sub-agent, blind: Lean code + auditor instructions only)"
+    MODEL = os.environ.get("READBACK_MODEL", "claude-fable-5-1 (independent sub-agent, blind: Lean code + auditor instructions only)")
     P = json.load(open(SCR / propjson)); pid = P["proposal_id"]
     for name, iid in P["items"].items():
         f = SCR / auditdir / (f"readback_Def_{ns}.md" if name == ns else f"readback_{name.replace('.', '_')}.md")

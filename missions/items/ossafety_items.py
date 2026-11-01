@@ -28,7 +28,7 @@ TAGS = ["opensearch", "elasticsearch", "consensus", "cluster-coordination", "zen
 
 DEFINITION = {
     "definition_name": "OpenSearchSafety",
-    "definition_title": "OpenSearch cluster coordination as a message-passing system: every node runs CoordinationState, messages may be lost, duplicated and reordered, nodes restart; the safety vocabulary and the inductive invariant",
+    "definition_title": "OpenSearch coordination as a message-passing system: every node runs CoordinationState, messages may be lost, duplicated or reordered, nodes restart; the safety vocabulary and the inductive invariant",
     "natural_language_statement": r"""A model of an OpenSearch cluster at revision `b2a54ba5c0defba3d1d20423e911d4bf920bab19` in which every node runs the `CoordinationState` of the `OpenSearchCoordination` mission (its `NodeId`, `DiscoveryNode`, `VotingConfiguration`, `ClusterState`, message types, `ElectionStrategy`, `CoordinationState`, handlers and contracts are used as they are), the notions in which the safety theorems are stated, and the inductive invariant `Inv` from which they are proved. `CO` is `Coordinator.java`, `CBS` is `ClusterBootstrapService.java`.
 
 **Messages.** **`Message V`** — `join j`, a `Join`; `publishRequest source state parentTerm parentVersion`, a `PublishRequest` of `state` from `source`, together with ghost data that the real message does not carry: the term and version of the state the publisher had accepted when it published, the publication's *parent*; `publishResponse source dest resp`, a `PublishResponse` from `source` to `dest`; `applyCommit c`, an `ApplyCommitRequest`.
